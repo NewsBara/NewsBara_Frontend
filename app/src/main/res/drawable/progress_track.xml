@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 배경 -->
+    <item android:id="@android:id/background">
+        <shape>
+            <corners android:radius="50dp"/>   <!-- 모서리 둥글게 -->
+            <solid android:color="#FFFFFF"/>    <!-- 배경 색 -->
+        </shape>
+    </item>
+
+    <!-- 진행 bar -->
+    <item android:id="@android:id/progress">
+        <shape>
+            <corners android:radius="50dp"/>
+            <solid android:color="#8E82F1"/>   <!-- 진행 색 -->
+        </shape>
+    </item>
+
+</layer-list>
