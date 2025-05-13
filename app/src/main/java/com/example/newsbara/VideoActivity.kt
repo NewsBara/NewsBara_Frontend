@@ -3,12 +3,14 @@ package com.example.newsbara
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Html
 import android.util.Log
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.newsbara.data.SubtitleLine
+import com.example.newsbara.data.getHighlightedText
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
@@ -25,9 +27,12 @@ class VideoActivity : AppCompatActivity() {
         parseSrtToSubtitles(mockSrtText)
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video)
+
+        val highlightWords = listOf("김민지", "김여민", "전승은")
 
         val videoId = intent.getStringExtra("VIDEO_ID") ?: run {
             Toast.makeText(this, "영상 ID가 없습니다", Toast.LENGTH_SHORT).show()
@@ -50,19 +55,21 @@ class VideoActivity : AppCompatActivity() {
         val overlaySubtitleView = findViewById<TextView>(R.id.overlaySubtitle)
         val fullSubtitleTextView = findViewById<TextView>(R.id.subtitleText)
 
-        fullSubtitleTextView.text = subtitleList.joinToString("\n\n") { it.text }
+        val highlightedFullText = subtitleList.joinToString("<br><br>") {
+            it.getHighlightedText(highlightWords)
+        }
+        fullSubtitleTextView.text = Html.fromHtml(highlightedFullText, Html.FROM_HTML_MODE_COMPACT)
 
 
         youtubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
 
             override fun onReady(youTubePlayer: YouTubePlayer) {
-                // 유튜브 영상이 준비되면 실행됨
+
                 youTubePlayer.cueVideo(videoId.toString(), 0f)
                 // 특정 영상ID를 0초부터 큐잉
 
                 youTubePlayer.addListener(object : AbstractYouTubePlayerListener() {
                     override fun onCurrentSecond(player: YouTubePlayer, second: Float) {
-                        // 재생 중일때 현재 시간을 계속해서 추적
                         currentTimeSec = second
                     }
                 })
@@ -77,7 +84,9 @@ class VideoActivity : AppCompatActivity() {
                         }
 
                         runOnUiThread {
-                            overlaySubtitleView.text = subtitle?.text ?: ""
+                            val highlightWords = listOf("김민지", "김여민", "전승은")
+                            val highlighted = subtitle?.getHighlightedText(highlightWords) ?: ""
+                            overlaySubtitleView.text = Html.fromHtml(highlighted, Html.FROM_HTML_MODE_COMPACT)
                         }
                     }
                 }, 0, 500)
