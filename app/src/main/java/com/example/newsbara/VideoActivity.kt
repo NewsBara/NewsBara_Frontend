@@ -1,15 +1,27 @@
 package com.example.newsbara
 
+import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Html
+import android.text.SpannableString
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.TextPaint
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.util.Log
+import android.view.View
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.example.newsbara.data.SubtitleLine
+import com.example.newsbara.data.getClickableSpannable
 import com.example.newsbara.data.getHighlightedText
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
@@ -22,76 +34,106 @@ class VideoActivity : AppCompatActivity() {
     private lateinit var youtubePlayerView: YouTubePlayerView
     private var subtitleTimer: Timer? = null
     private var currentTimeSec: Float = 0f
+    private var isTranslatedMode = false
+    private lateinit var fullSubtitleTextView: TextView
 
-    private val subtitleList: List<SubtitleLine> by lazy {
-        parseSrtToSubtitles(mockSrtText)
+
+    private val viewModel by lazy {
+        (application as MyApp).sharedViewModel
     }
 
+    private val highlightWords = listOf("acceleration", "global", "urgent")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video)
+        fullSubtitleTextView = findViewById(R.id.subtitleText)
 
-        val highlightWords = listOf("김민지", "김여민", "전승은")
+        val toggleSubButton = findViewById<Button>(R.id.toggleSubtitleModeButton)
+        toggleSubButton.setOnClickListener {
+            isTranslatedMode = !isTranslatedMode
+            toggleSubButton.text = if (isTranslatedMode) "한영 자막 보기 완료" else "script"
 
-        val videoId = intent.getStringExtra("VIDEO_ID") ?: run {
-            Toast.makeText(this, "영상 ID가 없습니다", Toast.LENGTH_SHORT).show()
-            finish()
-            return
+            viewModel.subtitleList.value?.let { updateFullSubtitle(it) }
         }
 
-        val title = intent.getStringExtra("VIDEO_TITLE") ?: "Untitled"
-        Log.d("VideoActivity", "Received title: $title")
+        val titleTextView = findViewById<TextView>(R.id.videoTitle)
+        val overlaySubtitleView = findViewById<TextView>(R.id.overlaySubtitle)
+        val fullSubtitleTextView = findViewById<TextView>(R.id.subtitleText)
+        fullSubtitleTextView.movementMethod = LinkMovementMethod.getInstance()
+
+        val backButton = findViewById<ImageButton>(R.id.backButton)
+        backButton.setOnClickListener { finish() }
+
+        val startShadowingButton = findViewById<Button>(R.id.startShadowingButton)
+        startShadowingButton.setOnClickListener {
+            val intent = Intent(this@VideoActivity, ShadowingActivity::class.java)
+            startActivity(intent)
+        }
 
         youtubePlayerView = findViewById(R.id.youtubePlayerView)
         lifecycle.addObserver(youtubePlayerView)
 
-        val titleTextView = findViewById<TextView>(R.id.videoTitle)
-        titleTextView.text = title
-        val backButton = findViewById<ImageButton>(R.id.backButton)
-        backButton.setOnClickListener {
-            finish()
+        // 🔁 ViewModel에서 데이터 관찰
+        viewModel.videoTitle.observe(this) { titleTextView.text = it }
+
+        viewModel.subtitleList.observe(this) { subtitles ->
+            updateFullSubtitle(subtitles)
         }
-        val overlaySubtitleView = findViewById<TextView>(R.id.overlaySubtitle)
-        val fullSubtitleTextView = findViewById<TextView>(R.id.subtitleText)
 
-        val highlightedFullText = subtitleList.joinToString("<br><br>") {
-            it.getHighlightedText(highlightWords)
+
+        viewModel.videoId.observe(this) { videoId ->
+            youtubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
+                override fun onReady(player: YouTubePlayer) {
+                    player.cueVideo(videoId, 0f)
+
+                    player.addListener(object : AbstractYouTubePlayerListener() {
+                        override fun onCurrentSecond(p: YouTubePlayer, second: Float) {
+                            currentTimeSec = second
+                        }
+                    })
+                    startSubtitleSyncTimer(overlaySubtitleView)
+                }
+            })
         }
-        fullSubtitleTextView.text = Html.fromHtml(highlightedFullText, Html.FROM_HTML_MODE_COMPACT)
+    }
 
+    private fun updateFullSubtitle(subtitles: List<SubtitleLine>) {
+        val spannableBuilder = SpannableStringBuilder()
 
-        youtubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
+        for (line in subtitles) {
+            if (isTranslatedMode) {
+                val spannable = line.getClickableSpannable(highlightWords, this) { word, definition ->
+                    showWordPopup(this, fullSubtitleTextView, word, definition)
+                }
+                spannableBuilder.append(spannable).append("\n")
 
-            override fun onReady(youTubePlayer: YouTubePlayer) {
-
-                youTubePlayer.cueVideo(videoId.toString(), 0f)
-                // 특정 영상ID를 0초부터 큐잉
-
-                youTubePlayer.addListener(object : AbstractYouTubePlayerListener() {
-                    override fun onCurrentSecond(player: YouTubePlayer, second: Float) {
-                        currentTimeSec = second
-                    }
-                })
-
-
-                subtitleTimer = Timer()
-                subtitleTimer?.scheduleAtFixedRate(object : TimerTask() {
-                    override fun run() {
-                        val currentTimeMs = (currentTimeSec * 1000).toLong()
-                        val subtitle = subtitleList.find {
-                            currentTimeMs in (it.startTime * 1000).toLong()..(it.endTime * 1000).toLong()
-                        }
-
-                        runOnUiThread {
-                            val highlightWords = listOf("김민지", "김여민", "전승은")
-                            val highlighted = subtitle?.getHighlightedText(highlightWords) ?: ""
-                            overlaySubtitleView.text = Html.fromHtml(highlighted, Html.FROM_HTML_MODE_COMPACT)
-                        }
-                    }
-                }, 0, 500)
+            } else {
+                val engLine = line.text.lineSequence().firstOrNull()?.trim() ?: ""
+                spannableBuilder.append(engLine).append("\n\n")
             }
-        })
+        }
+
+        fullSubtitleTextView.text = spannableBuilder
+    }
+
+    private fun startSubtitleSyncTimer(overlaySubtitleView: TextView) {
+        subtitleTimer = Timer()
+        subtitleTimer?.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                val currentMs = (currentTimeSec * 1000).toLong()
+                val subtitleList = viewModel.subtitleList.value ?: return
+                val currentSubtitle = subtitleList.find {
+                    currentMs in (it.startTime * 1000).toLong()..(it.endTime * 1000).toLong()
+                }
+
+                val highlighted = currentSubtitle?.getHighlightedText(highlightWords) ?: ""
+
+                runOnUiThread {
+                    overlaySubtitleView.text = Html.fromHtml(highlighted, Html.FROM_HTML_MODE_COMPACT)
+                }
+            }
+        }, 0, 500)
     }
 
     override fun onDestroy() {
@@ -99,43 +141,7 @@ class VideoActivity : AppCompatActivity() {
         subtitleTimer = null
         super.onDestroy()
     }
-
-    private val mockSrtText = """
-        1
-        00:00:01,000 --> 00:00:03,000
-        안녕 나는 김민지
-
-        2
-        00:00:04,000 --> 00:00:06,000
-        안녕 나는 김여민
-
-        3
-        00:00:07,500 --> 00:00:10,000
-        안녕 나는 전승은
-    """.trimIndent()
-
-    private fun parseSrtToSubtitles(srt: String): List<SubtitleLine> {
-        val subtitleList = mutableListOf<SubtitleLine>()
-        val blocks = srt.trim().split("\n\n")
-
-        for (block in blocks) {
-            val lines = block.split("\n")
-            if (lines.size >= 3) {
-                val timeLine = lines[1]
-                val (start, end) = timeLine.split(" --> ").map { parseSrtTime(it) }
-                val text = lines.subList(2, lines.size).joinToString("\n")
-                subtitleList.add(SubtitleLine(start, end, text))
-            }
-        }
-        return subtitleList
-    }
-
-    private fun parseSrtTime(timeStr: String): Double {
-        val parts = timeStr.split(":", ",")
-        val hours = parts[0].toInt()
-        val minutes = parts[1].toInt()
-        val seconds = parts[2].toInt()
-        val millis = parts[3].toInt()
-        return hours * 3600 + minutes * 60 + seconds + millis / 1000.0
-    }
 }
+
+
+

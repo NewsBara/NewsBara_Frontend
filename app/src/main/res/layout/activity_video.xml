@@ -113,6 +113,14 @@
         </LinearLayout>
     </FrameLayout>
 
+    <Button
+        android:id="@+id/toggleSubtitleModeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="script"
+        android:textSize="12dp"
+        android:layout_marginTop="0dp"
+        android:layout_gravity="center_horizontal"/>
 
     <ScrollView
         android:layout_width="match_parent"

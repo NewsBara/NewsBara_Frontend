@@ -8,8 +8,8 @@ interface YouTubeApiService {
     @GET("search")
     suspend fun searchVideosByChannel(
         @Query("part") part: String = "snippet",
-        @Query("channelId") channelId: String,            // ✅ 추가
-        @Query("q") query: String,                        // 카테고리: "Science", "Politics" 등
+        @Query("channelId") channelId: String,
+        @Query("q") query: String,
         @Query("type") type: String = "video",
         @Query("maxResults") maxResults: Int = 10,
         @Query("key") apiKey: String
