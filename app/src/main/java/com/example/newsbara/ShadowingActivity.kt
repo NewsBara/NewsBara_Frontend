@@ -10,54 +10,42 @@ import android.text.style.StyleSpan
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.newsbara.adapter.ShadowingAdapter
 import com.example.newsbara.data.ShadowingSentence
-
-
+import android.util.Log
 class ShadowingActivity : AppCompatActivity() {
 
-    val mockShadowingSentences = listOf(
-        ShadowingSentence("Coffee has been consumed for at least 1,500 years and some say its impact is so great that it helped fuel the Enlightenment.", "fuel"),
-        ShadowingSentence("The main active ingredient of coffee is caffeine, which is considered the most widely consumed psychoactive drug on the planet.", "psychoactive"),
-        ShadowingSentence("Coffee comes from the fruit of the Coffea arabica plant that originated in Ethiopia.", "originated"),
-        ShadowingSentence("In the 15th century, the first coffee houses began to appear across the Ottoman Empire before spreading to Europe.", "appear"),
-        ShadowingSentence("By blocking adenosine receptors, caffeine generates the opposite effect of drowsiness, increasing alertness and concentration.", "drowsiness"),
-        ShadowingSentence("For healthy adults, the recommended maximum limit is...", "recommended")
-    )
-
-
-    private val highlightColor = "#FF6B84"
+    private lateinit var viewModel: SharedViewModel
+    private lateinit var highlightWords: List<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_shadowing)
 
+        val app = application
+        if (app is MyApp) {
+            viewModel = app.sharedViewModel
+            highlightWords = viewModel.highlightWords
+        } else {
+            Log.e("ShadowingActivity", "application is not MyApp: $app")
+            finish()
+            return
+        }
 
-        mockShadowingSentences.forEachIndexed { index, item ->
-            val textView = TextView(this)
-            textView.textSize = 16f
-            textView.setTextColor(Color.BLACK)
-            textView.setLineSpacing(8f, 1f)
+        val recyclerView = findViewById<RecyclerView>(R.id.rvSentence)
+        recyclerView.layoutManager = LinearLayoutManager(this)
 
-            val numbered = "${index + 1}. ${item.sentence}"
-            val spannable = SpannableString(numbered)
+        val subtitleList = viewModel.subtitleList.value ?: emptyList()
 
-            val keywordIndex = numbered.indexOf(item.highlightWord, ignoreCase = true)
-            if (keywordIndex != -1) {
-                spannable.setSpan(
-                    ForegroundColorSpan(Color.parseColor(highlightColor)),
-                    keywordIndex,
-                    keywordIndex + item.highlightWord.length,
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-                spannable.setSpan(
-                    StyleSpan(Typeface.BOLD),
-                    keywordIndex,
-                    keywordIndex + item.highlightWord.length,
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
+        val filtered = subtitleList.map { it.text.lineSequence().firstOrNull()?.trim() ?: "" }
+            .flatMap { sentence ->
+                highlightWords
+                    .filter { word -> sentence.contains(word, ignoreCase = true) }
+                    .map { word -> ShadowingSentence(sentence, word) }
             }
 
-            textView.text = spannable
-        }
+        recyclerView.adapter = ShadowingAdapter(filtered)
     }
 }

@@ -40,7 +40,6 @@ class HomeActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
     }
 
-
         private fun fetchVideoSections() {
             lifecycleScope.launch {
                 try {
@@ -78,7 +77,6 @@ class HomeActivity : AppCompatActivity() {
                 }
             }
         }
-
 
         private fun handleVideoClick(video: VideoItem) {
             // ✅ ViewModel에 데이터 전달

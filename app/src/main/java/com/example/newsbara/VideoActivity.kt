@@ -36,17 +36,27 @@ class VideoActivity : AppCompatActivity() {
     private var currentTimeSec: Float = 0f
     private var isTranslatedMode = false
     private lateinit var fullSubtitleTextView: TextView
+    private lateinit var highlightWords: List<String>
 
-
-    private val viewModel by lazy {
-        (application as MyApp).sharedViewModel
-    }
-
-    private val highlightWords = listOf("acceleration", "global", "urgent")
+    lateinit var viewModel: SharedViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video)
+
+        // 여기서 바로 캐스팅
+        val app = application
+        if (app is MyApp) {
+            viewModel = app.sharedViewModel
+        } else {
+            Log.e("VideoActivity", "❌ application is not MyApp: $app")
+            finish()
+            return
+        }
+    //    viewModel = (application as MyApp).sharedViewModel
+        highlightWords = viewModel.highlightWords
+
+
         fullSubtitleTextView = findViewById(R.id.subtitleText)
 
         val toggleSubButton = findViewById<Button>(R.id.toggleSubtitleModeButton)
@@ -74,13 +84,11 @@ class VideoActivity : AppCompatActivity() {
         youtubePlayerView = findViewById(R.id.youtubePlayerView)
         lifecycle.addObserver(youtubePlayerView)
 
-        // 🔁 ViewModel에서 데이터 관찰
         viewModel.videoTitle.observe(this) { titleTextView.text = it }
 
         viewModel.subtitleList.observe(this) { subtitles ->
             updateFullSubtitle(subtitles)
         }
-
 
         viewModel.videoId.observe(this) { videoId ->
             youtubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
