@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.newsbara.adapter.ShadowingAdapter
 import com.example.newsbara.data.ShadowingSentence
 import android.util.Log
+import android.widget.Button
+
 class ShadowingActivity : AppCompatActivity() {
 
     private lateinit var viewModel: SharedViewModel
@@ -47,5 +49,13 @@ class ShadowingActivity : AppCompatActivity() {
             }
 
         recyclerView.adapter = ShadowingAdapter(filtered)
+
+        val startShadowingButton = findViewById<Button>(R.id.startShadowingButton)
+
+        startShadowingButton.setOnClickListener {
+            val bottomSheet = ShadowingBottomSheetFragment.newInstance(filtered) // filtered는 문장 리스트
+            bottomSheet.show(supportFragmentManager, bottomSheet.tag)
+        }
+
     }
 }
