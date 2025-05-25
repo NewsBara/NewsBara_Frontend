@@ -1,5 +1,6 @@
 package com.example.newsbara
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -60,10 +61,9 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
                 resetUI()
                 showSentence(currentIndex)
             } else {
-                dismiss()
+                startTestActivity()
             }
         }
-
         return view
     }
 
@@ -77,7 +77,7 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         tvUserSentence.text = recognized
         tvScore.visibility = View.VISIBLE
         tvScore.text = "SCORE: 4.5/5"
-        tvState.text = "잘 했어요! 다음 문장으로 넘어가세요."
+        tvState.text = "발음 평가 완료"
 
         btnMic.visibility = View.GONE
         btnContinue.visibility = View.VISIBLE
@@ -89,5 +89,11 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         tvState.text = "버튼을 누른 후 아래 내용을 말하세요."
         btnMic.visibility = View.VISIBLE
         btnContinue.visibility = View.GONE
+    }
+
+    private fun startTestActivity() {
+        val intent = Intent(requireContext(), TestActivity::class.java)
+        startActivity(intent)
+        dismiss()
     }
 }

@@ -1,14 +1,6 @@
 package com.example.newsbara
 
-import android.graphics.Color
-import android.graphics.Typeface
 import android.os.Bundle
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
-import android.text.style.StyleSpan
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -31,7 +23,6 @@ class ShadowingActivity : AppCompatActivity() {
             viewModel = app.sharedViewModel
             highlightWords = viewModel.highlightWords
         } else {
-            Log.e("ShadowingActivity", "application is not MyApp: $app")
             finish()
             return
         }

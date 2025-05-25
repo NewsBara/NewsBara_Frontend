@@ -49,20 +49,17 @@ class VideoActivity : AppCompatActivity() {
         if (app is MyApp) {
             viewModel = app.sharedViewModel
         } else {
-            Log.e("VideoActivity", "❌ application is not MyApp: $app")
             finish()
             return
         }
-    //    viewModel = (application as MyApp).sharedViewModel
         highlightWords = viewModel.highlightWords
-
 
         fullSubtitleTextView = findViewById(R.id.subtitleText)
 
         val toggleSubButton = findViewById<Button>(R.id.toggleSubtitleModeButton)
         toggleSubButton.setOnClickListener {
             isTranslatedMode = !isTranslatedMode
-            toggleSubButton.text = if (isTranslatedMode) "한영 자막 보기 완료" else "script"
+            toggleSubButton.text = if (isTranslatedMode) "eng script" else "eng/kor script"
 
             viewModel.subtitleList.value?.let { updateFullSubtitle(it) }
         }
