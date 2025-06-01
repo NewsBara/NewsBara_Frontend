@@ -32,7 +32,6 @@
         android:progressTint="#8E82F1"
         android:layout_marginBottom="20dp" />
 
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

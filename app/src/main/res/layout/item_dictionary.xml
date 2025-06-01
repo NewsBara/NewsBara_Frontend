@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/layout/item_dictionary.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:layout_margin="12dp"
+    android:layout_marginBottom="0dp"
+    android:layout_marginTop="0dp"
+    android:backgroundTint="@android:color/white"
+    android:elevation="2dp"
+    android:clipToPadding="false"
+    android:clipChildren="false"
+    android:background="@drawable/bg_box">
+
+    <TextView
+        android:id="@+id/tvWord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Word"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#1E1E1E" />
+
+    <TextView
+        android:id="@+id/tvPronunciation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="{wɜːd}"
+        android:textSize="15sp"
+        android:textColor="#5B5B5B"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:id="@+id/tvMeanings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1. meaning 1\n2. meaning 2\n3. meaning 3"
+        android:textSize="16sp"
+        android:textColor="#1E1E1E"
+        android:lineSpacingExtra="4dp" />
+</LinearLayout>
