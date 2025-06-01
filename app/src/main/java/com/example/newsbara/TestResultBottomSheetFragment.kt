@@ -1,15 +1,17 @@
 package com.example.newsbara
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-// 2. TestResultBottomSheetFragment.kt
+
 class TestResultBottomSheetFragment : BottomSheetDialogFragment() {
 
     companion object {
@@ -52,7 +54,10 @@ class TestResultBottomSheetFragment : BottomSheetDialogFragment() {
         tvExplanation.text = explanation
 
         btnContinue.setOnClickListener {
-            dismiss()
+            val intent = Intent(requireContext(), DictionaryActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            startActivity(intent)
         }
 
         return view

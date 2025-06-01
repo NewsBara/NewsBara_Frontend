@@ -2,6 +2,7 @@ package com.example.newsbara
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -16,6 +17,8 @@ class DictionaryActivity : AppCompatActivity() {
     private lateinit var adapter: DictionaryAdapter
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var backButton: ImageButton
+    private lateinit var btnHome: Button
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,6 +27,13 @@ class DictionaryActivity : AppCompatActivity() {
         backButton = findViewById(R.id.backButton)
         backButton.setOnClickListener {
             val intent = Intent(this, TestActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            startActivity(intent)
+            finish()
+        }
+        btnHome = findViewById(R.id.BtnHome)
+        btnHome.setOnClickListener {
+            val intent = Intent(this, HomeActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             startActivity(intent)
             finish()

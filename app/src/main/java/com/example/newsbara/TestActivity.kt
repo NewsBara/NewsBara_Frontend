@@ -7,7 +7,11 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.newsbara.data.SubtitleLine
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class TestActivity : AppCompatActivity() {
 
@@ -33,7 +37,12 @@ class TestActivity : AppCompatActivity() {
         btnInput = findViewById(R.id.btnInput)
         btnCheck = findViewById(R.id.checkAnswersButton)
 
-        tvSummary.text = getGeneratedSummary(viewModel.subtitleList.value ?: emptyList())
+        lifecycleScope.launch {
+            val summary = withContext(Dispatchers.Default) {
+                getGeneratedSummary(viewModel.subtitleList.value ?: emptyList())
+            }
+            tvSummary.text = summary
+        }
 
         btnInput.setOnClickListener {
             showInputDialog()

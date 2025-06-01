@@ -64,7 +64,7 @@
         android:id="@+id/BtnHome"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:text="Start "
+        android:text="Go Back to Home "
         android:textColor="#FFFFFF"
         android:textSize="19sp"
         android:background="@drawable/btn_next_background"

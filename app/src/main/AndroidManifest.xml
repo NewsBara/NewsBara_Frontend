@@ -19,20 +19,20 @@
             />
         <activity android:name=".VideoActivity" />
         <activity android:name=".ShadowingActivity" />
-
+        <activity android:name=".DictionaryActivity" />
+        <activity android:name=".TestActivity" />
         <activity
             android:name=".SplashActivity"
-            android:theme="@style/Theme.Newsbara" />
-        <activity android:name=".TestActivity" />
-
-
-        <activity android:name=".HomeActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Theme.Newsbara">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
+        <activity android:name=".HomeActivity"/>
 
 
     </application>

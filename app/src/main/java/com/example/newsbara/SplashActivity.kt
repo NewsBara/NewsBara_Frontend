@@ -12,7 +12,7 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.splash_screen)
 
         Handler(Looper.getMainLooper()).postDelayed({
-            startActivity(Intent(this, MainActivity::class.java))
+            startActivity(Intent(this, HomeActivity::class.java))
             finish()
         }, 2000) // 2000ms = 2초
     }
