@@ -7,7 +7,9 @@ import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.ClickableSpan
 import android.view.View
+import android.widget.TextView
 import com.example.newsbara.DefinitionProvider.getDefinition
+import com.example.newsbara.showWordPopup
 
 data class SubtitleLine(
     val startTime: Double,
@@ -25,26 +27,36 @@ fun SubtitleLine.getHighlightedText(highlightWords: List<String>): String {
 fun SubtitleLine.getClickableSpannable(
     highlightWords: List<String>,
     context: Context,
-    onWordClick: (String, String) -> Unit
+    anchorTextView: TextView,
+    onDefinitionFetch: (String) -> String
 ): SpannableString {
     val spannable = SpannableString(this.text)
-    for (word in highlightWords) {
-        val engLine = text.lineSequence().firstOrNull()?.trim() ?: ""
-        val start = engLine.indexOf(word, ignoreCase = true)
-        if (start != -1) {
+    val engLine = text.lineSequence().firstOrNull()?.trim() ?: ""
+
+    highlightWords.forEach { word ->
+
+        val startIndex = this.text.indexOf(word, ignoreCase = true)
+        if (startIndex != -1) {
             val clickableSpan = object : ClickableSpan() {
                 override fun onClick(widget: View) {
-                    onWordClick(word, getDefinition(word))
+                    val definition = onDefinitionFetch(word)
+                    showWordPopup(context, anchorTextView, word, definition, startIndex)
                 }
 
                 override fun updateDrawState(ds: TextPaint) {
-                    ds.color = Color.parseColor("#A974FF")
+                    ds.color = Color.parseColor("#FF6B84")
                     ds.isUnderlineText = false
                     ds.isFakeBoldText = true
                 }
             }
-            spannable.setSpan(clickableSpan, start, start + word.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            spannable.setSpan(
+                clickableSpan,
+                startIndex,
+                startIndex + word.length,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
         }
     }
+
     return spannable
 }

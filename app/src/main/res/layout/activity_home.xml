@@ -14,36 +14,50 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingBottom="16dp">
+        android:paddingBottom="0dp">
 
         <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_search" />
+            android:layout_width="47dp"
+            android:layout_height="48dp"
+            android:src="@drawable/newsbara2" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="NEWSBARA"
-            android:textStyle="bold"
-            android:textSize="23sp"
-            android:paddingStart="12dp"
+            android:scaleY="1.15"
+            android:letterSpacing="-0.06"
+            android:fontFamily="@font/rubik_mono"
+            android:textSize="24sp"
+            android:paddingStart="3dp"
             android:textColor="#6B5CD9" />
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:src="@drawable/ic_search"
-            android:layout_marginEnd="12dp" />
+            android:layout_marginEnd="17dp" />
 
         <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:src="@drawable/profile_ic"
             android:background="@drawable/ic_search"
             android:scaleType="centerCrop" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/videosForYou"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Videos for you"
+        android:textSize="21sp"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        android:layout_marginTop="22dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="4dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/sectionRecyclerView"

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import com.example.newsbara.data.ShadowingSentence
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -20,6 +21,7 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var btnPause: ImageButton
     private lateinit var btnContinue: Button
     private lateinit var tvState: TextView
+    private lateinit var ivStateIcon: ImageView
 
     private var sentenceList: List<ShadowingSentence> = emptyList()
     private var currentIndex = 0
@@ -46,6 +48,8 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         btnPause = view.findViewById(R.id.btnPause)
         btnContinue = view.findViewById(R.id.btnContinue)
         tvState = view.findViewById(R.id.tvState)
+        ivStateIcon = view.findViewById(R.id.ivStateIcon)
+
 
         showSentence(currentIndex)
 
@@ -79,6 +83,8 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         tvScore.text = "SCORE: 4.5/5"
         tvState.text = "발음 평가 완료"
 
+        ivStateIcon.setImageResource(R.drawable.complete)
+
         btnMic.visibility = View.GONE
         btnContinue.visibility = View.VISIBLE
     }
@@ -86,6 +92,7 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
     private fun resetUI() {
         tvUserSentence.text = ""
         tvScore.visibility = View.GONE
+        ivStateIcon.setImageResource(R.drawable.slow_motion_video)
         tvState.text = "버튼을 누른 후 아래 내용을 말하세요."
         btnMic.visibility = View.VISIBLE
         btnContinue.visibility = View.GONE

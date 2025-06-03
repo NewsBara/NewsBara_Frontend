@@ -12,7 +12,7 @@ class DictionaryAdapter(private val items: List<DictionaryItem>) : RecyclerView.
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvWord: TextView = itemView.findViewById(R.id.tvWord)
-        val tvPronunciation: TextView = itemView.findViewById(R.id.tvPronunciation)
+     //   val tvPronunciation: TextView = itemView.findViewById(R.id.tvPronunciation)
         val tvMeanings: TextView = itemView.findViewById(R.id.tvMeanings)
     }
 
@@ -24,10 +24,12 @@ class DictionaryAdapter(private val items: List<DictionaryItem>) : RecyclerView.
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
         holder.tvWord.text = item.word
-        holder.tvPronunciation.text = item.pronunciation
-        holder.tvMeanings.text = item.meanings.withIndex().joinToString("\n") {
-            "${it.index + 1}.  ${it.value}"
+      //  holder.tvPronunciation.text = item.pronunciation
+
+        val meaningText = item.meanings.withIndex().joinToString("\n") { (i, meaning) ->
+            "${i + 1}.  ${meaning.partOfSpeech}  ${meaning.definition}"
         }
+        holder.tvMeanings.text = meaningText
     }
 
     override fun getItemCount(): Int = items.size

@@ -14,5 +14,4 @@ interface YouTubeApiService {
         @Query("maxResults") maxResults: Int = 10,
         @Query("key") apiKey: String
     ): YouTubeSearchResponse
-
 }

@@ -20,6 +20,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.example.newsbara.DefinitionProvider.getDefinition
 import com.example.newsbara.data.SubtitleLine
 import com.example.newsbara.data.getClickableSpannable
 import com.example.newsbara.data.getHighlightedText
@@ -44,7 +45,6 @@ class VideoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video)
 
-        // 여기서 바로 캐스팅
         val app = application
         if (app is MyApp) {
             viewModel = app.sharedViewModel
@@ -108,9 +108,12 @@ class VideoActivity : AppCompatActivity() {
 
         for (line in subtitles) {
             if (isTranslatedMode) {
-                val spannable = line.getClickableSpannable(highlightWords, this) { word, definition ->
-                    showWordPopup(this, fullSubtitleTextView, word, definition)
-                }
+                val spannable = line.getClickableSpannable(
+                    highlightWords = highlightWords,
+                    context = this,
+                    anchorTextView = fullSubtitleTextView,
+                    onDefinitionFetch = { word -> getDefinition(word) } // 정의 가져오는 함수
+                )
                 spannableBuilder.append(spannable).append("\n")
 
             } else {

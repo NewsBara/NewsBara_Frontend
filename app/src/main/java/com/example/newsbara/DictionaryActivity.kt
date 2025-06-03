@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.newsbara.adapter.DictionaryAdapter
 import com.example.newsbara.data.DictionaryItem
+import com.example.newsbara.data.DictionaryMeaning
 
 class DictionaryActivity : AppCompatActivity() {
 
@@ -45,16 +46,25 @@ class DictionaryActivity : AppCompatActivity() {
         sharedViewModel = ViewModelProvider(this)[SharedViewModel::class.java]
 
         val mockMeanings = mapOf(
-            "accelerating" to listOf("To cause to move faster", "To speed up a process"),
-            "global" to listOf("Relating to the whole world", "Comprehensive or total"),
-            "urgent" to listOf("Requiring immediate action", "Pressing or critical need")
+            "accelerating" to listOf(
+                DictionaryMeaning("v.", "To cause to move faster"),
+                DictionaryMeaning("v.", "To speed up a process")
+            ),
+            "global" to listOf(
+                DictionaryMeaning("adj.", "Relating to the whole world"),
+                DictionaryMeaning("adj.", "Comprehensive or total")
+            ),
+            "urgent" to listOf(
+                DictionaryMeaning("adj.", "Requiring immediate action"),
+                DictionaryMeaning("adj.", "Pressing or critical need")
+            )
         )
+
 
         val mockData = sharedViewModel.highlightWords.map { word ->
             DictionaryItem(
                 word = word,
-                pronunciation = "{${word.take(3)}}",
-                meanings = mockMeanings[word] ?: listOf("No definition available")
+                meanings = mockMeanings[word] ?: listOf(DictionaryMeaning("", "No definition available"))
             )
         }
 

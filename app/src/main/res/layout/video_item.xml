@@ -1,26 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_marginEnd="12dp">
 
-    <!-- 영상 썸네일 -->
-    <ImageView
+
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/thumbnailImage"
-        android:layout_width="match_parent"
-        android:layout_height="210dp"
+        android:layout_width="330dp"
+        android:layout_height="200dp"
         android:scaleType="centerCrop"
         android:background="#CCCCCC"
-        android:contentDescription="Video thumbnail" />
+        android:layout_marginEnd="4dp"
+        android:contentDescription="Video thumbnail"
+        app:shapeAppearanceOverlay="@style/RoundedImage"/>
 
     <!-- 영상 제목 -->
     <TextView
         android:id="@+id/videoTitle"
-        android:layout_width="wrap_content"
+        android:layout_width="325dp"
         android:layout_height="wrap_content"
         android:text="Video Title Placeholder"
-        android:textSize="20sp"
+        android:textSize="19sp"
         android:textStyle="bold"
         android:layout_marginStart="5dp"
         android:textColor="#000000"

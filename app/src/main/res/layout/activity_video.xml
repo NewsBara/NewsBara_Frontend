@@ -47,7 +47,7 @@
         android:max="100"
         android:layout_marginTop="7dp"
         android:layout_marginStart="14dp"
-        android:layout_marginEnd="14dp"
+        android:layout_marginEnd="290dp"
         android:progressTint="#8E82F1"
         android:layout_marginBottom="12dp" />
 
@@ -81,7 +81,7 @@
             android:textColor="#FFFFFF"
             android:textSize="14sp"
             android:padding="7dp"
-            android:text="싱크 자막 예시" />
+            android:text="" />
 
         <LinearLayout
             android:id="@+id/endOverlay"
@@ -136,8 +136,9 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:textColor="#333333"
-            android:text="(스크롤 가능한 영어 자막 내용)"
-            android:lineSpacingExtra="4dp" />
+            android:text=""
+            android:lineSpacingExtra="3dp"
+            android:linksClickable="true" />
     </ScrollView>
 
     <Button

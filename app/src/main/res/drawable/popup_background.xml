@@ -4,7 +4,7 @@
 
     <solid android:color="#FFE4E8" /> <!-- 연한 분홍 배경 -->
 
-    <corners android:radius="12dp" /> <!-- 둥근 모서리 -->
+    <corners android:radius="5dp" /> <!-- 둥근 모서리 -->
 
     <padding
         android:left="12dp"

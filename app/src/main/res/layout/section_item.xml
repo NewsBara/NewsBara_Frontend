@@ -2,28 +2,49 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:paddingBottom="24dp">
 
-    <TextView
-        android:id="@+id/sectionTitle"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Science"
-        android:textSize="21sp"
-        android:textStyle="bold"
-        android:textColor="#000000"
         android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
         android:layout_marginStart="4dp"
-        android:layout_marginTop="8dp" />
+        android:layout_marginEnd="4dp">
 
+        <TextView
+            android:id="@+id/sectionTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Science"
+            android:textSize="19sp"
+            android:textColor="#000000"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:id="@+id/seeAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="See all   →"
+            android:textSize="16sp"
+            android:textColor="#000000"
+
+            android:layout_marginEnd="1dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 가로 스크롤 RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/videoRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:overScrollMode="never"
-        android:layout_marginBottom="4dp"
         android:clipToPadding="false"
-        android:nestedScrollingEnabled="false"/>
+        android:nestedScrollingEnabled="false" />
 </LinearLayout>
