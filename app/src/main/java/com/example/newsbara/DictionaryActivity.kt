@@ -47,19 +47,18 @@ class DictionaryActivity : AppCompatActivity() {
 
         val mockMeanings = mapOf(
             "accelerating" to listOf(
-                DictionaryMeaning("v.", "To cause to move faster"),
-                DictionaryMeaning("v.", "To speed up a process")
+                DictionaryMeaning("v.", "더 빠르게 움직이게 하다"),
+                DictionaryMeaning("v.", "과정을 가속하다")
             ),
             "global" to listOf(
-                DictionaryMeaning("adj.", "Relating to the whole world"),
-                DictionaryMeaning("adj.", "Comprehensive or total")
+                DictionaryMeaning("adj.", "전 세계적인"),
+                DictionaryMeaning("adj.", "포괄적이거나 전체적인")
             ),
             "urgent" to listOf(
-                DictionaryMeaning("adj.", "Requiring immediate action"),
-                DictionaryMeaning("adj.", "Pressing or critical need")
+                DictionaryMeaning("adj.", "즉각적인 조치를 요구하는"),
+                DictionaryMeaning("adj.", "긴급하거나 중대한 필요가 있는")
             )
         )
-
 
         val mockData = sharedViewModel.highlightWords.map { word ->
             DictionaryItem(
