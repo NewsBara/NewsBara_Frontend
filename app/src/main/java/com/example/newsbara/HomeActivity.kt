@@ -79,14 +79,15 @@ class HomeActivity : AppCompatActivity() {
         }
 
         private fun handleVideoClick(video: VideoItem) {
-            // ViewModel에 데이터 전달
+            viewModel.addToHistory(video)
+
             viewModel.setVideoData(
                 id = video.videoId,
                 title = video.title,
-                subs = parseSrtToSubtitles(mockSrtText)  // 임시 자막 (나중에 API 자막으로 대체 예정)
+                subs = parseSrtToSubtitles(mockSrtText)
             )
 
-            // 화면 전환 (데이터는 ViewModel로 전달했으므로 Intent는 비워둠)
+
             startActivity(Intent(this, VideoActivity::class.java))
         }
 
