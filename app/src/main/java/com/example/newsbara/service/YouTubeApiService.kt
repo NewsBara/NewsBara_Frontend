@@ -1,4 +1,4 @@
-package com.example.newsbara.retrofit
+package com.example.newsbara.service
 
 import com.example.newsbara.data.YouTubeSearchResponse
 import retrofit2.http.GET

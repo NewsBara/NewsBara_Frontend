@@ -35,7 +35,6 @@ class StatsAdapter(
     override fun onBindViewHolder(holder: StatsViewHolder, position: Int) {
         val video = videoList[position]
 
-        // 썸네일 Glide로 불러오기
         val thumbnailUrl = "https://img.youtube.com/vi/${video.videoId}/mqdefault.jpg"
         Glide.with(holder.itemView)
             .load(thumbnailUrl)

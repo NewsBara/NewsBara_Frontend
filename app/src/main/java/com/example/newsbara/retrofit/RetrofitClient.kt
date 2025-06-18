@@ -1,5 +1,6 @@
 package com.example.newsbara.retrofit
 
+import com.example.newsbara.service.YouTubeApiService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
