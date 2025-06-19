@@ -14,17 +14,23 @@ import com.example.newsbara.data.HistoryItem
 import com.example.newsbara.data.Step
 import com.example.newsbara.data.VideoItem
 import com.example.newsbara.data.VideoProgress
-
 class StatsFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: StatsAdapter
+    private lateinit var viewModel: SharedViewModel
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_stats, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        viewModel = (requireActivity().application as MyApp).sharedViewModel
+
         recyclerView = view.findViewById(R.id.recyclerHistory)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
@@ -48,7 +54,7 @@ class StatsFragment : Fragment() {
                 channel = "bbc",
                 length = "00:03:33",
                 category = "Music",
-                status = "WATCHED",
+                status = "SHADOWING",
                 createdAt = "2025-06-01T19:21:58.410221"
             )
         )
@@ -56,38 +62,37 @@ class StatsFragment : Fragment() {
         adapter = StatsAdapter(dummyHistoryList) { clickedItem ->
             handleContinueClick(clickedItem)
         }
+
         recyclerView.adapter = adapter
     }
-    private fun handleContinueClick(historyItem: HistoryItem) {
-        val viewModel = (requireActivity().application as MyApp).sharedViewModel
 
-        // 임시 VideoProgress로 변환 (나중에 백엔드에서 단계 정보 제공 시 수정)
-        val dummyProgress = VideoProgress(
-            videoId = historyItem.videoId,
-            title = historyItem.title,
-            thumbnailUrl = historyItem.thumbnail,
-            completedStep = Step.VIDEO  // 또는 Step.TEST 등으로 변경 가능
+    private fun handleContinueClick(item: HistoryItem) {
+        // ViewModel에 현재 영상 정보 전달
+        viewModel.setVideoData(
+            id = item.videoId,
+            title = item.title,
+            subs = listOf() // 실제 자막이 있다면 전달
         )
+        viewModel.setVideoProgress(item)
 
-        viewModel.setVideoData(dummyProgress.videoId, dummyProgress.title, listOf())
-        viewModel.setVideoProgress(dummyProgress)
-
-        val nextStep = when (dummyProgress.completedStep) {
-            Step.VIDEO -> Step.SHADOWING
-            Step.SHADOWING -> Step.TEST
-            Step.TEST -> Step.DICTIONARY
-            Step.DICTIONARY -> null
+        // 다음 단계 결정
+        val nextStatus = when (item.status.uppercase()) {
+            "WATCHED" -> "SHADOWING"
+            "SHADOWING" -> "TEST"
+            "TEST" -> "DICTIONARY"
+            "DICTIONARY" -> null
+            else -> null
         }
 
-        when (nextStep) {
-            Step.SHADOWING -> startActivity(Intent(requireContext(), ShadowingActivity::class.java))
-            Step.TEST -> startActivity(Intent(requireContext(), TestActivity::class.java))
-            Step.DICTIONARY -> startActivity(Intent(requireContext(), DictionaryActivity::class.java))
-            Step.VIDEO -> startActivity(Intent(requireContext(), VideoActivity::class.java))
+        when (nextStatus) {
+            "WATCHED" -> startActivity(Intent(requireContext(), VideoActivity::class.java))
+            "SHADOWING" -> startActivity(Intent(requireContext(), ShadowingActivity::class.java))
+            "TEST" -> startActivity(Intent(requireContext(), TestActivity::class.java))
+            "DICTIONARY" -> startActivity(Intent(requireContext(), DictionaryActivity::class.java))
             null -> Toast.makeText(requireContext(), "모든 단계를 완료했어요!", Toast.LENGTH_SHORT).show()
-
         }
     }
 }
+
 
 

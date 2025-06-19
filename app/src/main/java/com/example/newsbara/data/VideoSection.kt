@@ -2,5 +2,5 @@ package com.example.newsbara.data
 
 data class VideoSection(
     val categoryTitle: String,
-    val videos: List<VideoItem>
+    val videos: List<HistoryItem>
 )

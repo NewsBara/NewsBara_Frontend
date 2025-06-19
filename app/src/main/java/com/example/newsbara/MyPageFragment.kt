@@ -14,6 +14,7 @@ class MyPageFragment : Fragment() {
 
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager: ViewPager2
+    private lateinit var adapter: MyPageViewPagerAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_mypage, container, false)
@@ -23,7 +24,7 @@ class MyPageFragment : Fragment() {
         tabLayout = view.findViewById(R.id.tabLayout)
         viewPager = view.findViewById(R.id.viewPager)
 
-        val adapter = MyPageViewPagerAdapter(this)
+        adapter = MyPageViewPagerAdapter(this)
         viewPager.adapter = adapter
 
         val tabTitles = listOf("Stats", "Badge", "Friends")

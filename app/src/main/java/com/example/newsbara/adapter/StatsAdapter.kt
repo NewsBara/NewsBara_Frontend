@@ -11,11 +11,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.newsbara.R
 import com.example.newsbara.data.HistoryItem
-import com.example.newsbara.data.VideoItem
-import com.example.newsbara.data.VideoProgress
+
 
 class StatsAdapter(
-    private val videoList: List<HistoryItem>,
+    private var items: List<HistoryItem> = emptyList(),
     private val onContinueClicked: (HistoryItem) -> Unit
 ) : RecyclerView.Adapter<StatsAdapter.StatsViewHolder>() {
 
@@ -33,24 +32,39 @@ class StatsAdapter(
     }
 
     override fun onBindViewHolder(holder: StatsViewHolder, position: Int) {
-        val video = videoList[position]
+        val historyItem = items[position]
 
-        val thumbnailUrl = "https://img.youtube.com/vi/${video.videoId}/mqdefault.jpg"
+        // YouTube 썸네일 URL 생성
+        val thumbnailUrl = "https://img.youtube.com/vi/${historyItem.videoId}/mqdefault.jpg"
         Glide.with(holder.itemView)
             .load(thumbnailUrl)
             .placeholder(R.drawable.placeholder)
             .error(R.drawable.ic_error)
             .into(holder.thumbnail)
 
-        holder.title.text = video.title
+        // 제목 표시
+        holder.title.text = historyItem.title
 
-        holder.progress.text = "3/4"
+        // 진행 상태 텍스트 (현재는 임시값)
+        holder.progress.text = when (historyItem.status) {
+            "watched" -> "1/4"
+            "Shadowing" -> "2/4"  // 예시
+            "Summary" -> "3/4"
+            "Complete" -> "4/4"
+            else -> "0/4"
+        }
 
+        // 버튼 클릭 시 처리
         holder.btnContinue.setOnClickListener {
-            onContinueClicked(video)
+            onContinueClicked(historyItem)
         }
     }
 
-    override fun getItemCount(): Int = videoList.size
+    override fun getItemCount(): Int = items.size
+
+    fun setItems(newItems: List<HistoryItem>) {
+        items = newItems
+        notifyDataSetChanged()
+    }
 }
 

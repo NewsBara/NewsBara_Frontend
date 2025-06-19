@@ -8,21 +8,21 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.newsbara.R
-import com.example.newsbara.data.VideoItem
+import com.example.newsbara.data.HistoryItem
 
-class VideoItemAdapter(
-    private val items: List<VideoItem>,
-    private val onClick: (VideoItem) -> Unit
-) : RecyclerView.Adapter<VideoItemAdapter.VideoViewHolder>() {
+class HistoryItemAdapter(
+    private val items: List<HistoryItem>,
+    private val onClick: (HistoryItem) -> Unit
+) : RecyclerView.Adapter<HistoryItemAdapter.VideoViewHolder>() {
 
     inner class VideoViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val thumbnail: ImageView = view.findViewById(R.id.thumbnailImage)
         val title: TextView = view.findViewById(R.id.videoTitle)
 
-        fun bind(video: VideoItem) {
+        fun bind(video: HistoryItem) {
             title.text = video.title
             Glide.with(itemView)
-                .load(video.thumbnailUrl)
+                .load(video.thumbnail)
                 .into(thumbnail)
 
             itemView.setOnClickListener {

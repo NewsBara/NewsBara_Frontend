@@ -7,12 +7,13 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.newsbara.R
+import com.example.newsbara.data.HistoryItem
 import com.example.newsbara.data.VideoItem
 import com.example.newsbara.data.VideoSection
 
 class VideoSectionAdapter(
     private val sections: List<VideoSection>,
-    private val onVideoClick: (VideoItem) -> Unit
+    private val onVideoClick: (HistoryItem) -> Unit
 ) : RecyclerView.Adapter<VideoSectionAdapter.SectionViewHolder>() {
 
     inner class SectionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -25,7 +26,7 @@ class VideoSectionAdapter(
 
         fun bind(section: VideoSection) {
             title.text = section.categoryTitle
-            recycler.adapter = VideoItemAdapter(section.videos, onVideoClick)
+            recycler.adapter = HistoryItemAdapter(section.videos, onVideoClick)
         }
     }
 

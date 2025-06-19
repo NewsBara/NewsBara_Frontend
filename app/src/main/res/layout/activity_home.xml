@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootFrame"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".HomeActivity">
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/homeRoot"
@@ -40,6 +47,7 @@
             android:layout_marginEnd="17dp" />
 
         <ImageView
+            android:id="@+id/profileButton"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:src="@drawable/profile_ic"
@@ -67,4 +75,9 @@
         android:clipToPadding="false"
         android:paddingBottom="16dp"/>
 </LinearLayout>
-
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+</FrameLayout>

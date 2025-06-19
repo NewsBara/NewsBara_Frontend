@@ -32,11 +32,11 @@ class FriendsFragment : Fragment() {
 
         // ✅ 지금은 더미데이터로 테스트
         val dummyList = listOf(
-            Friend("Davis Curtis", "https://example.com/davis.jpg", 2569, R.drawable.badge_gold),
-            Friend("Alena Donin", "https://example.com/alena.jpg", 1469, R.drawable.badge_silver),
-            Friend("Craig Gouse", "https://example.com/craig.jpg", 1053, R.drawable.badge_bronze),
-            Friend("Madelyn Dias", "https://example.com/madelyn.jpg", 590, R.drawable.badge_level2),
-            Friend("Zain Vaccaro", "https://example.com/zain.jpg", 448, R.drawable.badge_level1)
+            Friend("1", "Davis Curtis", "https://example.com/davis.jpg", 2569, R.drawable.ic_lv1),
+            Friend("2", "Alena Donin", "https://example.com/alena.jpg", 1469, R.drawable.ic_lv1),
+            Friend("3", "Craig Gouse", "https://example.com/craig.jpg", 1053, R.drawable.ic_lv1),
+            Friend("4", "Madelyn Dias", "https://example.com/madelyn.jpg", 590, R.drawable.ic_lv1),
+            Friend("5", "Zain Vaccaro", "https://example.com/zain.jpg", 448, R.drawable.ic_lv1)
         )
 
         adapter.submitList(dummyList)

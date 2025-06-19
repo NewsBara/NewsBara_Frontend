@@ -3,6 +3,8 @@ package com.example.newsbara
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.newsbara.data.Friend
+import com.example.newsbara.data.HistoryItem
 import com.example.newsbara.data.ShadowingSentence
 import com.example.newsbara.data.SubtitleLine
 import com.example.newsbara.data.VideoItem
@@ -17,23 +19,26 @@ class SharedViewModel : ViewModel() {
     private val _videoTitle = MutableLiveData<String>()
     val videoTitle: LiveData<String> get() = _videoTitle
 
+    private val _thumbnailUrl = MutableLiveData<String>()
+    val thumbnailUrl: LiveData<String> get() = _thumbnailUrl
+
+
     private val _subtitleList = MutableLiveData<List<SubtitleLine>>()
     val subtitleList: MutableLiveData<List<SubtitleLine>> get() = _subtitleList
 
-    private val _historyList = MutableLiveData<List<VideoItem>>(mutableListOf())
-    val historyList: LiveData<List<VideoItem>> get() = _historyList
+    private val _historyList = MutableLiveData<List<HistoryItem>>(mutableListOf())
+    val historyList: LiveData<List<HistoryItem>> get() = _historyList
 
-    private val _videoProgress = MutableLiveData<VideoProgress>()
-    val videoProgress: LiveData<VideoProgress> get() = _videoProgress
 
     private val _friendList = MutableLiveData<List<Friend>>()
     val friendList: LiveData<List<Friend>> get() = _friendList
 
 
-    fun setVideoProgress(progress: VideoProgress) {
-        _videoProgress.value = progress
+    fun setVideoProgress(item: HistoryItem) {
+        _videoId.value = item.videoId
+        _videoTitle.value = item.title
+        _thumbnailUrl.value = item.thumbnail
     }
-
 
     fun setVideoData(id: String, title: String, subs: List<SubtitleLine>) {
         _videoId.value = id
@@ -41,7 +46,7 @@ class SharedViewModel : ViewModel() {
         _subtitleList.value = subs
     }
 
-    fun addToHistory(video: VideoItem) {
+    fun addToHistory(video: HistoryItem) {
         val currentList = _historyList.value?.toMutableList() ?: mutableListOf()
 
         // 중복 제거 및 최신순 정렬
