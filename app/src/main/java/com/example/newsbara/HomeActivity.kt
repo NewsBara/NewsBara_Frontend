@@ -12,11 +12,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.newsbara.adapter.VideoSectionAdapter
 import com.example.newsbara.data.HistoryItem
 import com.example.newsbara.data.SubtitleLine
-import com.example.newsbara.data.VideoItem
 import com.example.newsbara.data.VideoSection
 import com.example.newsbara.retrofit.RetrofitClient
 import kotlinx.coroutines.launch
-import androidx.fragment.app.Fragment
 
 
 

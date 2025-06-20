@@ -11,9 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.newsbara.adapter.StatsAdapter
 import com.example.newsbara.data.HistoryItem
-import com.example.newsbara.data.Step
-import com.example.newsbara.data.VideoItem
-import com.example.newsbara.data.VideoProgress
+
 class StatsFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView

@@ -15,7 +15,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-
     <FrameLayout
         android:id="@+id/profileContainer"
         android:layout_width="96dp"
@@ -26,7 +25,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="-48dp">
 
-
         <ImageView
             android:id="@+id/ivProfile"
             android:layout_width="96dp"
@@ -35,13 +33,11 @@
             android:scaleType="centerCrop"
             android:background="@drawable/ic_circle"/>
 
-
         <FrameLayout
             android:layout_width="29dp"
             android:layout_height="29dp"
             android:layout_gravity="bottom|end"
             android:layout_margin="0dp">
-
 
             <ImageView
                 android:id="@+id/btnEditProfile"
@@ -50,7 +46,6 @@
                 android:src="@drawable/ic_circle"
                 android:scaleType="centerCrop" />
 
-
             <ImageView
                 android:layout_width="15dp"
                 android:layout_height="15dp"
@@ -58,7 +53,6 @@
                 android:layout_gravity="center" />
         </FrameLayout>
     </FrameLayout>
-
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardContainer"
@@ -100,6 +94,7 @@
                     android:textColor="#000000"/>
 
                 <ImageView
+                    android:id="@+id/profileImg"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:layout_marginStart="6dp"
@@ -137,6 +132,7 @@
                         android:textSize="12sp"
                         android:textColor="#AAAAAA"/>
                     <TextView
+                        android:id="@+id/points"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
                         android:text="590"
@@ -151,7 +147,6 @@
                     android:layout_marginHorizontal="16dp"
                     android:background="#D0CFFF" />
 
-                <!-- Badge -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_weight="1"
@@ -170,6 +165,7 @@
                         android:textSize="12sp"
                         android:textColor="#AAAAAA"/>
                     <TextView
+                        android:id="@+id/badge"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
                         android:text="Lv.2"
@@ -184,7 +180,7 @@
                 android:id="@+id/tabLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 app:tabIndicatorColor="#7A5DF8"
                 app:tabSelectedTextColor="#7A5DF8"
                 app:tabTextColor="#999999"/>

@@ -1,10 +1,7 @@
 package com.example.newsbara
 
-import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
-import android.text.Spannable
-import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.AbsoluteSizeSpan
@@ -13,16 +10,17 @@ import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.newsbara.data.BadgeInfo
 import com.example.newsbara.databinding.FragmentBadgeBinding
 
+
 class BadgeFragment : Fragment() {
 
     private var _binding: FragmentBadgeBinding? = null
     private val binding get() = _binding!!
+    private lateinit var viewModel: SharedViewModel
 
     private val dummyBadge = BadgeInfo(
         currentBadgeName = "level 3",
@@ -45,17 +43,24 @@ class BadgeFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // 프로그레스 설정
-        binding.customCircularProgressView.setCurrentProgress(
-            current = dummyBadge.currentPoints,
-            max = dummyBadge.nextBadgeMinPoint
-        )
+        viewModel = (requireActivity().application as MyApp).sharedViewModel
 
-        // 텍스트 스타일 적용
-        binding.tvProgressText.text = buildStyledProgress(
-            dummyBadge.currentPoints,
-            dummyBadge.nextBadgeMinPoint
-        )
+        // 👉 더미 데이터 수동으로 ViewModel에 주입
+        viewModel.setBadgeInfo(dummyBadge)
+
+        viewModel.badgeInfo.observe(viewLifecycleOwner) { badge ->
+            // 프로그레스 뷰 반영
+            binding.customCircularProgressView.setCurrentProgress(
+                current = badge.currentPoints,
+                max = badge.nextBadgeMinPoint
+            )
+
+            // 텍스트 스타일 반영
+            binding.tvProgressText.text = buildStyledProgress(
+                badge.currentPoints,
+                badge.nextBadgeMinPoint
+            )
+        }
     }
 
     private fun buildStyledProgress(current: Int, max: Int): SpannableStringBuilder {

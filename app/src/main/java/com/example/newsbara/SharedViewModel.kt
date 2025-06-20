@@ -3,12 +3,12 @@ package com.example.newsbara
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.newsbara.data.BadgeInfo
 import com.example.newsbara.data.Friend
 import com.example.newsbara.data.HistoryItem
-import com.example.newsbara.data.ShadowingSentence
+import com.example.newsbara.data.MyPageInfo
 import com.example.newsbara.data.SubtitleLine
-import com.example.newsbara.data.VideoItem
-import com.example.newsbara.data.VideoProgress
+
 
 class SharedViewModel : ViewModel() {
     val highlightWords = listOf("accelerating", "global", "urgent")
@@ -22,17 +22,20 @@ class SharedViewModel : ViewModel() {
     private val _thumbnailUrl = MutableLiveData<String>()
     val thumbnailUrl: LiveData<String> get() = _thumbnailUrl
 
-
     private val _subtitleList = MutableLiveData<List<SubtitleLine>>()
     val subtitleList: MutableLiveData<List<SubtitleLine>> get() = _subtitleList
 
     private val _historyList = MutableLiveData<List<HistoryItem>>(mutableListOf())
     val historyList: LiveData<List<HistoryItem>> get() = _historyList
 
+    private val _myPageInfo = MutableLiveData<MyPageInfo>()
+    val myPageInfo: LiveData<MyPageInfo> = _myPageInfo
+
+    private val _badgeInfo = MutableLiveData<BadgeInfo>()
+    val badgeInfo: LiveData<BadgeInfo> get() = _badgeInfo
 
     private val _friendList = MutableLiveData<List<Friend>>()
     val friendList: LiveData<List<Friend>> get() = _friendList
-
 
     fun setVideoProgress(item: HistoryItem) {
         _videoId.value = item.videoId
@@ -44,6 +47,14 @@ class SharedViewModel : ViewModel() {
         _videoId.value = id
         _videoTitle.value = title
         _subtitleList.value = subs
+    }
+
+    fun setMyPageInfo(info: MyPageInfo) {
+        _myPageInfo.value = info
+    }
+
+    fun setBadgeInfo(info: BadgeInfo) {
+        _badgeInfo.value = info
     }
 
     fun addToHistory(video: HistoryItem) {

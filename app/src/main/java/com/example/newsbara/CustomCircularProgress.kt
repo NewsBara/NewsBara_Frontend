@@ -14,8 +14,8 @@ class CustomCircularProgressView @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : View(context, attrs) {
 
-    var progress: Int = 0     // 현재 포인트
-    var maxProgress: Int = 0 // 최대 포인트
+    var progress: Int = 600     // 현재 포인트
+    var maxProgress: Int = 1000 // 최대 포인트
 
     private val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.parseColor("#E5DFFF")
@@ -29,12 +29,6 @@ class CustomCircularProgressView @JvmOverloads constructor(
         strokeWidth = 30f
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
-    }
-
-    private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.BLACK
-        textSize = 48f
-        textAlign = Paint.Align.CENTER
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -56,12 +50,8 @@ class CustomCircularProgressView @JvmOverloads constructor(
         canvas.drawArc(rect, 0f, 360f, false, bgPaint)
 
         // 진행 원
-        val sweepAngle = (progress / maxProgress) * 360f
+        val sweepAngle = (progress.toFloat() / maxProgress.toFloat()) * 360f
         canvas.drawArc(rect, -90f, sweepAngle, false, progressPaint)
-
-        // 텍스트
-        val text = "${progress.toInt()} / ${maxProgress.toInt()}"
-        canvas.drawText(text, centerX, centerY + 20f, textPaint)
     }
 
     fun setCurrentProgress(current: Int, max: Int) {
