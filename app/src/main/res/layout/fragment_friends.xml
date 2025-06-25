@@ -3,33 +3,69 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingTop="10dp">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <androidx.cardview.widget.CardView
+    <!-- 토글 버튼 영역 -->
+    <RadioGroup
+        android:id="@+id/friendsToggleGroup"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="32dp"
-        app:cardElevation="0dp"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginVertical="5dp"
-        android:background="#E8E5FA">
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:background="@drawable/bg_toggle_group"
+        android:padding="4dp"
+        android:layout_margin="16dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:background="#E8E5FA">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerFriends"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
+        <RadioButton
+            android:id="@+id/btnRanking"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:clipToPadding="false"
-            android:paddingBottom="12dp"/>
-    </LinearLayout>
-</androidx.cardview.widget.CardView>
+            android:background="@drawable/bg_toggle_selector"
+            android:text="ranking"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:padding="0dp"
+            android:checked="false"
+            android:textColor="@color/toggle_text_selector"
+            android:button="@null" />
+
+        <RadioButton
+            android:id="@+id/btnAdd"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/bg_toggle_selector"
+            android:text="add"
+            android:textSize="14sp"
+            android:textColor="@color/toggle_text_selector"
+            android:button="@null"
+            android:gravity="center"
+            android:padding="0dp"
+            android:checked="true" />
+
+        <RadioButton
+            android:id="@+id/btnRequest"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/bg_toggle_selector"
+            android:text="request"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:padding="0dp"
+            android:checked="false"
+            android:textColor="@color/toggle_text_selector"
+            android:button="@null" />
+
+    </RadioGroup>
+
+    <!-- 콘텐츠 영역 -->
+    <FrameLayout
+        android:id="@+id/friendsContentFrame"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
 </LinearLayout>
+

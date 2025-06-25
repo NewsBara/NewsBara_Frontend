@@ -5,6 +5,11 @@
     <color name="purple_splash">#8E82F1</color>
     <!-- res/values/colors.xml -->
     <color name="gray_text">#999999</color>
+    <!-- Toggle 버튼용 색상 정의 -->
+    <color name="toggle_inactive_bg">#D7D9FF</color>       <!-- 비활성 배경 -->
+    <color name="toggle_active_bg">#6B5CD9</color>         <!-- 활성 배경 -->
+    <color name="toggle_inactive_text">#5D5D5D</color>     <!-- 비활성 텍스트 -->
+    <color name="toggle_active_text">#FFFFFF</color>
 
 
 </resources>

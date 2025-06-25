@@ -5,4 +5,15 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">6dp</item>
     </style>
+    <!-- res/values/styles.xml -->
+    <style name="FriendsToggleButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:textColor">@color/toggle_text_selector</item>
+        <item name="android:background">@drawable/bg_toggle_selector</item> <!-- ✅ 이게 맞아 -->
+        <item name="android:textSize">14sp</item>
+    </style>
+
+
 </resources>

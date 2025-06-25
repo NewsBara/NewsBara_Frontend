@@ -11,9 +11,9 @@ import com.bumptech.glide.Glide
 import com.example.newsbara.R
 import com.example.newsbara.data.Friend
 
-class FriendAdapter(
+class AddFriendAdapter(
     private val onAddClick: (Friend) -> Unit
-) : RecyclerView.Adapter<FriendAdapter.FriendViewHolder>() {
+) : RecyclerView.Adapter<AddFriendAdapter.FriendViewHolder>() {
 
     private var friendList: List<Friend> = emptyList()
 
@@ -23,10 +23,11 @@ class FriendAdapter(
     }
 
     inner class FriendViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val imageProfile: ImageView = itemView.findViewById(R.id.imageProfile)
         private val textName: TextView = itemView.findViewById(R.id.textName)
         private val textPoints: TextView = itemView.findViewById(R.id.textPoints)
-        private val imageProfile: ImageView = itemView.findViewById(R.id.imageProfile)
-        private val buttonAdd: Button = itemView.findViewById(R.id.btnAdd)
+        private val imageBadge: ImageView = itemView.findViewById(R.id.imageBadge)
+        private val btnAdd: Button = itemView.findViewById(R.id.btnAdd)
 
         fun bind(friend: Friend) {
             textName.text = friend.name
@@ -34,10 +35,10 @@ class FriendAdapter(
             Glide.with(itemView)
                 .load(friend.profileUrl)
                 .placeholder(R.drawable.placeholder)
-                .error(R.drawable.ic_error)
                 .into(imageProfile)
+            imageBadge.setImageResource(R.drawable.ic_lv1) // 레벨에 따라 조정 가능
 
-            buttonAdd.setOnClickListener {
+            btnAdd.setOnClickListener {
                 onAddClick(friend)
             }
         }

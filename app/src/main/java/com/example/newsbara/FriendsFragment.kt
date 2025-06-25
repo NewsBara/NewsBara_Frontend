@@ -1,45 +1,53 @@
 package com.example.newsbara
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.newsbara.adapter.FriendAdapter
-import com.example.newsbara.data.Friend
+import com.example.newsbara.databinding.FragmentFriendsBinding
 
 class FriendsFragment : Fragment() {
 
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: FriendAdapter
+    private var _binding: FragmentFriendsBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_friends, container, false)
+    ): View {
+        _binding = FragmentFriendsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        recyclerView = view.findViewById(R.id.recyclerFriends)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        // 기본 화면: RankingFragment
+        childFragmentManager.beginTransaction()
+            .replace(R.id.friendsContentFrame, RankingFragment())
+            .commit()
 
-        adapter = FriendAdapter()
-        recyclerView.adapter = adapter
+        binding.friendsToggleGroup.setOnCheckedChangeListener { _, checkedId ->
+            Log.d("FriendsToggle", "Checked ID: $checkedId")
+            val selectedFragment = when (checkedId) {
+                R.id.btnRanking -> RankingFragment()
+                R.id.btnAdd -> AddFriendFragment()
+                R.id.btnRequest -> RequestFragment()
+                else -> null
+            } as? Fragment
 
-        // ✅ 지금은 더미데이터로 테스트
-        val dummyList = listOf(
-            Friend("1", "Davis Curtis", "https://example.com/davis.jpg", 2569, R.drawable.ic_lv1),
-            Friend("2", "Alena Donin", "https://example.com/alena.jpg", 1469, R.drawable.ic_lv1),
-            Friend("3", "Craig Gouse", "https://example.com/craig.jpg", 1053, R.drawable.ic_lv1),
-            Friend("4", "Madelyn Dias", "https://example.com/madelyn.jpg", 590, R.drawable.ic_lv1),
-            Friend("5", "Zain Vaccaro", "https://example.com/zain.jpg", 448, R.drawable.ic_lv1)
-        )
+            selectedFragment?.let {
+                childFragmentManager.beginTransaction()
+                    .replace(R.id.friendsContentFrame, it)
+                    .commit()
+            }
+        }
+    }
 
-        adapter.submitList(dummyList)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
 
