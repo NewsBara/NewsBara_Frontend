@@ -8,17 +8,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.newsbara.adapter.FriendAdapter
 import com.example.newsbara.data.Friend
 import com.example.newsbara.databinding.FragmentAddFriendBinding
+
 class AddFriendFragment : Fragment() {
 
     private var _binding: FragmentAddFriendBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var adapter: FriendAdapter
+    private val viewModel: SharedViewModel by activityViewModels()
 
+
+    // 전체 친구 더미 리스트
     private val allFriends = listOf(
         Friend("1", "kim minji", "https://example.com/avatar1.jpg", 2569, 1),
         Friend("2", "lee soojin", "https://example.com/avatar2.jpg", 1800, 2),
@@ -35,20 +40,29 @@ class AddFriendFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val viewModel: SharedViewModel by activityViewModels() // 여기로 수정
+
         adapter = FriendAdapter { friend ->
+            viewModel.addFriend(friend)
             Toast.makeText(requireContext(), "${friend.name} 추가됨!", Toast.LENGTH_SHORT).show()
         }
 
         binding.friendRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.friendRecyclerView.adapter = adapter
-        adapter.submitList(allFriends)
+
+        adapter.submitList(emptyList()) // 초기 빈 리스트
 
         binding.searchInput.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val keyword = s?.toString()?.trim().orEmpty()
+
+                val currentFriends = viewModel.friends.value.orEmpty() // 바로 가져오기
+
                 val filtered = allFriends.filter { friend ->
-                    friend.name.contains(keyword, ignoreCase = true)
+                    friend.name.contains(keyword, ignoreCase = true) &&
+                            currentFriends.none { it.id == friend.id }
                 }
+
                 adapter.submitList(filtered)
             }
 
@@ -57,8 +71,5 @@ class AddFriendFragment : Fragment() {
         })
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 }
+

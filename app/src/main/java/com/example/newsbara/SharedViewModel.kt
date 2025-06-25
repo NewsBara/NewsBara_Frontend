@@ -34,8 +34,34 @@ class SharedViewModel : ViewModel() {
     private val _badgeInfo = MutableLiveData<BadgeInfo>()
     val badgeInfo: LiveData<BadgeInfo> get() = _badgeInfo
 
-    private val _friendList = MutableLiveData<List<Friend>>()
-    val friendList: LiveData<List<Friend>> get() = _friendList
+    // 친구 목록 (ranking용)
+    private val _friends = MutableLiveData<List<Friend>>(emptyList())
+    val friends: LiveData<List<Friend>> = _friends
+
+    // 친구 요청 목록 (request용)
+    private val _friendRequests = MutableLiveData<List<Friend>>(emptyList())
+    val friendRequests: LiveData<List<Friend>> = _friendRequests
+
+    // 검색 결과 목록 (add용)
+    private val _searchResults = MutableLiveData<List<Friend>>(emptyList())
+    val searchResults: LiveData<List<Friend>> = _searchResults
+
+
+    fun addFriend(friend: Friend) {
+        val current = _friends.value ?: emptyList()
+        if (current.any { it.id == friend.id }) return  // 중복 추가 방지
+        _friends.value = current + friend
+    }
+
+    // 친구 요청 수락 시
+    fun acceptFriendRequest(friend: Friend) {
+        _friendRequests.value = _friendRequests.value?.filterNot { it.id == friend.id }
+        _friends.value = _friends.value?.plus(friend)
+    }
+
+    fun rejectFriendRequest(friend: Friend) {
+        _friendRequests.value = _friendRequests.value?.filterNot { it.id == friend.id }
+    }
 
     fun setVideoProgress(item: HistoryItem) {
         _videoId.value = item.videoId

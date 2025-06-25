@@ -57,6 +57,8 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     //implementation("com.github.lopspower:CircularProgressBar:3.1.0")
     implementation("com.github.bumptech.glide:glide:4.15.1")
+    implementation ("androidx.fragment:fragment-ktx:1.6.2")  // 최신 버전 확인해도 좋아
+
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
