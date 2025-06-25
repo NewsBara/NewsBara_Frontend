@@ -9,8 +9,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.newsbara.adapter.VideoSectionAdapter
 import com.example.newsbara.data.HistoryItem
+import com.example.newsbara.data.MyPageInfo
 import com.example.newsbara.data.SubtitleLine
 import com.example.newsbara.data.VideoSection
 import com.example.newsbara.retrofit.RetrofitClient
@@ -37,7 +39,30 @@ class HomeActivity : AppCompatActivity() {
         viewModel = (application as MyApp).sharedViewModel
 
 
+        // ✅ 더미 프로필 정보 최초 한 번만 세팅
+        if (viewModel.myPageInfo.value == null) {
+            val dummyInfo = MyPageInfo(
+                id = 1,
+                email = "test@example.com",
+                name = "김민지",
+                badgeName = "Lv.2",
+                point = 600,
+                profileImg = "https://i.pinimg.com/736x/a7/ee/b8/a7eeb85a1d27390ebdf770f8cf31e434.jpg"
+            )
+            viewModel.setMyPageInfo(dummyInfo)
+        }
+
         val profileButton: ImageView = findViewById(R.id.profileButton)
+
+        viewModel.myPageInfo.observe(this) { info ->
+            Glide.with(this)
+                .load(info.profileImg)
+                .circleCrop()
+                .placeholder(R.drawable.ic_avatat)
+                .into(profileButton)
+        }
+
+        // ✅ 마이페이지로 이동하는 클릭 리스너
         profileButton.setOnClickListener {
             supportFragmentManager.beginTransaction()
                 .replace(android.R.id.content, MyPageFragment())

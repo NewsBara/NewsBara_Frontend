@@ -4,9 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
 import com.example.newsbara.adapter.MyPageViewPagerAdapter
 import com.example.newsbara.data.MyPageInfo
 import com.google.android.material.tabs.TabLayout
@@ -22,6 +24,7 @@ class MyPageFragment : Fragment() {
     private lateinit var pointsText: TextView
     private lateinit var badgeText: TextView
     private lateinit var nameText: TextView
+    private lateinit var imageProfile: ImageView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_mypage, container, false)
@@ -35,6 +38,7 @@ class MyPageFragment : Fragment() {
         pointsText = view.findViewById(R.id.points)
         badgeText = view.findViewById(R.id.badge)
         nameText = view.findViewById(R.id.tvName)
+        imageProfile = view.findViewById(R.id.ivProfile)
 
         adapter = MyPageViewPagerAdapter(this)
         viewPager.adapter = adapter
@@ -44,21 +48,17 @@ class MyPageFragment : Fragment() {
             tab.text = tabTitles[position]
         }.attach()
 
-        val dummyInfo = MyPageInfo(
-            id = 1,
-            email = "test@example.com",
-            name = "김민지",
-            badgeName = "Lv.2",
-            point = 600,
-            profileImg = null
-        )
-        viewModel.setMyPageInfo(dummyInfo)
 
-        // LiveData 관찰
         viewModel.myPageInfo.observe(viewLifecycleOwner) { info ->
             pointsText.text = info.point.toString()
             badgeText.text = info.badgeName
             nameText.text = info.name
+
+            Glide.with(this)
+                .load(info.profileImg)
+                .placeholder(R.drawable.ic_avatat)
+                .circleCrop()
+                .into(imageProfile)
         }
     }
 }
