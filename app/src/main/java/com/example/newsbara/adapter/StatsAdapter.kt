@@ -45,12 +45,12 @@ class StatsAdapter(
         // 제목 표시
         holder.title.text = historyItem.title
 
-        // 진행 상태 텍스트 (현재는 임시값)
+        // 진행 상태
         holder.progress.text = when (historyItem.status) {
-            "watched" -> "1/4"
-            "Shadowing" -> "2/4"  // 예시
-            "Summary" -> "3/4"
-            "Complete" -> "4/4"
+            "WATCHED" -> "1/4"
+            "SHADOWING" -> "2/4"  // 예시
+            "SUMMARY" -> "3/4"
+            "COMPLETE" -> "4/4"
             else -> "0/4"
         }
 

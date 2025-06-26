@@ -83,6 +83,10 @@ class SharedViewModel : ViewModel() {
         _badgeInfo.value = info
     }
 
+    fun setHistory(list: List<HistoryItem>) {
+        _historyList.value = list
+    }
+
     fun addToHistory(video: HistoryItem) {
         val currentList = _historyList.value?.toMutableList() ?: mutableListOf()
 

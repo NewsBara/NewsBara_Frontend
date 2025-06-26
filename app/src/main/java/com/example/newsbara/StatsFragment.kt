@@ -32,36 +32,16 @@ class StatsFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerHistory)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        val dummyHistoryList = listOf(
-            HistoryItem(
-                id = 1,
-                videoId = "3hwEpIr-g5w",
-                title = "Should we eat less rice? 🌍 6 Minute English",
-                thumbnail = "https://i.ytimg.com/vi/3hwEpIr-g5w/mqdefault.jpg",
-                channel = "BBC Learning English",
-                length = "370",
-                category = "기타",
-                status = "WATCHED",
-                createdAt = "2025-05-25T01:56:52.807818"
-            ),
-            HistoryItem(
-                id = 2,
-                videoId = "253dg4s",
-                title = "ttttt",
-                thumbnail = "https://i.ytimg.com/vi/253dg4s/mqdefault.jpg",
-                channel = "bbc",
-                length = "00:03:33",
-                category = "Music",
-                status = "SHADOWING",
-                createdAt = "2025-06-01T19:21:58.410221"
-            )
-        )
-
-        adapter = StatsAdapter(dummyHistoryList) { clickedItem ->
+        adapter = StatsAdapter { clickedItem ->
             handleContinueClick(clickedItem)
         }
-
         recyclerView.adapter = adapter
+
+        // 🔥 실제로 클릭한 영상들만 관찰해서 보여주기
+        viewModel.historyList.observe(viewLifecycleOwner) { historyList ->
+            adapter.setItems(historyList)
+        }
+
     }
 
     private fun handleContinueClick(item: HistoryItem) {
@@ -69,7 +49,7 @@ class StatsFragment : Fragment() {
         viewModel.setVideoData(
             id = item.videoId,
             title = item.title,
-            subs = listOf() // 실제 자막이 있다면 전달
+            subs = listOf()
         )
         viewModel.setVideoProgress(item)
 
