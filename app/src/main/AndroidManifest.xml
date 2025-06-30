@@ -17,10 +17,10 @@
         <activity
             android:name=".MainActivity"
             />
-        <activity android:name=".VideoActivity" />
-        <activity android:name=".ShadowingActivity" />
+        <activity android:name=".presentation.video.VideoActivity" />
+        <activity android:name=".presentation.shadowing.ShadowingActivity" />
         <activity android:name=".DictionaryActivity" />
-        <activity android:name=".TestActivity" />
+        <activity android:name=".presentation.test.TestActivity" />
         <activity
             android:name=".SplashActivity"
             android:exported="true"
@@ -32,7 +32,7 @@
         </activity>
 
 
-        <activity android:name=".HomeActivity"/>
+        <activity android:name=".presentation.home.HomeActivity"/>
 
 
     </application>

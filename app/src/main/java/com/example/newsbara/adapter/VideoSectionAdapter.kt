@@ -7,9 +7,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.newsbara.R
-import com.example.newsbara.data.HistoryItem
-import com.example.newsbara.data.VideoItem
-import com.example.newsbara.data.VideoSection
+import com.example.newsbara.data.model.history.HistoryItem
+import com.example.newsbara.data.model.youtube.VideoSection
 
 class VideoSectionAdapter(
     private val sections: List<VideoSection>,

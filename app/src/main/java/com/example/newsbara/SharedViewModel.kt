@@ -3,14 +3,19 @@ package com.example.newsbara
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.newsbara.data.BadgeInfo
-import com.example.newsbara.data.Friend
-import com.example.newsbara.data.HistoryItem
-import com.example.newsbara.data.MyPageInfo
-import com.example.newsbara.data.SubtitleLine
+import com.example.newsbara.data.model.mypage.BadgeInfo
+import com.example.newsbara.data.model.Friend
+import com.example.newsbara.data.model.history.HistoryItem
+import com.example.newsbara.data.model.mypage.MyPageInfo
+import com.example.newsbara.data.model.youtube.SubtitleLine
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 
-class SharedViewModel : ViewModel() {
+@HiltViewModel
+class SharedViewModel @Inject constructor(
+
+) : ViewModel() {
     val highlightWords = listOf("accelerating", "global", "urgent")
 
     private val _videoId = MutableLiveData<String>()
@@ -27,12 +32,6 @@ class SharedViewModel : ViewModel() {
 
     private val _historyList = MutableLiveData<List<HistoryItem>>(mutableListOf())
     val historyList: LiveData<List<HistoryItem>> get() = _historyList
-
-    private val _myPageInfo = MutableLiveData<MyPageInfo>()
-    val myPageInfo: LiveData<MyPageInfo> = _myPageInfo
-
-    private val _badgeInfo = MutableLiveData<BadgeInfo>()
-    val badgeInfo: LiveData<BadgeInfo> get() = _badgeInfo
 
     // 친구 목록 (ranking용)
     private val _friends = MutableLiveData<List<Friend>>(emptyList())
@@ -73,14 +72,6 @@ class SharedViewModel : ViewModel() {
         _videoId.value = id
         _videoTitle.value = title
         _subtitleList.value = subs
-    }
-
-    fun setMyPageInfo(info: MyPageInfo) {
-        _myPageInfo.value = info
-    }
-
-    fun setBadgeInfo(info: BadgeInfo) {
-        _badgeInfo.value = info
     }
 
     fun setHistory(list: List<HistoryItem>) {

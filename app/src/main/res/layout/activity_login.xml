@@ -13,13 +13,11 @@
         android:gravity="center_horizontal"
         android:padding="24dp">
 
-
         <ImageView
             android:layout_width="245dp"
             android:layout_height="170dp"
             android:layout_marginTop="35dp"
             android:src="@drawable/newsbara2"/>
-
 
         <TextView
             android:layout_width="wrap_content"
@@ -27,8 +25,7 @@
             android:text="Welcome back"
             android:textSize="28sp"
             android:textStyle="bold"
-            android:textColor="#333333"
-            android:layout_marginTop="0dp" />
+            android:textColor="#333333" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -39,8 +36,8 @@
             android:layout_marginTop="2dp"
             android:layout_marginBottom="24dp" />
 
-
         <EditText
+            android:id="@+id/etLoginEmail"
             android:layout_width="320dp"
             android:layout_height="50dp"
             android:hint="Enter your id"
@@ -52,8 +49,8 @@
             android:layout_marginTop="40dp"
             android:layout_marginBottom="12dp" />
 
-
         <EditText
+            android:id="@+id/etLoginPassword"
             android:layout_width="320dp"
             android:layout_height="50dp"
             android:hint="Password"
@@ -69,7 +66,6 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp">
 
-
             <CheckBox
                 android:id="@+id/checkbox_remember"
                 android:layout_width="wrap_content"
@@ -82,7 +78,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent" />
 
-            <!-- Forget password -->
             <TextView
                 android:id="@+id/text_forgot"
                 android:layout_width="wrap_content"
@@ -94,17 +89,15 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-
         <Button
+            android:id="@+id/btnLogin"
             android:layout_width="320dp"
             android:layout_height="50dp"
             android:layout_marginTop="45dp"
             android:layout_marginBottom="8dp"
             android:background="@drawable/btn_next_background"
-
             android:text="Next  ➤"
             android:textColor="#FFFFFF"
             android:textSize="18sp" />
@@ -123,6 +116,7 @@
                 android:textSize="13sp" />
 
             <TextView
+                android:id="@+id/text_register"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=" Register now"
@@ -133,3 +127,4 @@
 
     </LinearLayout>
 </ScrollView>
+

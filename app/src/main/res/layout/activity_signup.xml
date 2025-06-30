@@ -12,7 +12,6 @@
         android:padding="24dp"
         android:gravity="center_horizontal">
 
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -20,7 +19,7 @@
             android:textSize="28sp"
             android:textStyle="bold"
             android:textColor="#222222"
-            android:layout_marginTop="130dp" />
+            android:layout_marginTop="120dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -31,7 +30,9 @@
             android:layout_marginBottom="32dp"
             android:layout_marginTop="0dp" />
 
+        <!-- 이메일 -->
         <EditText
+            android:id="@+id/etEmail"
             android:layout_width="320dp"
             android:layout_height="50dp"
             android:hint="Enter your id"
@@ -40,11 +41,12 @@
             android:backgroundTint="#F1F1F1"
             android:background="@drawable/bg_input"
             android:inputType="textEmailAddress"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="40dp"
             android:layout_marginBottom="12dp" />
 
-
+        <!-- 비밀번호 -->
         <EditText
+            android:id="@+id/etPassword"
             android:layout_width="320dp"
             android:layout_height="50dp"
             android:hint="Password"
@@ -55,13 +57,34 @@
             android:inputType="textPassword"
             android:layout_marginBottom="8dp" />
 
+        <!-- 이름 -->
+        <EditText
+            android:id="@+id/etName"
+            android:layout_width="320dp"
+            android:layout_height="50dp"
+            android:hint="Name"
+            android:background="@drawable/bg_input"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- 전화번호 -->
+        <EditText
+            android:id="@+id/etPhone"
+            android:layout_width="320dp"
+            android:layout_height="50dp"
+            android:hint="Phone"
+            android:background="@drawable/bg_input"
+            android:padding="12dp"
+            android:inputType="phone"
+            android:layout_marginBottom="5dp" />
+
+        <!-- 약관 체크 -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="355dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="32dp"
+            android:layout_marginBottom="0dp"
             xmlns:app="http://schemas.android.com/apk/res-auto">
 
-            <!-- 체크박스 -->
             <CheckBox
                 android:id="@+id/checkbox_terms"
                 android:layout_width="wrap_content"
@@ -70,7 +93,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent" />
 
-            <!-- 전체 문장 텍스트 그룹 -->
             <LinearLayout
                 android:id="@+id/terms_text_group"
                 android:layout_width="0dp"
@@ -114,14 +136,12 @@
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-        <!-- 다음 버튼 -->
-
-        <!-- 하단 로그인 링크 -->
+        <!-- 회원가입 버튼 -->
         <Button
+            android:id="@+id/btnSignUp"
             android:layout_width="320dp"
             android:layout_height="50dp"
-            android:layout_marginTop="80dp"
+            android:layout_marginTop="40dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/btn_next_background"
             android:backgroundTint="@null"
@@ -131,6 +151,7 @@
             android:textColor="#FFFFFF"
             android:textSize="18sp" />
 
+        <!-- 로그인 링크 -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -144,6 +165,7 @@
                 android:textSize="14sp" />
 
             <TextView
+                android:id="@+id/tvGoLogin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Log In"

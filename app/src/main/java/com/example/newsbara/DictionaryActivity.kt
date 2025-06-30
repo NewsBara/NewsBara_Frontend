@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.newsbara.adapter.DictionaryAdapter
 import com.example.newsbara.data.DictionaryItem
 import com.example.newsbara.data.DictionaryMeaning
+import com.example.newsbara.presentation.home.HomeActivity
+import com.example.newsbara.presentation.test.TestActivity
 
 class DictionaryActivity : AppCompatActivity() {
 
