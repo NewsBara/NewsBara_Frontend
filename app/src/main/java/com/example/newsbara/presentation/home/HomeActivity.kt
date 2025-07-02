@@ -17,13 +17,13 @@ import com.example.newsbara.SharedViewModel
 import com.example.newsbara.presentation.video.VideoActivity
 import com.example.newsbara.adapter.VideoSectionAdapter
 import com.example.newsbara.data.model.history.HistoryItem
-import com.example.newsbara.data.model.mypage.MyPageInfo
 import com.example.newsbara.data.model.youtube.SubtitleLine
 import com.example.newsbara.data.model.youtube.VideoSection
 import com.example.newsbara.presentation.mypage.MyPageViewModel
 import com.example.newsbara.network.RetrofitClient
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.io.Serializable
 
 @AndroidEntryPoint
 class HomeActivity : AppCompatActivity() {
@@ -121,15 +121,17 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun handleVideoClick(video: HistoryItem) {
-        sharedViewModel.addToHistory(video)
+        val subtitles = parseSrtToSubtitles(mockSrtText)
 
-        sharedViewModel.setVideoData(
-            id = video.videoId,
-            title = video.title,
-            subs = parseSrtToSubtitles(mockSrtText)
-        )
+        val intent = Intent(this, VideoActivity::class.java).apply {
+            putExtra("videoId", video.videoId)
+            putExtra("title", video.title)
+            putExtra("subs", subtitles as Serializable)
+        }
+        Log.d("HomeActivity", "🎬 videoId 보내는 값: ${video.videoId}")
 
-        startActivity(Intent(this, VideoActivity::class.java))
+        startActivity(intent)
+
     }
 
     private val mockSrtText = """

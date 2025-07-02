@@ -9,12 +9,14 @@ import android.text.style.ClickableSpan
 import android.view.View
 import android.widget.TextView
 import com.example.newsbara.showWordPopup
+import java.io.Serializable
 
 data class SubtitleLine(
     val startTime: Double,
     val endTime: Double,
     val text: String
-)
+) : Serializable
+
 fun SubtitleLine.getHighlightedText(highlightWords: List<String>): String {
     val engLine = text.lineSequence().firstOrNull()?.trim() ?: ""
     return highlightWords.fold(engLine) { acc, keyword ->
