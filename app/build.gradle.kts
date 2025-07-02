@@ -6,7 +6,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-kapt") // 🔥 꼭 추가!
-    id("dagger.hilt.android.plugin") // 🔥 꼭 추가!
+    id("com.google.dagger.hilt.android")
+
 }
 
 android {
@@ -15,6 +16,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     defaultConfig {
@@ -69,14 +71,17 @@ fun getLocalProperty(key: String): String {
         implementation("com.squareup.retrofit2:converter-gson:2.9.0")
         //implementation("com.github.lopspower:CircularProgressBar:3.1.0")
         implementation("com.github.bumptech.glide:glide:4.15.1")
-        implementation("androidx.fragment:fragment-ktx:1.6.2")  // 최신 버전 확인해도 좋아
+        implementation("androidx.fragment:fragment-ktx:1.6.2")
         // Hilt (DI)
         implementation("com.google.dagger:hilt-android:2.48")
         kapt("com.google.dagger:hilt-compiler:2.48")
 
 // Hilt ViewModel
-        implementation("androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03")
-        kapt("androidx.hilt:hilt-compiler:1.0.0")
+        // 삭제 후 유지해야 할 것
+        implementation("com.google.dagger:hilt-android:2.48")
+        kapt("com.google.dagger:hilt-compiler:2.48")
+        implementation("androidx.hilt:hilt-navigation-fragment:1.0.0") // 이건 OK
+
 
 // Hilt Navigation (선택, Navigation 사용 시)
         implementation("androidx.hilt:hilt-navigation-fragment:1.0.0")
@@ -91,5 +96,7 @@ fun getLocalProperty(key: String): String {
         androidTestImplementation("androidx.test.ext:junit:1.1.5")
         androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     }
-
+kapt {
+    correctErrorTypes = true
+}
 

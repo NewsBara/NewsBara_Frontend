@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.newsbara.R
 import com.example.newsbara.data.model.login.LoginRequest
-import com.example.newsbara.presentation.common.ResultState
+import com.example.newsbara.presentation.util.ResultState
 import com.example.newsbara.presentation.home.HomeActivity
 import com.example.newsbara.presentation.signup.SignUpActivity
 import dagger.hilt.android.AndroidEntryPoint
@@ -46,13 +46,23 @@ class LoginActivity : AppCompatActivity() {
             viewModel.loginResult.collect { result ->
                 when (result) {
                     is ResultState.Success -> {
+                        // 🔥 여기서 accessToken을 SharedPreferences에 저장!
+                        val accessToken = result.data.accessToken  // 서버 응답 구조에 따라 다를 수 있어
+
+                        getSharedPreferences("auth", MODE_PRIVATE)
+                            .edit()
+                            .putString("accessToken", accessToken)
+                            .apply()
+
                         Toast.makeText(this@LoginActivity, "로그인 성공", Toast.LENGTH_SHORT).show()
                         startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
                         finish()
                     }
+
                     is ResultState.Failure -> {
                         Toast.makeText(this@LoginActivity, result.message, Toast.LENGTH_SHORT).show()
                     }
+
                     else -> {}
                 }
             }

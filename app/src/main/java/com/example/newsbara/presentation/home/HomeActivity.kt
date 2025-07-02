@@ -11,7 +11,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.newsbara.MyApp
 import com.example.newsbara.presentation.mypage.MyPageFragment
 import com.example.newsbara.R
 import com.example.newsbara.SharedViewModel
@@ -22,7 +21,7 @@ import com.example.newsbara.data.model.mypage.MyPageInfo
 import com.example.newsbara.data.model.youtube.SubtitleLine
 import com.example.newsbara.data.model.youtube.VideoSection
 import com.example.newsbara.presentation.mypage.MyPageViewModel
-import com.example.newsbara.retrofit.RetrofitClient
+import com.example.newsbara.network.RetrofitClient
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -45,27 +44,21 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        // ✅ 더미 마이페이지 정보 최초 1회만 세팅
-        if (myPageViewModel.myPageInfo.value == null) {
-            val dummyInfo = MyPageInfo(
-                id = 1,
-                email = "test@example.com",
-                name = "김민지",
-                badgeName = "Lv.2",
-                point = 600,
-                profileImg = "https://i.pinimg.com/736x/a7/ee/b8/a7eeb85a1d27390ebdf770f8cf31e434.jpg"
-            )
-            myPageViewModel.setMyPageInfo(dummyInfo)
-        }
+        // ✅ 실제 마이페이지 정보 fetch
+        myPageViewModel.fetchMyPageInfo()
 
         val profileButton: ImageView = findViewById(R.id.profileButton)
 
-        myPageViewModel.myPageInfo.observe(this) { info ->
-            Glide.with(this)
-                .load(info.profileImg)
-                .circleCrop()
-                .placeholder(R.drawable.ic_avatat)
-                .into(profileButton)
+        lifecycleScope.launchWhenStarted {
+            myPageViewModel.myPageInfo.collect { info ->
+                info?.let {
+                    Glide.with(this@HomeActivity)
+                        .load(it.profileImg)
+                        .circleCrop()
+                        .placeholder(R.drawable.ic_avatat)
+                        .into(profileButton)
+                }
+            }
         }
 
         profileButton.setOnClickListener {

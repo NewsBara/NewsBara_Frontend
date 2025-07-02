@@ -87,7 +87,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:paddingTop="56dp"
-            android:paddingBottom="24dp"
+            android:paddingBottom="15dp"
             android:gravity="center_horizontal">
 
             <!-- 이름 + 수정 아이콘 -->
@@ -198,14 +198,26 @@
                 app:tabSelectedTextColor="#7A5DF8"
                 app:tabTextColor="#999999"/>
 
-
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/viewPager"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-
                 android:overScrollMode="never"/>
+
+            <Button
+                android:id="@+id/btnLogout"
+                android:layout_width="140dp"
+                android:layout_height="38dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="0dp"
+                android:background="@drawable/bg_logout_button"
+                android:backgroundTint="#FFFFFF"
+                android:elevation="4dp"
+                android:text="로그아웃"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp" />
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

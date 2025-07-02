@@ -9,11 +9,15 @@ import com.example.newsbara.data.model.mypage.PointResult
 import com.example.newsbara.data.model.history.SaveHistoryRequest
 import com.example.newsbara.data.model.mypage.UpdateNameRequest
 import com.example.newsbara.data.model.mypage.UpdateNameResponse
+import com.example.newsbara.data.model.mypage.UpdateProfileImageResponse
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 
 
 interface MyPageService {
@@ -41,4 +45,11 @@ interface MyPageService {
     suspend fun updateName(
         @Body request: UpdateNameRequest
     ): Response<BaseResponse<UpdateNameResponse>>
+
+    @Multipart
+    @PUT("/api/mypage/profile")
+    suspend fun updateProfileImage(
+        @Part file: MultipartBody.Part
+    ): Response<BaseResponse<UpdateProfileImageResponse>>
+
 }

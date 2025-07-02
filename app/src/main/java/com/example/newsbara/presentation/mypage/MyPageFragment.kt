@@ -1,21 +1,27 @@
 package com.example.newsbara.presentation.mypage
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.example.newsbara.R
 import com.example.newsbara.adapter.MyPageViewPagerAdapter
+import com.example.newsbara.presentation.util.ResultState
+import com.example.newsbara.presentation.login.LoginActivity
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,7 +40,11 @@ class MyPageFragment : Fragment() {
     private lateinit var nameText: TextView
     private lateinit var imageProfile: ImageView
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_mypage, container, false)
     }
 
@@ -56,16 +66,21 @@ class MyPageFragment : Fragment() {
         }.attach()
 
 
-        myPageViewModel.myPageInfo.observe(viewLifecycleOwner) { info ->
-            pointsText.text = info.point.toString()
-            badgeText.text = info.badgeName
-            nameText.text = info.name
+        // MyPageFragment.kt
+        lifecycleScope.launchWhenStarted {
+            myPageViewModel.myPageInfo.collect { info ->
+                info?.let {
+                    pointsText.text = it.point.toString()
+                    badgeText.text = it.badgeName ?:"No Badge"
+                    nameText.text = it.name
 
-            Glide.with(this)
-                .load(info.profileImg)
-                .placeholder(R.drawable.ic_avatat)
-                .circleCrop()
-                .into(imageProfile)
+                    Glide.with(this@MyPageFragment)
+                        .load(it.profileImg)
+                        .placeholder(R.drawable.ic_avatat)
+                        .circleCrop()
+                        .into(imageProfile)
+                }
+            }
         }
 
         val editButton = view.findViewById<ImageView>(R.id.profileImg)
@@ -77,6 +92,54 @@ class MyPageFragment : Fragment() {
         backButton.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
+
+        val logoutButton = view.findViewById<Button>(R.id.btnLogout)
+        logoutButton.setOnClickListener {
+            myPageViewModel.logout()
+        }
+
+        // ✅ 로그아웃 상태 observe
+        lifecycleScope.launchWhenStarted {
+            myPageViewModel.logoutResult.collect { result ->
+                when (result) {
+                    is ResultState.Loading -> {
+                        Toast.makeText(requireContext(), "로그아웃 중...", Toast.LENGTH_SHORT).show()
+                    }
+
+                    is ResultState.Success -> {
+                        Toast.makeText(requireContext(), "로그아웃 완료", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(requireContext(), LoginActivity::class.java)
+                        intent.flags =
+                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
+                    }
+
+                    is ResultState.Failure -> {
+                        Toast.makeText(requireContext(), result.message, Toast.LENGTH_SHORT).show()
+                    }
+
+                    else -> {}
+                }
+            }
+        }
+
+        // ✅ 닉네임 변경 결과 Observe
+        lifecycleScope.launchWhenStarted {
+            myPageViewModel.nameUpdateResult.collect { result ->
+                when (result) {
+                    is ResultState.Success -> {
+                        Toast.makeText(requireContext(), "닉네임 변경 성공", Toast.LENGTH_SHORT).show()
+                    }
+
+                    is ResultState.Failure -> {
+                        Toast.makeText(requireContext(), result.message, Toast.LENGTH_SHORT).show()
+                    }
+
+                    else -> {}
+                }
+            }
+        }
+        myPageViewModel.fetchMyPageInfo()
     }
 
     private fun showEditNameDialog() {
@@ -89,18 +152,12 @@ class MyPageFragment : Fragment() {
             .setView(dialogView)
             .create()
 
-        btnCancel.setOnClickListener {
-            dialog.dismiss()
-        }
+        btnCancel.setOnClickListener { dialog.dismiss() }
 
         btnConfirm.setOnClickListener {
             val newName = editNickname.text.toString()
             if (newName.isNotBlank()) {
-                // 기존 info 가져와서 이름만 바꿔치기
-                myPageViewModel.myPageInfo.value?.let { currentInfo ->
-                    val updatedInfo = currentInfo.copy(name = newName)
-                    myPageViewModel.setMyPageInfo(updatedInfo)
-                }
+                myPageViewModel.updateName(newName)
                 dialog.dismiss()
             } else {
                 Toast.makeText(requireContext(), "닉네임을 입력하세요", Toast.LENGTH_SHORT).show()
@@ -109,6 +166,7 @@ class MyPageFragment : Fragment() {
 
         dialog.show()
     }
-
 }
+
+
 

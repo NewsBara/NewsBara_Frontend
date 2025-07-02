@@ -19,8 +19,17 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version = "2.48" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version = "2.48" }
+
+androidx-hilt-viewmodel = { group = "androidx.hilt", name = "hilt-lifecycle-viewmodel", version = "1.0.0-alpha03" }
+androidx-hilt-compiler = { group = "androidx.hilt", name = "hilt-compiler", version = "1.0.0" }
+androidx-hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-fragment", version = "1.0.0" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+dagger-hilt = { id = "com.google.dagger.hilt.android", version = "2.48" }
+
 

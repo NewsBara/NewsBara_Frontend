@@ -1,9 +1,8 @@
 package com.example.newsbara.presentation.signup
 
-import androidx.lifecycle.LiveData
 import com.example.newsbara.data.model.signup.SignUpRequest
 import com.example.newsbara.domain.repository.AuthRepository
-import com.example.newsbara.presentation.common.ResultState
+import com.example.newsbara.presentation.util.ResultState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow
 import androidx.lifecycle.ViewModel

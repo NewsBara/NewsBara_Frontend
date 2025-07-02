@@ -40,7 +40,7 @@
             android:id="@+id/etLoginEmail"
             android:layout_width="320dp"
             android:layout_height="50dp"
-            android:hint="Enter your id"
+            android:hint="Email"
             android:drawableEnd="@drawable/user"
             android:padding="12dp"
             android:backgroundTint="#F1F1F1"

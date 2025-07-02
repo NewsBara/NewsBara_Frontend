@@ -1,20 +1,24 @@
 package com.example.newsbara
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.newsbara.data.model.mypage.BadgeInfo
 import com.example.newsbara.data.model.Friend
 import com.example.newsbara.data.model.history.HistoryItem
 import com.example.newsbara.data.model.mypage.MyPageInfo
 import com.example.newsbara.data.model.youtube.SubtitleLine
+import com.example.newsbara.domain.repository.MyPageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
 @HiltViewModel
 class SharedViewModel @Inject constructor(
-
+    private val myPageRepository: MyPageRepository
 ) : ViewModel() {
     val highlightWords = listOf("accelerating", "global", "urgent")
 
@@ -76,6 +80,18 @@ class SharedViewModel @Inject constructor(
 
     fun setHistory(list: List<HistoryItem>) {
         _historyList.value = list
+    }
+
+    // 학습 기록 가져오기
+    fun fetchHistory() {
+        viewModelScope.launch {
+            try {
+                val result = myPageRepository.getHistory()  // 실제 API 호출
+                _historyList.value = result
+            } catch (e: Exception) {
+                Log.e("SharedViewModel", "학습 기록 불러오기 실패", e)
+            }
+        }
     }
 
     fun addToHistory(video: HistoryItem) {

@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.newsbara.data.model.login.LoginRequest
 import com.example.newsbara.data.model.login.LoginResponse
 import com.example.newsbara.domain.repository.AuthRepository
-import com.example.newsbara.presentation.common.ResultState
+import com.example.newsbara.presentation.util.ResultState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

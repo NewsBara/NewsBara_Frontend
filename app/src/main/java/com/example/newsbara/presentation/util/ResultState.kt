@@ -1,4 +1,4 @@
-package com.example.newsbara.presentation.common
+package com.example.newsbara.presentation.util
 
 sealed class ResultState<out T> {
     object Idle : ResultState<Nothing>()

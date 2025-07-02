@@ -11,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.newsbara.R
 import com.example.newsbara.data.model.signup.SignUpRequest
+import com.example.newsbara.presentation.login.LoginActivity
+import com.example.newsbara.presentation.util.ResultState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.jvm.java
 

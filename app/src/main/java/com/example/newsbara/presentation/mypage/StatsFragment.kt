@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.newsbara.DictionaryActivity
@@ -18,12 +19,16 @@ import com.example.newsbara.adapter.StatsAdapter
 import com.example.newsbara.data.model.history.HistoryItem
 import com.example.newsbara.presentation.shadowing.ShadowingActivity
 import com.example.newsbara.presentation.test.TestActivity
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class StatsFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: StatsAdapter
-    private lateinit var viewModel: SharedViewModel
+
+    // ✅ Hilt 기반으로 ViewModel 가져오기
+    private val sharedViewModel: SharedViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,47 +39,57 @@ class StatsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel = (requireActivity().application as MyApp).sharedViewModel
-
         recyclerView = view.findViewById(R.id.recyclerHistory)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         adapter = StatsAdapter { clickedItem ->
             handleContinueClick(clickedItem)
+
         }
         recyclerView.adapter = adapter
+        sharedViewModel.fetchHistory()
 
-        // 🔥 실제로 클릭한 영상들만 관찰해서 보여주기
-        viewModel.historyList.observe(viewLifecycleOwner) { historyList ->
+        // 학습 기록 변경 감지
+        sharedViewModel.historyList.observe(viewLifecycleOwner) { historyList ->
             adapter.setItems(historyList)
         }
-
     }
 
-    private fun handleContinueClick(item: HistoryItem) {
-        // ViewModel에 현재 영상 정보 전달
-        viewModel.setVideoData(
-            id = item.videoId,
-            title = item.title,
-            subs = listOf()
-        )
-        viewModel.setVideoProgress(item)
+        private fun handleContinueClick(item: HistoryItem) {
+            sharedViewModel.setVideoData(
+                id = item.videoId,
+                title = item.title,
+                subs = listOf()  // 실제 자막 데이터로 대체 가능
+            )
+            sharedViewModel.setVideoProgress(item)
 
-        // 다음 단계 결정
-        val nextStatus = when (item.status.uppercase()) {
-            "WATCHED" -> "SHADOWING"
-            "SHADOWING" -> "TEST"
-            "TEST" -> "DICTIONARY"
-            "DICTIONARY" -> null
-            else -> null
-        }
+            val nextStatus = when (item.status.uppercase()) {
+                "WATCHED" -> "SHADOWING"
+                "SHADOWING" -> "TEST"
+                "TEST" -> "DICTIONARY"
+                "DICTIONARY" -> null
+                else -> null
+            }
 
-        when (nextStatus) {
-            "WATCHED" -> startActivity(Intent(requireContext(), VideoActivity::class.java))
-            "SHADOWING" -> startActivity(Intent(requireContext(), ShadowingActivity::class.java))
-            "TEST" -> startActivity(Intent(requireContext(), TestActivity::class.java))
-            "DICTIONARY" -> startActivity(Intent(requireContext(), DictionaryActivity::class.java))
-            null -> Toast.makeText(requireContext(), "모든 단계를 완료했어요!", Toast.LENGTH_SHORT).show()
+            when (nextStatus) {
+                "WATCHED" -> startActivity(Intent(requireContext(), VideoActivity::class.java))
+                "SHADOWING" -> startActivity(
+                    Intent(
+                        requireContext(),
+                        ShadowingActivity::class.java
+                    )
+                )
+
+                "TEST" -> startActivity(Intent(requireContext(), TestActivity::class.java))
+                "DICTIONARY" -> startActivity(
+                    Intent(
+                        requireContext(),
+                        DictionaryActivity::class.java
+                    )
+                )
+
+                null -> Toast.makeText(requireContext(), "모든 단계를 완료했어요!", Toast.LENGTH_SHORT).show()
+            }
         }
     }
-}
+
