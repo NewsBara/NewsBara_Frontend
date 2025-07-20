@@ -1,4 +1,4 @@
-package com.example.newsbara.presentation.mypage
+package com.example.newsbara.presentation.mypage.friend
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.newsbara.SharedViewModel
 import com.example.newsbara.adapter.RankingFriendAdapter
 import com.example.newsbara.databinding.FragmentRankingBinding
-
 
 class RankingFragment : Fragment() {
 

@@ -25,8 +25,6 @@ import com.example.newsbara.domain.repository.AuthRepository
 import kotlinx.coroutines.launch
 import java.io.File
 
-
-
 @HiltViewModel
 class MyPageViewModel @Inject constructor(
     private val repository: MyPageRepository,
@@ -34,7 +32,6 @@ class MyPageViewModel @Inject constructor(
     private val app: Application
 ) : ViewModel()  {
 
-    // MyPageViewModel.kt
     private val _myPageInfo = MutableStateFlow<MyPageInfo?>(null)
     val myPageInfo: StateFlow<MyPageInfo?> = _myPageInfo
 

@@ -16,7 +16,7 @@
         <ImageView
             android:layout_width="245dp"
             android:layout_height="170dp"
-            android:layout_marginTop="35dp"
+            android:layout_marginTop="50dp"
             android:src="@drawable/newsbara2"/>
 
         <TextView

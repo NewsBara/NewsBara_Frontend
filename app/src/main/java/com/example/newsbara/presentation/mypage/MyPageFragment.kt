@@ -1,6 +1,8 @@
 package com.example.newsbara.presentation.mypage
 
+import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -25,10 +27,11 @@ import com.example.newsbara.presentation.login.LoginActivity
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
-
+import java.io.File
 
 @AndroidEntryPoint
 class MyPageFragment : Fragment() {
+
     private val myPageViewModel: MyPageViewModel by viewModels()
 
     private lateinit var tabLayout: TabLayout
@@ -39,6 +42,11 @@ class MyPageFragment : Fragment() {
     private lateinit var badgeText: TextView
     private lateinit var nameText: TextView
     private lateinit var imageProfile: ImageView
+    private lateinit var btnEditProfile: ImageView
+
+    companion object {
+        private const val IMAGE_PICK_CODE = 101
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,13 +57,13 @@ class MyPageFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
         tabLayout = view.findViewById(R.id.tabLayout)
         viewPager = view.findViewById(R.id.viewPager)
         pointsText = view.findViewById(R.id.points)
         badgeText = view.findViewById(R.id.badge)
         nameText = view.findViewById(R.id.tvName)
         imageProfile = view.findViewById(R.id.ivProfile)
+        btnEditProfile = view.findViewById(R.id.btnEditProfile)
 
         adapter = MyPageViewPagerAdapter(this)
         viewPager.adapter = adapter
@@ -65,13 +73,12 @@ class MyPageFragment : Fragment() {
             tab.text = tabTitles[position]
         }.attach()
 
-
-        // MyPageFragment.kt
+        // 마이페이지 정보 관찰
         lifecycleScope.launchWhenStarted {
             myPageViewModel.myPageInfo.collect { info ->
                 info?.let {
                     pointsText.text = it.point.toString()
-                    badgeText.text = it.badgeName ?:"No Badge"
+                    badgeText.text = it.badgeName ?: "No Badge"
                     nameText.text = it.name
 
                     Glide.with(this@MyPageFragment)
@@ -83,6 +90,38 @@ class MyPageFragment : Fragment() {
             }
         }
 
+        // ✅ 프로필 사진 수정
+        btnEditProfile.setOnClickListener {
+            openImagePicker()
+        }
+
+        // ✅ 프로필 업로드 상태 관찰
+        lifecycleScope.launchWhenStarted {
+            myPageViewModel.uploadResult.collect { result ->
+                when (result) {
+                    is ResultState.Loading -> {
+                        Toast.makeText(requireContext(), "업로드 중...", Toast.LENGTH_SHORT).show()
+                    }
+
+                    is ResultState.Success -> {
+                        Glide.with(this@MyPageFragment)
+                            .load(result.data.profileUrl)
+                            .circleCrop()
+                            .into(imageProfile)
+
+                        Toast.makeText(requireContext(), "프로필 사진 변경 완료", Toast.LENGTH_SHORT).show()
+                    }
+
+                    is ResultState.Failure -> {
+                        Toast.makeText(requireContext(), result.message, Toast.LENGTH_SHORT).show()
+                    }
+
+                    else -> Unit
+                }
+            }
+        }
+
+        // 닉네임 수정
         val editButton = view.findViewById<ImageView>(R.id.profileImg)
         editButton.setOnClickListener {
             showEditNameDialog()
@@ -98,7 +137,7 @@ class MyPageFragment : Fragment() {
             myPageViewModel.logout()
         }
 
-        // ✅ 로그아웃 상태 observe
+        // 로그아웃 상태 observe
         lifecycleScope.launchWhenStarted {
             myPageViewModel.logoutResult.collect { result ->
                 when (result) {
@@ -123,7 +162,7 @@ class MyPageFragment : Fragment() {
             }
         }
 
-        // ✅ 닉네임 변경 결과 Observe
+        // 닉네임 변경 결과 observe
         lifecycleScope.launchWhenStarted {
             myPageViewModel.nameUpdateResult.collect { result ->
                 when (result) {
@@ -139,7 +178,34 @@ class MyPageFragment : Fragment() {
                 }
             }
         }
+
         myPageViewModel.fetchMyPageInfo()
+    }
+
+    private fun openImagePicker() {
+        val intent = Intent(Intent.ACTION_PICK).apply {
+            type = "image/*"
+        }
+        startActivityForResult(intent, IMAGE_PICK_CODE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == IMAGE_PICK_CODE && resultCode == Activity.RESULT_OK) {
+            data?.data?.let { uri ->
+                val file = createFileFromUri(uri)
+                myPageViewModel.uploadProfileImage(file)
+            }
+        }
+    }
+
+    private fun createFileFromUri(uri: Uri): File {
+        val inputStream = requireContext().contentResolver.openInputStream(uri)
+        val file = File(requireContext().cacheDir, "temp_profile.jpg")
+        file.outputStream().use { output ->
+            inputStream?.copyTo(output)
+        }
+        return file
     }
 
     private fun showEditNameDialog() {
@@ -167,6 +233,7 @@ class MyPageFragment : Fragment() {
         dialog.show()
     }
 }
+
 
 
 

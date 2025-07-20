@@ -1,4 +1,4 @@
-package com.example.newsbara.presentation.mypage
+package com.example.newsbara.presentation.mypage.friend
 
 import android.os.Bundle
 import android.util.Log
@@ -6,9 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.newsbara.presentation.mypage.AddFriendFragment
 import com.example.newsbara.R
 import com.example.newsbara.databinding.FragmentFriendsBinding
+import com.example.newsbara.presentation.mypage.friend.RankingFragment
+import com.example.newsbara.presentation.mypage.friend.RequestFragment
 
 class FriendsFragment : Fragment() {
 

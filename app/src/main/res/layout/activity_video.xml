@@ -9,7 +9,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:background="#6B5CD9"
         android:padding="12dp">
 
@@ -69,6 +69,7 @@
             android:id="@+id/youtubePlayerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="visible"
             app:autoPlay="false" />
 
         <TextView

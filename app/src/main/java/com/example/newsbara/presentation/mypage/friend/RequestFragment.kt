@@ -1,4 +1,4 @@
-package com.example.newsbara.presentation.mypage
+package com.example.newsbara.presentation.mypage.friend
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,12 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.newsbara.adapter.RequestFriendAdapter
-import androidx.fragment.app.activityViewModels
 import com.example.newsbara.R
 import com.example.newsbara.SharedViewModel
+import com.example.newsbara.adapter.RequestFriendAdapter
 
 class RequestFragment : Fragment() {
 
@@ -35,11 +35,13 @@ class RequestFragment : Fragment() {
         adapter = RequestFriendAdapter(
             onAccept = { friend ->
                 sharedViewModel.acceptFriendRequest(friend)
-                Toast.makeText(requireContext(), "${friend.name} accepted", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "${friend.name} accepted", Toast.LENGTH_SHORT)
+                    .show()
             },
             onReject = { friend ->
                 sharedViewModel.rejectFriendRequest(friend)
-                Toast.makeText(requireContext(), "${friend.name} rejected", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "${friend.name} rejected", Toast.LENGTH_SHORT)
+                    .show()
             }
         )
 

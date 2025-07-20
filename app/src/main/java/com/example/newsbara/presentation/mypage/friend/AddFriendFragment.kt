@@ -1,4 +1,4 @@
-package com.example.newsbara.presentation.mypage
+package com.example.newsbara.presentation.mypage.friend
 
 import android.os.Bundle
 import android.text.Editable

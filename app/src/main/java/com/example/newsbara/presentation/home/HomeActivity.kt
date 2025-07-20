@@ -17,10 +17,12 @@ import com.example.newsbara.SharedViewModel
 import com.example.newsbara.presentation.video.VideoActivity
 import com.example.newsbara.adapter.VideoSectionAdapter
 import com.example.newsbara.data.model.history.HistoryItem
+import com.example.newsbara.data.model.history.SaveHistoryRequest
 import com.example.newsbara.data.model.youtube.SubtitleLine
 import com.example.newsbara.data.model.youtube.VideoSection
 import com.example.newsbara.presentation.mypage.MyPageViewModel
 import com.example.newsbara.network.RetrofitClient
+import com.example.newsbara.presentation.mypage.stats.StatsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.Serializable
@@ -37,7 +39,7 @@ class HomeActivity : AppCompatActivity() {
         "CNN" to "UCupvZG-5ko_eiXAupbDfxWw"
     )
 
-    private val sharedViewModel: SharedViewModel by viewModels()
+    private val statsViewModel: StatsViewModel by viewModels()
     private val myPageViewModel: MyPageViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -123,16 +125,39 @@ class HomeActivity : AppCompatActivity() {
     private fun handleVideoClick(video: HistoryItem) {
         val subtitles = parseSrtToSubtitles(mockSrtText)
 
+        // ✅ 1. 학습 기록 저장 (status = "WATCHED")
+        lifecycleScope.launch {
+            statsViewModel.saveHistory(
+                SaveHistoryRequest(
+                    videoId = video.videoId,
+                    title = video.title,
+                    thumbnail = video.thumbnail,
+                    channel = video.channel,
+                    length = video.length,
+                    category = video.category,
+                    status = "WATCHED"
+                )
+            ) { success ->
+                if (success) {
+                    Log.d("HomeActivity", "✅ saveHistory 완료: ${video.videoId}")
+                } else {
+                    Log.e("HomeActivity", "❌ saveHistory 실패")
+                }
+            }
+
+        }
+
+        // ✅ 2. VideoActivity로 이동
         val intent = Intent(this, VideoActivity::class.java).apply {
             putExtra("videoId", video.videoId)
-            putExtra("title", video.title)
-            putExtra("subs", subtitles as Serializable)
+            putExtra("videoTitle", video.title)
+            putExtra("subtitleList", subtitles as Serializable)
         }
         Log.d("HomeActivity", "🎬 videoId 보내는 값: ${video.videoId}")
-
         startActivity(intent)
-
     }
+
+
 
     private val mockSrtText = """
         1

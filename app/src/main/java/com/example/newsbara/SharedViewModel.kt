@@ -73,6 +73,7 @@ class SharedViewModel @Inject constructor(
     }
 
     fun setVideoData(id: String, title: String, subs: List<SubtitleLine>) {
+        Log.d("SharedViewModel", "✅ setVideoData 호출됨: $id")
         _videoId.value = id
         _videoTitle.value = title
         _subtitleList.value = subs

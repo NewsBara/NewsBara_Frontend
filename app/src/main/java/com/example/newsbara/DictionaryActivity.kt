@@ -13,15 +13,15 @@ import com.example.newsbara.data.DictionaryItem
 import com.example.newsbara.data.DictionaryMeaning
 import com.example.newsbara.presentation.home.HomeActivity
 import com.example.newsbara.presentation.test.TestActivity
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class DictionaryActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: DictionaryAdapter
-    private lateinit var sharedViewModel: SharedViewModel
     private lateinit var backButton: ImageButton
     private lateinit var btnHome: Button
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,24 +29,27 @@ class DictionaryActivity : AppCompatActivity() {
 
         backButton = findViewById(R.id.backButton)
         backButton.setOnClickListener {
-            val intent = Intent(this, TestActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            startActivity(intent)
+            startActivity(Intent(this, TestActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            })
             finish()
         }
+
         btnHome = findViewById(R.id.BtnHome)
         btnHome.setOnClickListener {
-            val intent = Intent(this, HomeActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            startActivity(intent)
+            startActivity(Intent(this, HomeActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            })
             finish()
         }
 
         recyclerView = findViewById(R.id.rvDictionary)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        sharedViewModel = ViewModelProvider(this)[SharedViewModel::class.java]
+        // ✅ highlightWords 가져오기
+        val highlightWords = intent.getStringArrayListExtra("highlightWords") ?: listOf()
 
+        // ✅ 모의 데이터 생성
         val mockMeanings = mapOf(
             "accelerating" to listOf(
                 DictionaryMeaning("v.", "더 빠르게 움직이게 하다"),
@@ -62,7 +65,7 @@ class DictionaryActivity : AppCompatActivity() {
             )
         )
 
-        val mockData = sharedViewModel.highlightWords.map { word ->
+        val mockData = highlightWords.map { word ->
             DictionaryItem(
                 word = word,
                 meanings = mockMeanings[word] ?: listOf(DictionaryMeaning("", "No definition available"))
@@ -71,9 +74,9 @@ class DictionaryActivity : AppCompatActivity() {
 
         adapter = DictionaryAdapter(mockData)
         recyclerView.adapter = adapter
-
     }
 }
+
 
 
 

@@ -3,8 +3,8 @@ package com.example.newsbara.adapter
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.newsbara.presentation.mypage.BadgeFragment
-import com.example.newsbara.presentation.mypage.FriendsFragment
-import com.example.newsbara.presentation.mypage.StatsFragment
+import com.example.newsbara.presentation.mypage.friend.FriendsFragment
+import com.example.newsbara.presentation.mypage.stats.StatsFragment
 
 class MyPageViewPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
     override fun getItemCount(): Int = 3
