@@ -5,12 +5,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.newsbara.data.model.mypage.BadgeInfo
-import com.example.newsbara.data.model.Friend
+import com.example.newsbara.data.model.friends.FriendDecisionRequest
+import com.example.newsbara.data.model.friends.FriendListItem
+import com.example.newsbara.data.model.friends.FriendRequestItem
+import com.example.newsbara.data.model.friends.FriendSearchResponse
 import com.example.newsbara.data.model.history.HistoryItem
-import com.example.newsbara.data.model.mypage.MyPageInfo
 import com.example.newsbara.data.model.youtube.SubtitleLine
+import com.example.newsbara.domain.repository.FriendRepository
 import com.example.newsbara.domain.repository.MyPageRepository
+import com.example.newsbara.presentation.util.ResultState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -18,7 +21,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SharedViewModel @Inject constructor(
-    private val myPageRepository: MyPageRepository
+    private val myPageRepository: MyPageRepository,
+    private val friendRepository: FriendRepository
 ) : ViewModel() {
     val highlightWords = listOf("accelerating", "global", "urgent")
 
@@ -38,32 +42,164 @@ class SharedViewModel @Inject constructor(
     val historyList: LiveData<List<HistoryItem>> get() = _historyList
 
     // 친구 목록 (ranking용)
-    private val _friends = MutableLiveData<List<Friend>>(emptyList())
-    val friends: LiveData<List<Friend>> = _friends
+    private val _friends = MutableLiveData<List<FriendListItem>>(emptyList())
+    val friends: LiveData<List<FriendListItem>> = _friends
 
     // 친구 요청 목록 (request용)
-    private val _friendRequests = MutableLiveData<List<Friend>>(emptyList())
-    val friendRequests: LiveData<List<Friend>> = _friendRequests
+    private val _friendRequests = MutableLiveData<List<FriendRequestItem>>(emptyList())
+    val friendRequests: LiveData<List<FriendRequestItem>> = _friendRequests
 
     // 검색 결과 목록 (add용)
-    private val _searchResults = MutableLiveData<List<Friend>>(emptyList())
-    val searchResults: LiveData<List<Friend>> = _searchResults
+    private val _searchResults = MutableLiveData<List<FriendSearchResponse>>(emptyList())
+    val searchResults: LiveData<List<FriendSearchResponse>> = _searchResults
 
-
-    fun addFriend(friend: Friend) {
-        val current = _friends.value ?: emptyList()
-        if (current.any { it.id == friend.id }) return  // 중복 추가 방지
-        _friends.value = current + friend
+    fun fetchFriends() {
+        viewModelScope.launch {
+            when (val result = friendRepository.getFriends()) {
+                is ResultState.Success -> {
+                    _friends.value = result.data
+                }
+                is ResultState.Failure -> {
+                    Log.e("fetchFriends", "❌ 친구 목록 실패(Failure): ${result.message}")
+                }
+                is ResultState.Error -> {
+                    Log.e("fetchFriends", "❌ 친구 목록 실패(Error): ", result.exception)
+                }
+                is ResultState.Loading -> {
+                    // 로딩 중 처리 (필요 시 로딩 인디케이터 보여줄 수도 있음)
+                }
+                is ResultState.Idle -> {
+                    // 아직 아무 작업도 시작되지 않은 상태 (특별한 처리 없으면 비워도 됨)
+                }
+            }
+        }
     }
 
-    // 친구 요청 수락 시
-    fun acceptFriendRequest(friend: Friend) {
-        _friendRequests.value = _friendRequests.value?.filterNot { it.id == friend.id }
-        _friends.value = _friends.value?.plus(friend)
+    fun fetchFriendRequests() {
+        viewModelScope.launch {
+            when (val result = friendRepository.getFriendRequests()) {
+                is ResultState.Success -> {
+                    _friendRequests.value = result.data
+                }
+                is ResultState.Failure -> {
+                    Log.e("FriendRequest", "❌ 요청 목록 실패(Failure): ${result.message}")
+                }
+                is ResultState.Error -> {
+                    Log.e("FriendRequest", "❌ 요청 목록 실패(Error)", result.exception)
+                }
+                is ResultState.Loading -> {
+                    // 로딩 중 처리 시 여기에
+                    Log.d("FriendRequest", "⏳ 친구 요청 목록 불러오는 중...")
+                }
+                is ResultState.Idle -> {
+                    // 초기 상태일 경우 특별히 할 일 없다면 생략 가능
+                    Log.d("FriendRequest", "⏸️ Idle 상태")
+                }
+            }
+        }
     }
 
-    fun rejectFriendRequest(friend: Friend) {
-        _friendRequests.value = _friendRequests.value?.filterNot { it.id == friend.id }
+    // 친구 요청 수락
+    fun acceptFriendRequest(friend: FriendRequestItem) {
+        viewModelScope.launch {
+            when (val result = friendRepository.decideFollowRequest(
+                friend.id, FriendDecisionRequest("ACCEPT"))
+            ) {
+                is ResultState.Success -> {
+                    _friendRequests.value = _friendRequests.value?.filterNot { it.id == friend.id }
+                    // 예: 변환 후 추가
+                    _friends.value = _friends.value?.plus(
+                        FriendListItem(
+                            id = friend.id,
+                            followerId = friend.followerId,
+                            followerName = friend.followerName,
+                            followerPoint = friend.followerPoint,
+                            followerProfileImage = friend.followerProfileImage,
+                            followStatus = friend.followStatus
+                        )
+                    )
+
+                }
+                is ResultState.Failure -> {
+                    Log.e("FriendRequest", "요청 수락 실패(Failure): ${result.message}")
+                }
+                is ResultState.Error -> {
+                    Log.e("FriendRequest", "요청 수락 실패(Error)", result.exception)
+                }
+                is ResultState.Loading -> {
+                    // 로딩 중 처리 필요시
+                }
+                is ResultState.Idle -> {
+                    // 아무 작업 안 한 초기 상태
+                }
+            }
+        }
+    }
+
+    fun rejectFriendRequest(friend: FriendRequestItem) {
+        viewModelScope.launch {
+            when (val result = friendRepository.decideFollowRequest(
+                friend.id, FriendDecisionRequest("REJECT"))
+            ) {
+                is ResultState.Success -> {
+                    _friendRequests.value = _friendRequests.value?.filterNot { it.id == friend.id }
+                }
+                is ResultState.Failure -> {
+                    Log.e("FriendRequest", "요청 거절 실패(Failure): ${result.message}")
+                }
+                is ResultState.Error -> {
+                    Log.e("FriendRequest", "요청 거절 실패(Error)", result.exception)
+                }
+                is ResultState.Loading -> {
+                    // 필요시 로딩 처리
+                }
+                is ResultState.Idle -> {
+                    // 초기 상태
+                }
+            }
+        }
+    }
+
+
+    fun sendFriendRequest(userId: Int) {
+        viewModelScope.launch {
+            when (val result = friendRepository.sendFriendRequest(userId)) {
+                is ResultState.Success -> {
+                    Log.d("SendFriend", "요청 성공: ${result.data}")
+                }
+                is ResultState.Failure -> {
+                    Log.e("SendFriend", "요청 실패(Failure): ${result.message}")
+                }
+                is ResultState.Error -> {
+                    Log.e("SendFriend", "요청 실패(Error)", result.exception)
+                }
+                is ResultState.Loading, is ResultState.Idle -> {
+
+                }
+            }
+        }
+    }
+
+    fun searchUsers(name: String) {
+        viewModelScope.launch {
+            when (val result = friendRepository.searchUsers(name)) {
+                is ResultState.Success -> {
+                    _searchResults.value = result.data
+                }
+                is ResultState.Failure -> {
+                    Log.e("Search", "검색 실패(Failure): ${result.message}")
+                }
+                is ResultState.Error -> {
+                    Log.e("Search", "검색 실패(Error)", result.exception)
+                }
+                is ResultState.Loading -> {
+                    // 필요시 로딩 처리
+                }
+                is ResultState.Idle -> {
+                    // 초기 상태일 경우 처리
+                }
+            }
+        }
     }
 
     fun setVideoProgress(item: HistoryItem) {
@@ -83,14 +219,24 @@ class SharedViewModel @Inject constructor(
         _historyList.value = list
     }
 
-    // 학습 기록 가져오기
     fun fetchHistory() {
         viewModelScope.launch {
-            try {
-                val result = myPageRepository.getHistory()  // 실제 API 호출
-                _historyList.value = result
-            } catch (e: Exception) {
-                Log.e("SharedViewModel", "학습 기록 불러오기 실패", e)
+            when (val result = myPageRepository.getHistory()) {
+                is ResultState.Success -> {
+                    _historyList.value = result.data
+                }
+                is ResultState.Failure -> {
+                    Log.e("SharedViewModel", "❌ 학습 기록 불러오기 실패 (Failure): ${result.message}")
+                }
+                is ResultState.Error -> {
+                    Log.e("SharedViewModel", "❌ 학습 기록 불러오기 실패 (Error)", result.exception)
+                }
+                is ResultState.Loading -> {
+                    Log.d("SharedViewModel", "⏳ 학습 기록 불러오는 중...")
+                }
+                is ResultState.Idle -> {
+                    Log.d("SharedViewModel", "ℹ️ 학습 기록 Idle 상태")
+                }
             }
         }
     }

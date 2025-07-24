@@ -7,17 +7,20 @@ import android.text.Spanned
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.example.newsbara.MyApp
 import com.example.newsbara.R
 import com.example.newsbara.SharedViewModel
 import com.example.newsbara.data.model.mypage.BadgeInfo
 import com.example.newsbara.databinding.FragmentBadgeBinding
+import com.example.newsbara.presentation.util.ResultState
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -42,19 +45,32 @@ class BadgeFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
         myPageViewModel.fetchBadgeInfo()
 
-        myPageViewModel.badgeInfo.observe(viewLifecycleOwner) { badge ->
-            binding.customCircularProgressView.setCurrentProgress(
-                current = badge.currentPoints,
-                max = badge.nextBadgeMinPoint
-            )
+        lifecycleScope.launchWhenStarted {
+            myPageViewModel.badgeInfoResult.collect { result ->
+                when (result) {
+                    is ResultState.Success -> {
+                        val badge = result.data
+                        binding.customCircularProgressView.setCurrentProgress(
+                            current = badge.currentPoints,
+                            max = badge.nextBadgeMinPoint
+                        )
 
-            binding.tvProgressText.text = buildStyledProgress(
-                badge.currentPoints,
-                badge.nextBadgeMinPoint
-            )
+                        binding.tvProgressText.text = buildStyledProgress(
+                            badge.currentPoints,
+                            badge.nextBadgeMinPoint
+                        )
+                    }
+                    is ResultState.Failure -> {
+                        Log.e("BadgeFragment", "배지 정보 로딩 실패: ${result.message}")
+                    }
+                    is ResultState.Error -> {
+                        Log.e("BadgeFragment", "배지 정보 오류: ${result.exception.message}")
+                    }
+                    else -> Unit
+                }
+            }
         }
     }
 

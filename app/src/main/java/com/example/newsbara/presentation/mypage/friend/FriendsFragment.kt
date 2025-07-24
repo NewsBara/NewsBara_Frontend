@@ -26,7 +26,7 @@ class FriendsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // 기본 화면: RankingFragment
+
         childFragmentManager.beginTransaction()
             .replace(R.id.friendsContentFrame, RankingFragment())
             .commit()

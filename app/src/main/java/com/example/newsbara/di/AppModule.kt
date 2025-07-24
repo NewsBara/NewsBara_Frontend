@@ -1,16 +1,16 @@
 package com.example.newsbara.di
 
-
-
 import android.content.Context
 import com.example.newsbara.BuildConfig
-import com.example.newsbara.BuildConfig.BASE_URL
 import com.example.newsbara.data.repository.AuthRepositoryImpl
+import com.example.newsbara.data.repository.FriendRepositoryImpl
 import com.example.newsbara.data.repository.MyPageRepositoryImpl
 import com.example.newsbara.data.service.AuthService
+import com.example.newsbara.data.service.FriendService
 import com.example.newsbara.data.service.MyPageService
 import com.example.newsbara.data.service.YouTubeApiService
 import com.example.newsbara.domain.repository.AuthRepository
+import com.example.newsbara.domain.repository.FriendRepository
 import com.example.newsbara.domain.repository.MyPageRepository
 import com.example.newsbara.network.RetrofitClient
 import com.example.newsbara.network.TokenInterceptor
@@ -49,7 +49,6 @@ object AppModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-    // ✅ Retrofit 기반 서비스 주입
     @Provides
     @Singleton
     fun provideAuthService(retrofit: Retrofit): AuthService =
@@ -62,11 +61,16 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideFriendService(retrofit: Retrofit): FriendService =
+        retrofit.create(FriendService::class.java)
+
+
+    @Provides
+    @Singleton
     fun provideYouTubeService(): YouTubeApiService =
-        RetrofitClient.youtubeService // 그대로 사용 OK
+        RetrofitClient.youtubeService
 
 
-    // ✅ Repository 주입
     @Provides
     @Singleton
     fun provideAuthRepository(service: AuthService): AuthRepository =
@@ -76,4 +80,13 @@ object AppModule {
     @Singleton
     fun provideMyPageRepository(service: MyPageService): MyPageRepository =
         MyPageRepositoryImpl(service)
+
+    @Provides
+    @Singleton
+    fun provideFriendRepository(service: FriendService): FriendRepository =
+        FriendRepositoryImpl(service)
+
+
+
+
 }

@@ -9,12 +9,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.newsbara.R
 import com.example.newsbara.data.model.Friend
+import com.example.newsbara.data.model.friends.FriendListItem
+
 
 class RankingFriendAdapter : RecyclerView.Adapter<RankingFriendAdapter.FriendViewHolder>() {
 
-    private var friendList: List<Friend> = emptyList()
+    private var friendList: List<FriendListItem> = emptyList()
 
-    fun submitList(list: List<Friend>) {
+    fun submitList(list: List<FriendListItem>) {
         friendList = list
         notifyDataSetChanged()
     }
@@ -36,21 +38,26 @@ class RankingFriendAdapter : RecyclerView.Adapter<RankingFriendAdapter.FriendVie
     override fun onBindViewHolder(holder: FriendViewHolder, position: Int) {
         val friend = friendList[position]
 
-        // 순위 표시
         holder.textRank.text = "${position + 1}"
+        holder.textName.text = friend.followerName
+        holder.textPoints.text = "${friend.followerPoint} points"
 
-        holder.textName.text = friend.name
-        holder.textPoints.text = "${friend.points} points"
-
-        // 프로필 이미지
         Glide.with(holder.itemView)
-            .load(friend.profileUrl)
+            .load(friend.followerProfileImage)
             .placeholder(R.drawable.placeholder)
             .error(R.drawable.ic_error)
             .into(holder.imageProfile)
 
-        // 뱃지 설정
-        val badgeResId = when (friend.badgeLevel) {
+
+        val badgeLevel = when {
+            friend.followerPoint >= 3000 -> 5
+            friend.followerPoint >= 2000 -> 4
+            friend.followerPoint >= 1000 -> 3
+            friend.followerPoint >= 500 -> 2
+            else -> 1
+        }
+
+        val badgeResId = when (badgeLevel) {
             1 -> R.drawable.ic_lv1
             2 -> R.drawable.ic_lv2
             3 -> R.drawable.ic_lv3_

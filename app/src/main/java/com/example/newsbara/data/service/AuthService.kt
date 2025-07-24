@@ -23,4 +23,7 @@ interface AuthService {
 
     @POST("/api/user/logout")
     suspend fun logout(): Response<BaseResponse<Unit>>
+
+    @POST("/api/user/deleteUser")
+    suspend fun deleteUser(): Response<BaseResponse<Unit>>
 }

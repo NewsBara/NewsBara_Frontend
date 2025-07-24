@@ -73,7 +73,6 @@ class MyPageFragment : Fragment() {
             tab.text = tabTitles[position]
         }.attach()
 
-        // 마이페이지 정보 관찰
         lifecycleScope.launchWhenStarted {
             myPageViewModel.myPageInfo.collect { info ->
                 info?.let {
@@ -90,12 +89,10 @@ class MyPageFragment : Fragment() {
             }
         }
 
-        // ✅ 프로필 사진 수정
         btnEditProfile.setOnClickListener {
             openImagePicker()
         }
 
-        // ✅ 프로필 업로드 상태 관찰
         lifecycleScope.launchWhenStarted {
             myPageViewModel.uploadResult.collect { result ->
                 when (result) {
@@ -162,7 +159,6 @@ class MyPageFragment : Fragment() {
             }
         }
 
-        // 닉네임 변경 결과 observe
         lifecycleScope.launchWhenStarted {
             myPageViewModel.nameUpdateResult.collect { result ->
                 when (result) {

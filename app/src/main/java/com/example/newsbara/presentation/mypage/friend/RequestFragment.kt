@@ -13,6 +13,7 @@ import com.example.newsbara.R
 import com.example.newsbara.SharedViewModel
 import com.example.newsbara.adapter.RequestFriendAdapter
 
+
 class RequestFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
@@ -35,20 +36,17 @@ class RequestFragment : Fragment() {
         adapter = RequestFriendAdapter(
             onAccept = { friend ->
                 sharedViewModel.acceptFriendRequest(friend)
-                Toast.makeText(requireContext(), "${friend.name} accepted", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(requireContext(), "${friend.followerName} accepted", Toast.LENGTH_SHORT).show()
             },
             onReject = { friend ->
                 sharedViewModel.rejectFriendRequest(friend)
-                Toast.makeText(requireContext(), "${friend.name} rejected", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(requireContext(), "${friend.followerName} rejected", Toast.LENGTH_SHORT).show()
             }
         )
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
 
-        // LiveData 관찰해서 UI 업데이트
         sharedViewModel.friendRequests.observe(viewLifecycleOwner) { requestList ->
             adapter.submitList(requestList)
         }

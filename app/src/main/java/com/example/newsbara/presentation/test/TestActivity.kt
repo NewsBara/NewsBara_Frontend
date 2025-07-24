@@ -23,7 +23,6 @@ import kotlinx.coroutines.withContext
 class TestActivity : AppCompatActivity() {
     private val viewModel: SharedViewModel by viewModels()
 
-
     private lateinit var tvSummary: TextView
     private lateinit var tvAnswer: TextView
     private lateinit var btnInput: ImageButton

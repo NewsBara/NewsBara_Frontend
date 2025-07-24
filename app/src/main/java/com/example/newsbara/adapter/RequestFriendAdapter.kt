@@ -10,15 +10,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.newsbara.R
 import com.example.newsbara.data.model.Friend
+import com.example.newsbara.data.model.friends.FriendRequestItem
+
 
 class RequestFriendAdapter(
-    private val onAccept: (Friend) -> Unit,
-    private val onReject: (Friend) -> Unit
+    private val onAccept: (FriendRequestItem) -> Unit,
+    private val onReject: (FriendRequestItem) -> Unit
 ) : RecyclerView.Adapter<RequestFriendAdapter.RequestViewHolder>() {
 
-    private var requestList: List<Friend> = emptyList()
+    private var requestList: List<FriendRequestItem> = emptyList()
 
-    fun submitList(list: List<Friend>) {
+    fun submitList(list: List<FriendRequestItem>) {
         requestList = list
         notifyDataSetChanged()
     }
@@ -30,13 +32,14 @@ class RequestFriendAdapter(
         private val btnAccept: Button = itemView.findViewById(R.id.btnAccept)
         private val btnReject: Button = itemView.findViewById(R.id.btnReject)
 
-        fun bind(friend: Friend) {
-            textName.text = friend.name
-            textPoints.text = "${friend.points} points"
+        fun bind(friend: FriendRequestItem) {
+            textName.text = friend.followerName
+            textPoints.text = "${friend.followerPoint} points"
 
             Glide.with(itemView)
-                .load(friend.profileUrl)
+                .load(friend.followerProfileImage)
                 .placeholder(R.drawable.placeholder)
+                .error(R.drawable.ic_error)
                 .into(imageProfile)
 
             btnAccept.setOnClickListener { onAccept(friend) }

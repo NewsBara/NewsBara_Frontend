@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.newsbara.adapter.DictionaryAdapter
@@ -46,10 +45,10 @@ class DictionaryActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.rvDictionary)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // ✅ highlightWords 가져오기
+        // highlightWords 가져오기
         val highlightWords = intent.getStringArrayListExtra("highlightWords") ?: listOf()
 
-        // ✅ 모의 데이터 생성
+        // 모의 데이터 생성
         val mockMeanings = mapOf(
             "accelerating" to listOf(
                 DictionaryMeaning("v.", "더 빠르게 움직이게 하다"),

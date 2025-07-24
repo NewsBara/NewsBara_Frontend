@@ -5,50 +5,54 @@ import com.example.newsbara.data.model.login.LoginResponse
 import com.example.newsbara.data.model.signup.SignUpRequest
 import com.example.newsbara.data.service.AuthService
 import com.example.newsbara.domain.repository.AuthRepository
+import com.example.newsbara.presentation.util.ResultState
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val authService: AuthService
 ) : AuthRepository {
 
-    override suspend fun signUp(request: SignUpRequest): Result<Unit> {
+    override suspend fun signUp(request: SignUpRequest): ResultState<Unit> {
         return try {
             val response = authService.signUp(request)
-            if (response.isSuccessful) Result.success(Unit)
-            else Result.failure(Exception("회원가입 실패: ${response.code()}"))
+            if (response.isSuccessful) {
+                ResultState.Success(Unit)
+            } else {
+                ResultState.Failure("회원가입 실패: ${response.code()}")
+            }
         } catch (e: Exception) {
-            Result.failure(e)
+            ResultState.Failure("예외 발생: ${e.localizedMessage ?: "알 수 없음"}")
         }
     }
 
-    override suspend fun login(request: LoginRequest): Result<LoginResponse> {
+    override suspend fun login(request: LoginRequest): ResultState<LoginResponse> {
         return try {
             val response = authService.login(request)
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null && body.isSuccess) {
-                    Result.success(body.result)
+                    ResultState.Success(body.result)
                 } else {
-                    Result.failure(Exception("서버 응답 실패: ${body?.message ?: "알 수 없음"}"))
+                    ResultState.Failure("서버 응답 실패: ${body?.message ?: "알 수 없음"}")
                 }
             } else {
-                Result.failure(Exception("HTTP 오류: ${response.code()}"))
+                ResultState.Failure("HTTP 오류: ${response.code()}")
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            ResultState.Failure("예외 발생: ${e.localizedMessage ?: "알 수 없음"}")
         }
     }
 
-    override suspend fun logout(): Result<Unit> {
+    override suspend fun logout(): ResultState<Unit> {
         return try {
             val response = authService.logout()
             if (response.isSuccessful) {
-                Result.success(Unit)
+                ResultState.Success(Unit)
             } else {
-                Result.failure(Exception("로그아웃 실패: ${response.code()}"))
+                ResultState.Failure("로그아웃 실패: ${response.code()}")
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            ResultState.Failure("예외 발생: ${e.localizedMessage ?: "알 수 없음"}")
         }
     }
 }

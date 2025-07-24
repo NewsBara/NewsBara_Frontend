@@ -35,8 +35,14 @@ class MyPageViewModel @Inject constructor(
     private val _myPageInfo = MutableStateFlow<MyPageInfo?>(null)
     val myPageInfo: StateFlow<MyPageInfo?> = _myPageInfo
 
-    private val _badgeInfo = MutableLiveData<BadgeInfo>()
-    val badgeInfo: LiveData<BadgeInfo> get() = _badgeInfo
+    private val _myPageInfoResult = MutableStateFlow<ResultState<MyPageInfo>>(ResultState.Idle)
+    val myPageInfoResult: StateFlow<ResultState<MyPageInfo>> = _myPageInfoResult
+
+    private val _badgeInfo = MutableStateFlow<BadgeInfo?>(null)
+    val badgeInfo: StateFlow<BadgeInfo?> = _badgeInfo
+
+    private val _badgeInfoResult = MutableStateFlow<ResultState<BadgeInfo>>(ResultState.Idle)
+    val badgeInfoResult: StateFlow<ResultState<BadgeInfo>> = _badgeInfoResult
 
     private val _uploadResult = MutableStateFlow<ResultState<UpdateProfileImageResponse>>(ResultState.Idle)
     val uploadResult: StateFlow<ResultState<UpdateProfileImageResponse>> = _uploadResult
@@ -50,55 +56,75 @@ class MyPageViewModel @Inject constructor(
     fun updateName(newName: String) {
         viewModelScope.launch {
             _nameUpdateResult.value = ResultState.Loading
-            try {
-                val result = repository.updateName(UpdateNameRequest(newName))
-                Log.d("MyPageViewModel", "현재 myPageInfo 상태: ${_myPageInfo.value}")
+            when (val result = repository.updateName(UpdateNameRequest(newName))) {
+                is ResultState.Success -> {
+                    val updatedName = result.data.name
+                    _myPageInfo.value = _myPageInfo.value?.copy(name = updatedName)
+                    _nameUpdateResult.value = result
+                    fetchMyPageInfo()
+                }
 
-                // UI 반영용 데이터도 업데이트
-                _myPageInfo.value = _myPageInfo.value?.copy(name = result.name)
-                _nameUpdateResult.value = ResultState.Success(result)
-                fetchMyPageInfo()
-            } catch (e: Exception) {
-                _nameUpdateResult.value = ResultState.Failure(e.message ?: "이름 변경 실패")
+                is ResultState.Failure -> {
+                    _nameUpdateResult.value = result
+                }
+
+                is ResultState.Error -> {
+                    _nameUpdateResult.value = result
+                }
+
+                else -> Unit
             }
         }
     }
-
 
     fun fetchMyPageInfo() {
         viewModelScope.launch {
-            try {
-                val info = repository.getMyPageInfo()
-                _myPageInfo.value = info
-            } catch (e: Exception) {
-                Log.e("MyPageViewModel", "마이페이지 정보 가져오기 실패: ${e.message}")
+            _myPageInfoResult.value = ResultState.Loading
+            when (val result = repository.getMyPageInfo()) {
+                is ResultState.Success -> {
+                    _myPageInfo.value = result.data
+                    _myPageInfoResult.value = ResultState.Success(result.data)
+                }
+                is ResultState.Failure -> {
+                    Log.e("MyPageViewModel", "실패: ${result.message}")
+                    _myPageInfoResult.value = ResultState.Failure(result.message)
+                }
+                is ResultState.Error -> {
+                    Log.e("MyPageViewModel", "에러: ${result.exception.message}")
+                    _myPageInfoResult.value = ResultState.Error(result.exception)
+                }
+                else -> Unit
             }
         }
     }
-
 
     fun fetchBadgeInfo() {
         viewModelScope.launch {
-            try {
-                val badge = repository.getBadge()
-                _badgeInfo.value = badge
-            } catch (e: Exception) {
-                Log.e("MyPageViewModel", "배지 정보 가져오기 실패: ${e.message}")
+            _badgeInfoResult.value = ResultState.Loading
+            when (val result = repository.getBadge()) {
+                is ResultState.Success -> _badgeInfoResult.value = ResultState.Success(result.data)
+                is ResultState.Failure -> _badgeInfoResult.value = ResultState.Failure(result.message)
+                is ResultState.Error -> _badgeInfoResult.value = ResultState.Error(result.exception)
+                else -> Unit
             }
         }
     }
-
 
     fun uploadProfileImage(file: File) {
         viewModelScope.launch {
             _uploadResult.value = ResultState.Loading
-            try {
-                val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
-                val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
-                val result = repository.updateProfileImage(body)
-                _uploadResult.value = ResultState.Success(result)
-            } catch (e: Exception) {
-                _uploadResult.value = ResultState.Failure(e.message ?: "에러 발생")
+            when (val result = repository.updateProfileImage(
+                MultipartBody.Part.createFormData(
+                    "file",
+                    file.name,
+                    file.asRequestBody("image/*".toMediaTypeOrNull())
+                )
+            )) {
+                is ResultState.Success -> _uploadResult.value = ResultState.Success(result.data)
+                is ResultState.Failure -> _uploadResult.value = ResultState.Failure(result.message)
+                is ResultState.Error -> _uploadResult.value =
+                    ResultState.Error(result.exception)
+                else -> Unit
             }
         }
     }
@@ -107,8 +133,8 @@ class MyPageViewModel @Inject constructor(
         viewModelScope.launch {
             _logoutResult.value = ResultState.Loading
             try {
-                authRepository.logout() // 실제 API 호출
-                // 🔐 accessToken 삭제
+                authRepository.logout()
+
                 app.getSharedPreferences("auth", Context.MODE_PRIVATE)
                     .edit()
                     .remove("accessToken")

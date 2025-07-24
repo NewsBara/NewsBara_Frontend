@@ -10,14 +10,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.newsbara.R
 import com.example.newsbara.data.model.Friend
+import com.example.newsbara.data.model.friends.FriendSearchResponse
 
 class AddFriendAdapter(
-    private val onAddClick: (Friend) -> Unit
+    private val onAddClick: (FriendSearchResponse) -> Unit
 ) : RecyclerView.Adapter<AddFriendAdapter.FriendViewHolder>() {
 
-    private var friendList: List<Friend> = emptyList()
+    private var friendList: List<FriendSearchResponse> = emptyList()
 
-    fun submitList(list: List<Friend>) {
+    fun submitList(list: List<FriendSearchResponse>) {
         friendList = list
         notifyDataSetChanged()
     }
@@ -26,17 +27,15 @@ class AddFriendAdapter(
         private val imageProfile: ImageView = itemView.findViewById(R.id.imageProfile)
         private val textName: TextView = itemView.findViewById(R.id.textName)
         private val textPoints: TextView = itemView.findViewById(R.id.textPoints)
-        private val imageBadge: ImageView = itemView.findViewById(R.id.imageBadge)
         private val btnAdd: Button = itemView.findViewById(R.id.btnAdd)
 
-        fun bind(friend: Friend) {
-            textName.text = friend.name
-            textPoints.text = "${friend.points} points"
+        fun bind(friend: FriendSearchResponse) {
+            textName.text = friend.userName
+            textPoints.text = if (friend.following) "이미 친구" else if (friend.pending) "대기 중" else ""
             Glide.with(itemView)
-                .load(friend.profileUrl)
+                .load(friend.profileImage)
                 .placeholder(R.drawable.placeholder)
                 .into(imageProfile)
-            imageBadge.setImageResource(R.drawable.ic_lv1) // 레벨에 따라 조정 가능
 
             btnAdd.setOnClickListener {
                 onAddClick(friend)

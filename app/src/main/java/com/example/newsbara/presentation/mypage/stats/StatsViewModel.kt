@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.newsbara.data.model.history.HistoryItem
 import com.example.newsbara.data.model.history.SaveHistoryRequest
 import com.example.newsbara.domain.repository.MyPageRepository
+import com.example.newsbara.presentation.util.ResultState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,14 +26,21 @@ class StatsViewModel @Inject constructor(
 
     fun fetchHistory() {
         viewModelScope.launch {
-            try {
-                val result = myPageRepository.getHistory()
-                _historyList.value = result
-            } catch (e: Exception) {
-                Log.e("StatsViewModel", "히스토리 가져오기 실패", e)
+            when (val result = myPageRepository.getHistory()) {
+                is ResultState.Success -> {
+                    _historyList.value = result.data
+                }
+                is ResultState.Failure -> {
+                    Log.e("StatsViewModel", "히스토리 로딩 실패: ${result.message}")
+                }
+                is ResultState.Error -> {
+                    Log.e("StatsViewModel", "히스토리 오류: ${result.exception}")
+                }
+                else -> Unit
             }
         }
     }
+
 
     fun updateHistoryStatus(item: HistoryItem, onComplete: (HistoryItem?) -> Unit) {
         val nextStatus = when (item.status.uppercase()) {

@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.newsbara.SharedViewModel
 import com.example.newsbara.adapter.RankingFriendAdapter
 import com.example.newsbara.databinding.FragmentRankingBinding
-
 class RankingFragment : Fragment() {
 
     private lateinit var binding: FragmentRankingBinding
@@ -31,8 +30,8 @@ class RankingFragment : Fragment() {
         binding.recyclerFriends.adapter = adapter
 
         sharedViewModel.friends.observe(viewLifecycleOwner) { friends ->
-            // 포인트 내림차순 정렬 후 리스트 적용
-            val sorted = friends.sortedByDescending { it.points }
+
+            val sorted = friends.sortedByDescending { it.followerPoint }
             adapter.submitList(sorted)
         }
     }

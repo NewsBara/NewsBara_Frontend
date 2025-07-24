@@ -23,12 +23,14 @@ class SignUpViewModel @Inject constructor(
     fun signUp(request: SignUpRequest) {
         viewModelScope.launch {
             _signUpResult.value = ResultState.Loading
-            val result = authRepository.signUp(request)
-            _signUpResult.value = result.fold(
-                onSuccess = { ResultState.Success(Unit) },
-                onFailure = { ResultState.Failure(it.message ?: "알 수 없는 오류") }
-            )
+            when (val result = authRepository.signUp(request)) {
+                is ResultState.Success -> _signUpResult.value = ResultState.Success(Unit)
+                is ResultState.Failure -> _signUpResult.value = ResultState.Failure(result.message)
+                is ResultState.Error -> _signUpResult.value = ResultState.Error(result.exception)
+                else -> Unit
+            }
         }
     }
+
 }
 
