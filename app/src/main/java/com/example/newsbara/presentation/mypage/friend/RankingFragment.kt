@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.newsbara.SharedViewModel
 import com.example.newsbara.adapter.RankingFriendAdapter
 import com.example.newsbara.databinding.FragmentRankingBinding
+
+
 class RankingFragment : Fragment() {
 
     private lateinit var binding: FragmentRankingBinding
@@ -25,14 +27,19 @@ class RankingFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         adapter = RankingFriendAdapter()
         binding.recyclerFriends.layoutManager = LinearLayoutManager(context)
         binding.recyclerFriends.adapter = adapter
 
-        sharedViewModel.friends.observe(viewLifecycleOwner) { friends ->
+        // ✅ 친구 목록 가져오기
+        sharedViewModel.fetchFriends()
 
+        sharedViewModel.friends.observe(viewLifecycleOwner) { friends ->
             val sorted = friends.sortedByDescending { it.followerPoint }
             adapter.submitList(sorted)
         }
     }
+
 }

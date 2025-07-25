@@ -47,6 +47,8 @@ class RequestFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
 
+        sharedViewModel.fetchFriendRequests()
+
         sharedViewModel.friendRequests.observe(viewLifecycleOwner) { requestList ->
             adapter.submitList(requestList)
         }

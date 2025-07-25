@@ -103,22 +103,14 @@ class SharedViewModel @Inject constructor(
     fun acceptFriendRequest(friend: FriendRequestItem) {
         viewModelScope.launch {
             when (val result = friendRepository.decideFollowRequest(
-                friend.id, FriendDecisionRequest("ACCEPT"))
+                friend.id, FriendDecisionRequest("ACCEPTED"))
             ) {
                 is ResultState.Success -> {
+                    // ✅ 수락된 요청은 목록에서 제거
                     _friendRequests.value = _friendRequests.value?.filterNot { it.id == friend.id }
-                    // 예: 변환 후 추가
-                    _friends.value = _friends.value?.plus(
-                        FriendListItem(
-                            id = friend.id,
-                            followerId = friend.followerId,
-                            followerName = friend.followerName,
-                            followerPoint = friend.followerPoint,
-                            followerProfileImage = friend.followerProfileImage,
-                            followStatus = friend.followStatus
-                        )
-                    )
 
+                    // ✅ 친구 목록 새로고침
+                    fetchFriends()
                 }
                 is ResultState.Failure -> {
                     Log.e("FriendRequest", "요청 수락 실패(Failure): ${result.message}")
@@ -126,20 +118,16 @@ class SharedViewModel @Inject constructor(
                 is ResultState.Error -> {
                     Log.e("FriendRequest", "요청 수락 실패(Error)", result.exception)
                 }
-                is ResultState.Loading -> {
-                    // 로딩 중 처리 필요시
-                }
-                is ResultState.Idle -> {
-                    // 아무 작업 안 한 초기 상태
-                }
+                else -> Unit
             }
         }
     }
 
+
     fun rejectFriendRequest(friend: FriendRequestItem) {
         viewModelScope.launch {
             when (val result = friendRepository.decideFollowRequest(
-                friend.id, FriendDecisionRequest("REJECT"))
+                friend.id, FriendDecisionRequest("REJECTED"))
             ) {
                 is ResultState.Success -> {
                     _friendRequests.value = _friendRequests.value?.filterNot { it.id == friend.id }

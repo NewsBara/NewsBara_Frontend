@@ -43,10 +43,11 @@ class RankingFriendAdapter : RecyclerView.Adapter<RankingFriendAdapter.FriendVie
         holder.textPoints.text = "${friend.followerPoint} points"
 
         Glide.with(holder.itemView)
-            .load(friend.followerProfileImage)
+            .load(friend.followerProfileImage.takeIf { !it.isNullOrBlank() } ?: R.drawable.ic_avatat)
             .placeholder(R.drawable.placeholder)
             .error(R.drawable.ic_error)
             .into(holder.imageProfile)
+
 
 
         val badgeLevel = when {

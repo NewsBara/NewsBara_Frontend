@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -22,7 +23,6 @@ import com.example.newsbara.data.model.mypage.BadgeInfo
 import com.example.newsbara.databinding.FragmentBadgeBinding
 import com.example.newsbara.presentation.util.ResultState
 import dagger.hilt.android.AndroidEntryPoint
-
 @AndroidEntryPoint
 class BadgeFragment : Fragment() {
 
@@ -32,75 +32,103 @@ class BadgeFragment : Fragment() {
     private val myPageViewModel: MyPageViewModel by activityViewModels()
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentBadgeBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        observeBadgeInfo()
+        myPageViewModel.fetchBadgeInfo()
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        myPageViewModel.fetchBadgeInfo()
-
+    private fun observeBadgeInfo() {
         lifecycleScope.launchWhenStarted {
             myPageViewModel.badgeInfoResult.collect { result ->
                 when (result) {
-                    is ResultState.Success -> {
-                        val badge = result.data
-                        binding.customCircularProgressView.setCurrentProgress(
-                            current = badge.currentPoints,
-                            max = badge.nextBadgeMinPoint
-                        )
-
-                        binding.tvProgressText.text = buildStyledProgress(
-                            badge.currentPoints,
-                            badge.nextBadgeMinPoint
-                        )
-                    }
-                    is ResultState.Failure -> {
-                        Log.e("BadgeFragment", "배지 정보 로딩 실패: ${result.message}")
-                    }
-                    is ResultState.Error -> {
-                        Log.e("BadgeFragment", "배지 정보 오류: ${result.exception.message}")
-                    }
+                    is ResultState.Success -> bindBadgeInfo(result.data)
+                    is ResultState.Failure -> showError("배지 정보를 불러오지 못했습니다: ${result.message}")
+                    is ResultState.Error -> showError("예외 발생: ${result.exception.message}")
                     else -> Unit
                 }
             }
         }
     }
 
+    private fun bindBadgeInfo(badge: BadgeInfo) {
+
+        binding.customCircularProgressView.setCurrentProgress(
+            current = badge.currentPoints,
+            max = badge.nextBadgeMinPoint
+        )
+
+        binding.tvProgressText.text = buildStyledProgress(
+            current = badge.currentPoints,
+            max = badge.nextBadgeMinPoint
+        )
+
+        binding.tvCurrentBadgeName.text = badge.currentBadgeName
+        binding.tvNextBadgeLevel.text = badge.nextBadgeName
+        binding.tvCurrentBadgeLevel.text = badge.currentBadgeName
+
+        val badgeImageRes = getBadgeImageResource(badge.currentBadgeName)
+        binding.ivBadge.setImageResource(badgeImageRes)
+
+        val badgeImage = getBadgeImageResource(badge.currentBadgeName)
+        binding.ivCurrentBadge.setImageResource(badgeImage)
+
+        val badgeImageResNext = getBadgeImageResource(badge.nextBadgeName)
+        binding.ivNextBadge.setImageResource(badgeImageResNext)
+
+
+    }
+
     private fun buildStyledProgress(current: Int, max: Int): SpannableStringBuilder {
-        val builder = SpannableStringBuilder()
+        return SpannableStringBuilder().apply {
+            appendStyled("$current", 28, Typeface.BOLD)
+            appendStyled(" / $max", 18, Typeface.NORMAL, R.color.gray_text)
+            appendStyled("\npoints", 14, Typeface.NORMAL, R.color.gray_text)
+        }
+    }
 
-        val currentStr = current.toString()
-        val maxStr = "/ $max"
-        val pointsStr = "\npoints"
+    private fun SpannableStringBuilder.appendStyled(
+        text: String,
+        size: Int,
+        style: Int,
+        colorRes: Int? = null
+    ) {
+        val start = length
+        append(text)
+        setSpan(StyleSpan(style), start, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        setSpan(AbsoluteSizeSpan(size, true), start, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        colorRes?.let {
+            setSpan(
+                ForegroundColorSpan(ContextCompat.getColor(requireContext(), it)),
+                start, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+    }
 
-        builder.append(currentStr)
-        builder.setSpan(StyleSpan(Typeface.BOLD), 0, currentStr.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        builder.setSpan(AbsoluteSizeSpan(28, true), 0, currentStr.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    private fun getBadgeImageResource(badgeName: String): Int {
+        return when (badgeName.lowercase()) {
+            "level 1" -> R.drawable.ic_lv1
+            "level 2" -> R.drawable.ic_lv2
+            "level 3" -> R.drawable.ic_lv3_
+            "level 4" -> R.drawable.ic_lv4
+            "level 5" -> R.drawable.ic_lv5
+            else -> R.drawable.ic_lv1
+        }
+    }
 
-        val startMax = builder.length
-        builder.append(maxStr)
-        builder.setSpan(
-            ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.gray_text)),
-            startMax, builder.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-        builder.setSpan(AbsoluteSizeSpan(18, true), startMax, builder.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    private fun showError(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        Log.e("BadgeFragment", message)
+    }
 
-        val startPoints = builder.length
-        builder.append(pointsStr)
-        builder.setSpan(
-            ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.gray_text)),
-            startPoints, builder.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-        builder.setSpan(AbsoluteSizeSpan(14, true), startPoints, builder.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-        return builder
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
