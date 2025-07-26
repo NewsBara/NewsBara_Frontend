@@ -44,6 +44,7 @@ class MyPageFragment : Fragment() {
     private lateinit var nameText: TextView
     private lateinit var imageProfile: ImageView
     private lateinit var btnEditProfile: ImageView
+    private lateinit var btnSettings: ImageView
 
     companion object {
         private const val IMAGE_PICK_CODE = 101
@@ -65,6 +66,7 @@ class MyPageFragment : Fragment() {
         nameText = view.findViewById(R.id.tvName)
         imageProfile = view.findViewById(R.id.ivProfile)
         btnEditProfile = view.findViewById(R.id.btnEditProfile)
+        btnSettings = view.findViewById<ImageView>(R.id.btnSettings)
 
         adapter = MyPageViewPagerAdapter(this)
         viewPager.adapter = adapter
@@ -120,6 +122,17 @@ class MyPageFragment : Fragment() {
             }
         }
 
+        btnSettings.setOnClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Delete Account")
+                .setMessage("Are you sure you want to delete your account?")
+                .setPositiveButton("Yes") { _, _ ->
+                    myPageViewModel.deleteUser()
+                }
+                .setNegativeButton("No", null)
+                .show()
+        }
+
         // 닉네임 수정
         val editButton = view.findViewById<ImageView>(R.id.profileImg)
         editButton.setOnClickListener {
@@ -160,6 +173,30 @@ class MyPageFragment : Fragment() {
                 }
             }
         }
+
+        lifecycleScope.launchWhenStarted {
+            myPageViewModel.deleteUserResult.collect { result ->
+                when (result) {
+                    is ResultState.Loading -> {
+                        Toast.makeText(requireContext(), "회원탈퇴 중...", Toast.LENGTH_SHORT).show()
+                    }
+
+                    is ResultState.Success -> {
+                        Toast.makeText(requireContext(), "회원탈퇴 완료", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(requireContext(), LoginActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
+                    }
+
+                    is ResultState.Failure -> {
+                        Toast.makeText(requireContext(), "탈퇴 실패: ${result.message}", Toast.LENGTH_SHORT).show()
+                    }
+
+                    else -> Unit
+                }
+            }
+        }
+
 
         lifecycleScope.launchWhenStarted {
             myPageViewModel.nameUpdateResult.collect { result ->

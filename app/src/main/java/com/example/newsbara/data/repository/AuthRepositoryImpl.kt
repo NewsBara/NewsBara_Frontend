@@ -55,4 +55,17 @@ class AuthRepositoryImpl @Inject constructor(
             ResultState.Failure("예외 발생: ${e.localizedMessage ?: "알 수 없음"}")
         }
     }
+
+    override suspend fun deleteUser(): ResultState<Unit> {
+        return try {
+            val response = authService.deleteUser()
+            if (response.isSuccessful) {
+                ResultState.Success(Unit)
+            } else {
+                ResultState.Failure("회원탈퇴 실패: ${response.code()}")
+            }
+        } catch (e: Exception) {
+            ResultState.Failure("예외 발생: ${e.localizedMessage ?: "알 수 없음"}")
+        }
+    }
 }

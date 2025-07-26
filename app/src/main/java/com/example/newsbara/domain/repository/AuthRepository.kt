@@ -10,4 +10,5 @@ interface AuthRepository {
     suspend fun signUp(request: SignUpRequest): ResultState<Unit>
     suspend fun login(request: LoginRequest): ResultState<LoginResponse>
     suspend fun logout(): ResultState<Unit>
+    suspend fun deleteUser(): ResultState<Unit>
 }

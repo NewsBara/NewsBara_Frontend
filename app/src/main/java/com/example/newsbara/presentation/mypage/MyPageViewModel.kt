@@ -50,6 +50,9 @@ class MyPageViewModel @Inject constructor(
     private val _logoutResult = MutableStateFlow<ResultState<Unit>>(ResultState.Idle)
     val logoutResult: StateFlow<ResultState<Unit>> = _logoutResult
 
+    private val _deleteUserResult = MutableStateFlow<ResultState<Unit>>(ResultState.Idle)
+    val deleteUserResult: StateFlow<ResultState<Unit>> = _deleteUserResult
+
     private val _nameUpdateResult = MutableStateFlow<ResultState<UpdateNameResponse>>(ResultState.Idle)
     val nameUpdateResult: StateFlow<ResultState<UpdateNameResponse>> = _nameUpdateResult
 
@@ -143,6 +146,25 @@ class MyPageViewModel @Inject constructor(
                 _logoutResult.value = ResultState.Success(Unit)
             } catch (e: Exception) {
                 _logoutResult.value = ResultState.Failure(e.message ?: "로그아웃 실패")
+            }
+        }
+    }
+
+    fun deleteUser() {
+        viewModelScope.launch {
+            _deleteUserResult.value = ResultState.Loading
+            try {
+                authRepository.deleteUser()
+
+                // 토큰 삭제
+                app.getSharedPreferences("auth", Context.MODE_PRIVATE)
+                    .edit()
+                    .remove("accessToken")
+                    .apply()
+
+                _deleteUserResult.value = ResultState.Success(Unit)
+            } catch (e: Exception) {
+                _deleteUserResult.value = ResultState.Error(e)
             }
         }
     }
