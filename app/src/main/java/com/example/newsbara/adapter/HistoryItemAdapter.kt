@@ -22,7 +22,8 @@ class HistoryItemAdapter(
         fun bind(video: HistoryItem) {
             title.text = video.title
             Glide.with(itemView)
-                .load(video.thumbnail)
+                .load(video.thumbnail.takeIf { !it.isNullOrBlank() })
+                .placeholder(R.drawable.placeholder)
                 .into(thumbnail)
 
             itemView.setOnClickListener {

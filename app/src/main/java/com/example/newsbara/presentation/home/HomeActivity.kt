@@ -19,34 +19,35 @@ import com.example.newsbara.adapter.VideoSectionAdapter
 import com.example.newsbara.data.model.history.HistoryItem
 import com.example.newsbara.data.model.history.SaveHistoryRequest
 import com.example.newsbara.data.model.youtube.SubtitleLine
+import com.example.newsbara.data.model.youtube.VideoCategoryItem
 import com.example.newsbara.data.model.youtube.VideoSection
+import com.example.newsbara.di.YouTubeUtil.parseYouTubeDuration
+import com.example.newsbara.domain.repository.YouTubeRepository
 import com.example.newsbara.presentation.mypage.MyPageViewModel
 import com.example.newsbara.network.RetrofitClient
 import com.example.newsbara.presentation.mypage.stats.StatsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.Serializable
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class HomeActivity : AppCompatActivity() {
+    private val viewModel: HomeViewModel by viewModels()
+    private val statsViewModel: StatsViewModel by viewModels()
+    private val myPageViewModel: MyPageViewModel by viewModels()
 
     private lateinit var recyclerView: RecyclerView
-
-    private val apiKey = "AIzaSyBh59zbA3ChdijyhZsvuhw5a-H5agDqslg"
 
     private val channels = mapOf(
         "BBC" to "UC16niRr50-MSBwiO3YDb3RA",
         "CNN" to "UCupvZG-5ko_eiXAupbDfxWw"
     )
 
-    private val statsViewModel: StatsViewModel by viewModels()
-    private val myPageViewModel: MyPageViewModel by viewModels()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        // ✅ 실제 마이페이지 정보 fetch
         myPageViewModel.fetchMyPageInfo()
 
         val profileButton: ImageView = findViewById(R.id.profileButton)
@@ -71,7 +72,15 @@ class HomeActivity : AppCompatActivity() {
         }
 
         setupRecyclerView()
-        fetchVideoSections()
+        viewModel.fetchVideoSections(channels)
+
+        lifecycleScope.launchWhenStarted {
+            viewModel.videoSections.collect { sections ->
+                recyclerView.adapter = VideoSectionAdapter(sections) { video ->
+                    handleVideoClick(video)
+                }
+            }
+        }
     }
 
     private fun setupRecyclerView() {
@@ -79,85 +88,24 @@ class HomeActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
     }
 
-    private fun fetchVideoSections() {
-        lifecycleScope.launch {
-            try {
-                val sectionList = channels.map { (channelName, channelId) ->
-                    val response = RetrofitClient.youtubeService.searchVideosByChannel(
-                        channelId = channelId,
-                        query = "",
-                        apiKey = apiKey
-                    )
-
-                    val videos = response.items
-                        .filter { it.id.videoId != null }
-                        .map {
-                            HistoryItem(
-                                id = 0,
-                                videoId = it.id.videoId!!,
-                                title = it.snippet.title,
-                                thumbnail = it.snippet.thumbnails.medium.url,
-                                channel = channelName,
-                                length = "00:00:00",
-                                category = channelName,
-                                status = "WATCHED",
-                                createdAt = ""
-                            )
-                        }
-
-                    VideoSection(
-                        categoryTitle = channelName,
-                        videos = videos
-                    )
-                }
-
-                recyclerView.adapter = VideoSectionAdapter(sectionList) { video ->
-                    handleVideoClick(video)
-                }
-
-            } catch (e: Exception) {
-                Log.e("API_ERROR", "유튜브 API 요청 실패", e)
-                Toast.makeText(this@HomeActivity, "API 요청 실패: ${e.message}", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
     private fun handleVideoClick(video: HistoryItem) {
         val subtitles = parseSrtToSubtitles(mockSrtText)
 
-        // ✅ 1. 학습 기록 저장 (status = "WATCHED")
-        lifecycleScope.launch {
-            statsViewModel.saveHistory(
-                SaveHistoryRequest(
-                    videoId = video.videoId,
-                    title = video.title,
-                    thumbnail = video.thumbnail,
-                    channel = video.channel,
-                    length = video.length,
-                    category = video.category,
-                    status = "WATCHED"
-                )
-            ) { success ->
-                if (success) {
-                    Log.d("HomeActivity", "✅ saveHistory 완료: ${video.videoId}")
-                } else {
-                    Log.e("HomeActivity", "❌ saveHistory 실패")
-                }
+        statsViewModel.saveWatchedHistory(video) { success ->
+            if (success) {
+                Log.d("HomeActivity", "✅ saveHistory 완료: ${video.videoId}")
+            } else {
+                Log.e("HomeActivity", "❌ saveHistory 실패")
             }
-
         }
 
-        // ✅ 2. VideoActivity로 이동
         val intent = Intent(this, VideoActivity::class.java).apply {
             putExtra("videoId", video.videoId)
             putExtra("videoTitle", video.title)
             putExtra("subtitleList", subtitles as Serializable)
         }
-        Log.d("HomeActivity", "🎬 videoId 보내는 값: ${video.videoId}")
         startActivity(intent)
     }
-
-
 
     private val mockSrtText = """
         1

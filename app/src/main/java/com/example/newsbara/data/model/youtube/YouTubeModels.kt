@@ -19,7 +19,9 @@ data class Snippet(
     val title: String,
     val thumbnails: Thumbnails,
     @SerializedName("channelId")
-    val channelId: String
+    val channelId: String,
+    @SerializedName("channelTitle")
+    val channelTitle: String
 )
 
 data class Thumbnails(

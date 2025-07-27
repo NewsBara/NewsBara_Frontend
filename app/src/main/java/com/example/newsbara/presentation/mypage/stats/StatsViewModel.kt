@@ -73,6 +73,22 @@ class StatsViewModel @Inject constructor(
         }
     }
 
+    fun saveWatchedHistory(video: HistoryItem, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val request = SaveHistoryRequest(
+                videoId = video.videoId,
+                title = video.title,
+                thumbnail = video.thumbnail,
+                channel = video.channel,
+                length = video.length,
+                category = video.category,
+                status = "WATCHED"
+            )
+            saveHistory(request, onResult)
+        }
+    }
+
+
     fun saveHistory(request: SaveHistoryRequest, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             try {

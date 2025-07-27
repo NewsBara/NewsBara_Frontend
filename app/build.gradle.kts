@@ -26,6 +26,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         buildConfigField("String", "BASE_URL", "\"${getLocalProperty("BASE_URL")}\"")
+        buildConfigField("String", "YOUTUBE_API_KEY", "\"${project.properties["YOUTUBE_API_KEY"]}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
