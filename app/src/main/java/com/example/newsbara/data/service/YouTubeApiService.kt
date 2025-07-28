@@ -11,16 +11,16 @@ interface YouTubeApiService {
     suspend fun searchVideosByChannel(
         @Query("part") part: String = "snippet",
         @Query("channelId") channelId: String,
-        @Query("q") query: String,
         @Query("type") type: String = "video",
         @Query("maxResults") maxResults: Int = 10,
-        @Query("key") apiKey: String
+        @Query("key") apiKey: String,
+        @Query("q") query: String = ""
     ): YouTubeSearchResponse
 
     @GET("videos")
     suspend fun getVideoDetails(
         @Query("part") part: String = "contentDetails",
-        @Query("id") videoIds: String, // 여러 개면 콤마(,) 구분
+        @Query("id") videoIds: String,
         @Query("key") apiKey: String
     ): YouTubeVideoDetailsResponse
 

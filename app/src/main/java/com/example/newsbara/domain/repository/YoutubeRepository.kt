@@ -1,5 +1,6 @@
 package com.example.newsbara.domain.repository
 
+import android.util.Log
 import com.example.newsbara.BuildConfig
 import com.example.newsbara.data.model.history.HistoryItem
 import com.example.newsbara.data.model.youtube.VideoSection
@@ -10,28 +11,28 @@ import javax.inject.Inject
 class YouTubeRepository @Inject constructor(
     private val api: YouTubeApiService
 ) {
-
     suspend fun fetchVideoSections(channels: Map<String, String>): List<VideoSection> {
+
         val videoCategoryMap = fetchVideoCategoryMap()
 
         return channels.map { (channelName, channelId) ->
+
             val searchResponse = api.searchVideosByChannel(
                 part = "snippet",
                 channelId = channelId,
-                query = "",
                 type = "video",
                 maxResults = 10,
-                apiKey = getApiKey()
+                apiKey = getApiKey(),
+                query = ""
             )
 
-            val videoIds = searchResponse.items.mapNotNull { it.id.videoId }
+            val videoIds = searchResponse.items.mapNotNull { it.id?.videoId }
 
             val detailsResponse = api.getVideoDetails(
                 part = "contentDetails,snippet",
                 videoIds = videoIds.joinToString(","),
                 apiKey = getApiKey()
             )
-
             val durationMap = detailsResponse.items.associate {
                 it.id to YouTubeUtil.parseYouTubeDuration(it.contentDetails.duration)
             }
@@ -46,11 +47,17 @@ class YouTubeRepository @Inject constructor(
                 val categoryId = categoryIdMap[videoId] ?: ""
                 val categoryName = videoCategoryMap[categoryId] ?: "Unknown"
 
+                val thumbnailUrl = it.snippet.thumbnails?.medium?.url
+                if (thumbnailUrl.isNullOrEmpty()) {
+                    Log.e("YouTubeRepository", "❌ Null 썸네일 ▶ videoId: $videoId")
+                    return@mapNotNull null
+                }
+
                 HistoryItem(
                     id = 0,
                     videoId = videoId,
                     title = it.snippet.title,
-                    thumbnail = it.snippet.thumbnails.medium.url,
+                    thumbnail = thumbnailUrl,
                     channel = channelName,
                     length = length,
                     category = categoryName,
@@ -71,5 +78,8 @@ class YouTubeRepository @Inject constructor(
         return response.items.associate { it.id to it.snippet.title }
     }
 
-    private fun getApiKey(): String = BuildConfig.YOUTUBE_API_KEY
+    private fun getApiKey(): String {
+        val key = BuildConfig.YOUTUBE_API_KEY
+        return key
+    }
 }
