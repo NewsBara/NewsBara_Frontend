@@ -67,7 +67,7 @@ class YouTubeRepository @Inject constructor(
             }
 
             VideoSection(
-                categoryTitle = channelName,
+                channelName = channelName,
                 videos = videos
             )
         }

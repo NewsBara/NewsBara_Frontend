@@ -72,8 +72,7 @@ class HomeActivity : AppCompatActivity() {
         }
 
         setupRecyclerView()
-        viewModel.fetchVideoSections(channels)
-        Log.d("HomeActivity", "📡 채널 리스트: $channels")
+        viewModel.fetchAllSections(channels)
 
 
         lifecycleScope.launchWhenStarted {

@@ -56,18 +56,14 @@ class VideoActivity : AppCompatActivity() {
         overlaySubtitleView = findViewById(R.id.overlaySubtitle)
         val titleTextView = findViewById<TextView>(R.id.videoTitle)
 
-        // 💡 Lifecycle 연결 필수
         lifecycle.addObserver(youtubePlayerView)
 
-        // ✅ Intent에서 데이터 추출
         videoId = intent.getStringExtra("videoId")?.trim().orEmpty()
         videoTitle = intent.getStringExtra("videoTitle").orEmpty()
         subtitleList = intent.getSerializableExtra("subtitleList") as? List<SubtitleLine> ?: emptyList()
 
-        Log.d("VideoActivity", "🎥 받은 videoId: $videoId")
 
         if (videoId.isEmpty()) {
-            Log.e("VideoActivity", "❌ videoId가 비어 있음 — 종료")
             finish()
             return
         }
@@ -99,14 +95,7 @@ class VideoActivity : AppCompatActivity() {
         // 유튜브 플레이어 설정
         youtubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
             override fun onReady(player: YouTubePlayer) {
-                Log.d("YouTubePlayer", "✅ onReady 호출됨")
-
-                // 바로 cueVideo
                 player.cueVideo(videoId, 0f)
-
-                Log.d("YouTubePlayer", "▶ cueVideo(videoId=$videoId) 호출됨")
-
-                // 시간 추적
                 player.addListener(object : AbstractYouTubePlayerListener() {
                     override fun onCurrentSecond(p: YouTubePlayer, second: Float) {
                         currentTimeSec = second

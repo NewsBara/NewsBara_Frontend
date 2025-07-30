@@ -24,7 +24,7 @@ class VideoSectionAdapter(
         }
 
         fun bind(section: VideoSection) {
-            title.text = section.categoryTitle
+            title.text = section.channelName
             recycler.adapter = HistoryItemAdapter(section.videos, onVideoClick)
         }
     }
