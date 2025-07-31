@@ -3,7 +3,6 @@ package com.example.newsbara.domain.model
 import com.example.newsbara.data.model.script.KeywordDto
 import com.example.newsbara.data.model.script.ScriptResponseDto
 
-
 fun ScriptResponseDto.toScriptLine(): ScriptLine {
     return ScriptLine(
         sentence = sentence,

@@ -10,7 +10,7 @@ import com.example.newsbara.data.model.friends.FriendListItem
 import com.example.newsbara.data.model.friends.FriendRequestItem
 import com.example.newsbara.data.model.friends.FriendSearchResponse
 import com.example.newsbara.data.model.history.HistoryItem
-import com.example.newsbara.data.model.youtube.SubtitleLine
+import com.example.newsbara.domain.model.ScriptLine
 import com.example.newsbara.domain.repository.FriendRepository
 import com.example.newsbara.domain.repository.MyPageRepository
 import com.example.newsbara.presentation.util.ResultState
@@ -35,8 +35,8 @@ class SharedViewModel @Inject constructor(
     private val _thumbnailUrl = MutableLiveData<String>()
     val thumbnailUrl: LiveData<String> get() = _thumbnailUrl
 
-    private val _subtitleList = MutableLiveData<List<SubtitleLine>>()
-    val subtitleList: MutableLiveData<List<SubtitleLine>> get() = _subtitleList
+    private val _subtitleList = MutableLiveData<List<ScriptLine>>()
+    val subtitleList: MutableLiveData<List<ScriptLine>> get() = _subtitleList
 
     private val _historyList = MutableLiveData<List<HistoryItem>>(mutableListOf())
     val historyList: LiveData<List<HistoryItem>> get() = _historyList
@@ -196,7 +196,7 @@ class SharedViewModel @Inject constructor(
         _thumbnailUrl.value = item.thumbnail
     }
 
-    fun setVideoData(id: String, title: String, subs: List<SubtitleLine>) {
+    fun setVideoData(id: String, title: String, subs: List<ScriptLine>) {
         Log.d("SharedViewModel", "✅ setVideoData 호출됨: $id")
         _videoId.value = id
         _videoTitle.value = title

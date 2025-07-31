@@ -11,9 +11,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.newsbara.data.model.shadowing.ShadowingSentence
+import com.example.newsbara.domain.model.ScriptLine
 
 class ShadowingAdapter(
-    private val items: List<ShadowingSentence>,
+    private val items: List<ScriptLine>,
+    private val highlightWords: List<String>,
     private val highlightColor: String = "#FF6B84"
 ) : RecyclerView.Adapter<ShadowingAdapter.ViewHolder>() {
 
@@ -33,20 +35,26 @@ class ShadowingAdapter(
         val numbered = "${position + 1}. ${item.sentence}"
         val spannable = SpannableString(numbered)
 
-        val keywordIndex = numbered.indexOf(item.highlightWord, ignoreCase = true)
-        if (keywordIndex != -1) {
-            spannable.setSpan(
-                ForegroundColorSpan(Color.parseColor(highlightColor)),
-                keywordIndex,
-                keywordIndex + item.highlightWord.length,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-            spannable.setSpan(
-                StyleSpan(Typeface.BOLD),
-                keywordIndex,
-                keywordIndex + item.highlightWord.length,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
+        highlightWords.forEach { word ->
+            var startIndex = numbered.indexOf(word, ignoreCase = true)
+            while (startIndex >= 0) {
+                val endIndex = startIndex + word.length
+
+                spannable.setSpan(
+                    ForegroundColorSpan(Color.parseColor(highlightColor)),
+                    startIndex,
+                    endIndex,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                spannable.setSpan(
+                    StyleSpan(Typeface.BOLD),
+                    startIndex,
+                    endIndex,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+
+                startIndex = numbered.indexOf(word, startIndex + 1, ignoreCase = true)
+            }
         }
 
         holder.textView.text = spannable

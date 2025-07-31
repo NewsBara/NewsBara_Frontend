@@ -2,38 +2,39 @@ package com.example.newsbara.presentation.video
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-
-import android.os.Looper
 import android.text.Html
 import android.text.SpannableStringBuilder
 import android.text.method.LinkMovementMethod
 import android.util.Log
-import android.view.ViewTreeObserver
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.os.postDelayed
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.newsbara.DefinitionProvider
 import com.example.newsbara.R
-import com.example.newsbara.SharedViewModel
-import com.example.newsbara.data.model.youtube.SubtitleLine
 import com.example.newsbara.data.model.youtube.getClickableSpannable
 import com.example.newsbara.data.model.youtube.getHighlightedText
+import com.example.newsbara.data.model.youtube.getStartMillis
+import com.example.newsbara.domain.model.ScriptLine
+import com.example.newsbara.presentation.common.ResultState
 import com.example.newsbara.presentation.shadowing.ShadowingActivity
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import dagger.hilt.android.AndroidEntryPoint
-import java.io.Serializable
+import kotlinx.coroutines.launch
 import java.util.Timer
 import java.util.TimerTask
-
+import kotlin.collections.indexOfLast
 
 @AndroidEntryPoint
 class VideoActivity : AppCompatActivity() {
+
+    private val viewModel: VideoViewModel by viewModels()
 
     private lateinit var youtubePlayerView: YouTubePlayerView
     private lateinit var fullSubtitleTextView: TextView
@@ -44,8 +45,7 @@ class VideoActivity : AppCompatActivity() {
 
     private lateinit var videoId: String
     private lateinit var videoTitle: String
-    private lateinit var subtitleList: List<SubtitleLine>
-    private val highlightWords = listOf("accelerating", "global", "urgent")
+    private var subtitleList: List<ScriptLine> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,44 +55,59 @@ class VideoActivity : AppCompatActivity() {
         fullSubtitleTextView = findViewById(R.id.subtitleText)
         overlaySubtitleView = findViewById(R.id.overlaySubtitle)
         val titleTextView = findViewById<TextView>(R.id.videoTitle)
-
         lifecycle.addObserver(youtubePlayerView)
 
         videoId = intent.getStringExtra("videoId")?.trim().orEmpty()
+        Log.d("ScriptFetch", "📡 요청할 videoId: [$videoId]")
         videoTitle = intent.getStringExtra("videoTitle").orEmpty()
-        subtitleList = intent.getSerializableExtra("subtitleList") as? List<SubtitleLine> ?: emptyList()
-
 
         if (videoId.isEmpty()) {
             finish()
             return
         }
 
-        // UI 세팅
         titleTextView.text = videoTitle
         fullSubtitleTextView.movementMethod = LinkMovementMethod.getInstance()
-        updateFullSubtitle(subtitleList)
+
+        // 자막 요청
+        viewModel.fetchScript(videoId)
+
+        // StateFlow collect
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.scriptLines.collect { result ->
+                    Log.d("ScriptFetch", "📦 collect 호출됨! result = $result")
+                    if (result is ResultState.Success) {
+                        subtitleList = result.data
+                        Log.d("ScriptFetch", "✅ 자막 데이터 수신 완료! size = ${subtitleList.size}")
+                        updateFullSubtitle()
+                        startSubtitleSyncTimer(subtitleList)
+                    } else if (result is ResultState.Failure){
+                        Log.e("ScriptFetch", "❌ 자막 불러오기 실패: ${result.message}")
+                    }
+                }
+            }
+        }
 
         // 자막 토글 버튼
         findViewById<Button>(R.id.toggleSubtitleModeButton).setOnClickListener {
             isTranslatedMode = !isTranslatedMode
-            it as Button
-            it.text = if (isTranslatedMode) "eng script" else "eng/kor script"
-            updateFullSubtitle(subtitleList)
+            (it as Button).text = if (isTranslatedMode) "eng script" else "eng/kor script"
+            updateFullSubtitle()
+        }
+
+        // 쉐도잉 이동
+        findViewById<Button>(R.id.startShadowingButton).setOnClickListener {
+            val intent = Intent(this, ShadowingActivity::class.java).apply {
+                putExtra("subtitleList", ArrayList(subtitleList))
+            }
+            startActivity(intent)
         }
 
         // 뒤로가기
         findViewById<ImageButton>(R.id.backButton).setOnClickListener { finish() }
 
-        // 쉐도잉 이동
-        findViewById<Button>(R.id.startShadowingButton).setOnClickListener {
-            val intent = Intent(this, ShadowingActivity::class.java).apply {
-                putExtra("subtitleList", subtitleList as Serializable)
-            }
-            startActivity(intent)
-        }
-
-        // 유튜브 플레이어 설정
+        // 유튜브 플레이어
         youtubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
             override fun onReady(player: YouTubePlayer) {
                 player.cueVideo(videoId, 0f)
@@ -101,42 +116,56 @@ class VideoActivity : AppCompatActivity() {
                         currentTimeSec = second
                     }
                 })
-
-                startSubtitleSyncTimer()
             }
         })
     }
 
-    private fun updateFullSubtitle(subtitles: List<SubtitleLine>) {
-        val spannableBuilder = SpannableStringBuilder()
-        for (line in subtitles) {
-            if (isTranslatedMode) {
-                val spannable = line.getClickableSpannable(
+    private fun updateFullSubtitle() {
+        Log.d("ScriptFetch", "🎬 [updateFullSubtitle] Called. isTranslatedMode = $isTranslatedMode")
+        Log.d("ScriptFetch", "📝 subtitleList size = ${subtitleList.size}")
+        val builder = SpannableStringBuilder()
+        for ((index, line) in subtitleList.withIndex()) {
+            val highlightWords = line.keywords.map { it.word }
+            Log.d("ScriptFetch", "🔹 Line[$index] = ${line.sentence}, keywords = $highlightWords")
+            val spannable = if (isTranslatedMode) {
+                line.getClickableSpannable(
                     highlightWords = highlightWords,
                     context = this,
                     anchorTextView = fullSubtitleTextView,
                     onDefinitionFetch = { word -> DefinitionProvider.getDefinition(word) }
                 )
-                spannableBuilder.append(spannable).append("\n")
             } else {
-                val engLine = line.text.lineSequence().firstOrNull()?.trim().orEmpty()
-                spannableBuilder.append(engLine).append("\n\n")
+                SpannableStringBuilder(line.sentence.lineSequence().firstOrNull()?.trim().orEmpty())
             }
+            builder.append(spannable).append("\n\n")
         }
-        fullSubtitleTextView.text = spannableBuilder
+        fullSubtitleTextView.text = builder
     }
 
-    private fun startSubtitleSyncTimer() {
+    private fun startSubtitleSyncTimer(subtitles: List<ScriptLine>) {
+        subtitleTimer?.cancel()
         subtitleTimer = Timer()
+
+        var lastIndex = -1
+
         subtitleTimer?.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 val currentMs = (currentTimeSec * 1000).toLong()
-                val currentSubtitle = subtitleList.find {
-                    currentMs in (it.startTime * 1000).toLong()..(it.endTime * 1000).toLong()
+
+                // 현재 시간보다 작거나 같은 자막 중, 이전에 표시하지 않았던 가장 마지막 자막 찾기
+                val nextIndex = subtitles.indexOfLast {
+                    it.getStartMillis() <= currentMs
                 }
-                val highlighted = currentSubtitle?.getHighlightedText(highlightWords) ?: ""
-                runOnUiThread {
-                    overlaySubtitleView.text = Html.fromHtml(highlighted, Html.FROM_HTML_MODE_COMPACT)
+
+                if (nextIndex != -1 && nextIndex != lastIndex) {
+                    lastIndex = nextIndex
+                    val currentSubtitle = subtitles[nextIndex]
+                    val highlightWords = currentSubtitle.keywords.map { it.word }
+                    val highlighted = currentSubtitle.getHighlightedText(highlightWords)
+
+                    runOnUiThread {
+                        overlaySubtitleView.text = Html.fromHtml(highlighted, Html.FROM_HTML_MODE_COMPACT)
+                    }
                 }
             }
         }, 0, 500)

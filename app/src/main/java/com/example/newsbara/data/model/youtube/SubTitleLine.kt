@@ -8,35 +8,49 @@ import android.text.TextPaint
 import android.text.style.ClickableSpan
 import android.view.View
 import android.widget.TextView
+import com.example.newsbara.domain.model.KeywordInfo
+import com.example.newsbara.domain.model.ScriptLine
 import com.example.newsbara.showWordPopup
 import java.io.Serializable
 
-data class SubtitleLine(
-    val startTime: Double,
-    val endTime: Double,
-    val text: String
-) : Serializable
 
-fun SubtitleLine.getHighlightedText(highlightWords: List<String>): String {
-    val engLine = text.lineSequence().firstOrNull()?.trim() ?: ""
+fun ScriptLine.getHighlightedText(highlightWords: List<String>): String {
+    val engLine = sentence.trim()
     return highlightWords.fold(engLine) { acc, keyword ->
-        acc.replace(keyword, "<span style='color: #FF6B84; font-weight: bold;'>$keyword</span>"
-        , ignoreCase = true)
+        acc.replace(
+            keyword,
+            "<span style='color: #FF6B84; font-weight: bold;'>$keyword</span>",
+            ignoreCase = true
+        )
     }
 }
 
-fun SubtitleLine.getClickableSpannable(
+fun ScriptLine.getStartMillis(): Long {
+    val parts = timestamp.split(":")
+    if (parts.size != 3) return 0L
+
+    val minutes = parts[0].toLongOrNull() ?: 0
+    val seconds = parts[1].toLongOrNull() ?: 0
+
+    val millisRaw = parts[2]
+    val millis = millisRaw.toLongOrNull()
+        ?: millisRaw.split(".").getOrNull(0)?.toLongOrNull()
+        ?: 0
+
+    return (minutes * 60 + seconds) * 1000 + millis
+}
+
+fun ScriptLine.getClickableSpannable(
     highlightWords: List<String>,
     context: Context,
     anchorTextView: TextView,
     onDefinitionFetch: (String) -> String
 ): SpannableString {
-    val spannable = SpannableString(this.text)
-    val engLine = text.lineSequence().firstOrNull()?.trim() ?: ""
+    val combinedText = "$sentence\n$sentenceKo"
+    val spannable = SpannableString(combinedText)
 
     highlightWords.forEach { word ->
-
-        val startIndex = this.text.indexOf(word, ignoreCase = true)
+        val startIndex = sentence.indexOf(word, ignoreCase = true)
         if (startIndex != -1) {
             val clickableSpan = object : ClickableSpan() {
                 override fun onClick(widget: View) {

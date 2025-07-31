@@ -17,45 +17,51 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val youTubeRepository: YouTubeRepository,
     private val recommendRepository: RecommendRepository
 ) : ViewModel() {
 
     private val _videoSections = MutableStateFlow<List<VideoSection>>(emptyList())
     val videoSections: StateFlow<List<VideoSection>> = _videoSections
 
-    fun fetchAllSections(channels: Map<String, String>) {
-        Log.d("HomeViewModel", "📡 fetchAllSections 시작")
+    fun fetchAllSections() {
         viewModelScope.launch {
             val allSections = mutableListOf<VideoSection>()
-
             val recommendResult = recommendRepository.fetchRecommendedVideos()
             Log.d("HomeViewModel", "🔵 추천 API 응답: $recommendResult")
 
             if (recommendResult is ResultState.Success) {
                 Log.d("HomeViewModel", "🎯 추천 영상 수: ${recommendResult.data.size}")
 
-                val recommendSection = VideoSection(
-                    channelName = "",
-                    videos = recommendResult.data.map {
-                        HistoryItem(
-                            id = 0,
-                            videoId = it.videoId,
-                            title = it.title,
-                            thumbnail = it.thumbnail,
-                            channel = it.channel,
-                            length = it.length,
-                            category = it.category,
-                            status = "UNWATCHED",
-                            createdAt = ""
-                        )
+                val grouped = recommendResult.data
+                    .filter { it.channel.contains("BBC") || it.channel.contains("CNN") }
+                    .groupBy {
+                        when {
+                            it.channel.contains("BBC") -> "BBC"
+                            it.channel.contains("CNN") -> "CNN"
+                            else -> "기타"
+                        }
                     }
-                )
-                allSections.add(recommendSection)
-            }
 
-            val sectionResults = youTubeRepository.fetchVideoSections(channels)
-            allSections.addAll(sectionResults)
+                grouped.forEach { (channelName, items) ->
+                    val section = VideoSection(
+                        channelName = channelName,
+                        videos = items.map {
+                            HistoryItem(
+                                id = 0,
+                                videoId = it.videoId,
+                                title = it.title,
+                                thumbnail = it.thumbnail,
+                                channel = it.channel,
+                                length = it.length,
+                                category = it.category,
+                                status = "UNWATCHED",
+                                createdAt = ""
+                            )
+                        }
+                    )
+                    allSections.add(section)
+                }
+            }
 
             _videoSections.value = allSections
         }
