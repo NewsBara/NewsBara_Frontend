@@ -2,10 +2,13 @@ package com.example.newsbara.data.model.youtube
 
 import android.content.Context
 import android.graphics.Color
+import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
+import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
+import android.view.MotionEvent
 import android.view.View
 import android.widget.TextView
 import com.example.newsbara.domain.model.KeywordInfo
@@ -55,7 +58,16 @@ fun ScriptLine.getClickableSpannable(
             val clickableSpan = object : ClickableSpan() {
                 override fun onClick(widget: View) {
                     val definition = onDefinitionFetch(word)
-                    showWordPopup(context, anchorTextView, word, definition, startIndex)
+
+                    // 터치 좌표 기반 팝업 표시
+                    showWordPopup(
+                        context = context,
+                        anchor = anchorTextView,
+                        word = word,
+                        definition = definition,
+                        rawX = TouchableMovementMethod.lastTouchX,
+                        rawY = TouchableMovementMethod.lastTouchY
+                    )
                 }
 
                 override fun updateDrawState(ds: TextPaint) {
@@ -74,4 +86,20 @@ fun ScriptLine.getClickableSpannable(
     }
 
     return spannable
+}
+
+class TouchableMovementMethod : LinkMovementMethod() {
+
+    companion object {
+        var lastTouchX = 0
+        var lastTouchY = 0
+    }
+
+    override fun onTouchEvent(widget: TextView, buffer: Spannable, event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_DOWN || event.action == MotionEvent.ACTION_UP) {
+            lastTouchX = event.rawX.toInt()
+            lastTouchY = event.rawY.toInt()
+        }
+        return super.onTouchEvent(widget, buffer, event)
+    }
 }

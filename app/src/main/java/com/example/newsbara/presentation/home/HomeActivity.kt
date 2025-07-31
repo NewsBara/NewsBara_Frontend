@@ -89,7 +89,7 @@ class HomeActivity : AppCompatActivity() {
         }
 
         val intent = Intent(this, VideoActivity::class.java).apply {
-            putExtra("videoId", video.videoId)
+            putExtra("videoId", "1iiCkCokunI")
             putExtra("videoTitle", video.title)
         }
         startActivity(intent)

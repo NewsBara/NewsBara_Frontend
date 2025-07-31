@@ -11,7 +11,14 @@ import android.view.ViewGroup
 import android.widget.PopupWindow
 import android.widget.TextView
 
-fun showWordPopup(context: Context, anchor: View, word: String, definition: String, startIndex: Int) {
+fun showWordPopup(
+    context: Context,
+    anchor: View,
+    word: String,
+    definition: String,
+    rawX: Int,
+    rawY: Int
+) {
     val inflater = LayoutInflater.from(context)
     val popupView = inflater.inflate(R.layout.popup_word, null)
     val wordText = popupView.findViewById<TextView>(R.id.wordText)
@@ -29,30 +36,9 @@ fun showWordPopup(context: Context, anchor: View, word: String, definition: Stri
     popupWindow.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     popupWindow.isOutsideTouchable = true
 
-    val textView = anchor as? TextView ?: return
-    textView.post {
-        val layout = textView.layout ?: return@post
-        val index = textView.text.toString().indexOf(word, ignoreCase = true)
-        if (index == -1) return@post
+    val popupHeight = (48 * context.resources.displayMetrics.density).toInt()  // 약간 위로
 
-        val line = layout.getLineForOffset(startIndex)
-        val x = layout.getPrimaryHorizontal(startIndex).toInt()
-        val y = layout.getLineTop(line)  // 또는 getLineBottom(line)
+    popupWindow.showAtLocation(anchor, Gravity.NO_GRAVITY, rawX, rawY - popupHeight)
 
-        val location = IntArray(2)
-        textView.getLocationOnScreen(location)
-        val screenX = location[0] + x
-        val screenY = location[1] + y
-
-        // 팝업 높이 40dp + margin 16dp
-        val popupHeight = (40 * context.resources.displayMetrics.density).toInt() + 16
-
-        popupWindow.showAtLocation(textView, Gravity.NO_GRAVITY, screenX, screenY - popupHeight)
-        Log.d("PopupDebug", "word=$word, index=$index, line=$line, x=$x, y=$y")
-        Log.d("PopupDebug", "lines=${layout.lineCount}, line=$line, lineTop=${layout.getLineTop(line)}, lineBottom=${layout.getLineBottom(line)}")
-
-
-    }
-
+    Log.d("PopupDebug", "Popup for word=$word @ rawX=$rawX, rawY=$rawY, adjustedY=${rawY - popupHeight}")
 }
-

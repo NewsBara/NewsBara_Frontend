@@ -1,6 +1,7 @@
 package com.example.newsbara.presentation.video
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Html
 import android.text.SpannableStringBuilder
@@ -16,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.newsbara.DefinitionProvider
 import com.example.newsbara.R
+import com.example.newsbara.data.model.youtube.TouchableMovementMethod
 import com.example.newsbara.data.model.youtube.getClickableSpannable
 import com.example.newsbara.data.model.youtube.getHighlightedText
 import com.example.newsbara.data.model.youtube.getStartMillis
@@ -140,6 +142,8 @@ class VideoActivity : AppCompatActivity() {
             builder.append(spannable).append("\n\n")
         }
         fullSubtitleTextView.text = builder
+        fullSubtitleTextView.movementMethod = TouchableMovementMethod()
+        fullSubtitleTextView.highlightColor = Color.TRANSPARENT
     }
 
     private fun startSubtitleSyncTimer(subtitles: List<ScriptLine>) {
