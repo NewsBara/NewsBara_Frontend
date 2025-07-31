@@ -71,10 +71,8 @@ class VideoActivity : AppCompatActivity() {
         titleTextView.text = videoTitle
         fullSubtitleTextView.movementMethod = LinkMovementMethod.getInstance()
 
-        // 자막 요청
         viewModel.fetchScript(videoId)
 
-        // StateFlow collect
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.scriptLines.collect { result ->
@@ -98,18 +96,15 @@ class VideoActivity : AppCompatActivity() {
             updateFullSubtitle()
         }
 
-        // 쉐도잉 이동
         findViewById<Button>(R.id.startShadowingButton).setOnClickListener {
             val intent = Intent(this, ShadowingActivity::class.java).apply {
-                putExtra("subtitleList", ArrayList(subtitleList))
+                putExtra("videoId", videoId)
             }
             startActivity(intent)
         }
 
-        // 뒤로가기
         findViewById<ImageButton>(R.id.backButton).setOnClickListener { finish() }
 
-        // 유튜브 플레이어
         youtubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
             override fun onReady(player: YouTubePlayer) {
                 player.cueVideo(videoId, 0f)
@@ -156,7 +151,6 @@ class VideoActivity : AppCompatActivity() {
             override fun run() {
                 val currentMs = (currentTimeSec * 1000).toLong()
 
-                // 현재 시간보다 작거나 같은 자막 중, 이전에 표시하지 않았던 가장 마지막 자막 찾기
                 val nextIndex = subtitles.indexOfLast {
                     it.getStartMillis() <= currentMs
                 }
