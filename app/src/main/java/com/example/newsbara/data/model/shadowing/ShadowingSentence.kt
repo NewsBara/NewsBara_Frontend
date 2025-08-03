@@ -3,7 +3,7 @@ package com.example.newsbara.data.model.shadowing
 import com.google.gson.annotations.SerializedName
 
 data class PronunciationDto(
-    val score: Int,
+    val score: Double,
     @SerializedName("recognized_text")
     val recognizedText: String,
     val differences: List<DifferenceDto>

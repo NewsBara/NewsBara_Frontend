@@ -2,6 +2,7 @@ package com.example.newsbara.presentation.shadowing
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +21,7 @@ import com.example.newsbara.presentation.test.TestActivity
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
+import java.io.FileOutputStream
 
 @AndroidEntryPoint
 class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
@@ -66,7 +68,7 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         showSentence(currentIndex)
 
         btnMic.setOnClickListener {
-            tvState.text = "녹음 중..."
+            tvState.text = "듣는 중..."
             simulateRecordingAndEvaluate()
         }
 
@@ -99,11 +101,16 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     private fun simulateRecordingAndEvaluate() {
-        val script = sentenceList[currentIndex].sentence
 
-        val dummyAudio = File(requireContext().cacheDir, "dummy_audio.wav")
+        try {
+            val script = sentenceList[currentIndex].sentence
+            val dummyAudio = getWavFileFromAssets()
+            Log.d("ShadowingFragment", "audio path: ${dummyAudio.absolutePath}, exists: ${dummyAudio.exists()}")
 
-        viewModel.evaluatePronunciation(script, dummyAudio)
+            viewModel.evaluatePronunciation(script, dummyAudio)
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "오디오 파일 없음.", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun observePronunciationResult() {
@@ -134,13 +141,26 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
                     }
 
                     is ResultState.Loading -> {
-                        tvState.text = "평가 중..."
+                        tvState.text = "버튼을 누른 후 아래 내용을 말하세요."
                     }
 
                     ResultState.Idle -> TODO()
                 }
             }
         }
+    }
+
+    private fun getWavFileFromAssets(): File {
+        val assetManager = requireContext().assets
+        val inputStream = assetManager.open("dummy_converted.wav")
+        val tempFile = File(requireContext().cacheDir, "dummy_audio.wav")
+        val outputStream = FileOutputStream(tempFile)
+
+        inputStream.copyTo(outputStream)
+        inputStream.close()
+        outputStream.close()
+
+        return tempFile
     }
     private fun startTestActivity() {
         val intent = Intent(requireContext(), TestActivity::class.java)

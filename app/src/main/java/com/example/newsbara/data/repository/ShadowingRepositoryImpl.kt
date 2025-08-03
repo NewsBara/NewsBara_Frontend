@@ -1,5 +1,6 @@
 package com.example.newsbara.data.repository
 
+import android.util.Log
 import com.example.newsbara.data.model.shadowing.PronunciationDto
 import com.example.newsbara.data.service.ShadowingService
 import com.example.newsbara.data.service.TestService
@@ -9,6 +10,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
+import java.net.URLEncoder
 import javax.inject.Inject
 
 class ShadowingRepositoryImpl @Inject constructor(
@@ -22,10 +24,12 @@ class ShadowingRepositoryImpl @Inject constructor(
             val requestBody = audioFile.asRequestBody("audio/wav".toMediaTypeOrNull())
             val audioPart = MultipartBody.Part.createFormData("audio", audioFile.name, requestBody)
 
-            val response = shadowingService.evaluateShadowing(script, audioPart)
+            val encodedScript = URLEncoder.encode(script, "UTF-8")
+            val response = shadowingService.evaluateShadowing(encodedScript, audioPart)
 
             if (response.isSuccessful) {
                 val body = response.body()
+                Log.d("evaluate", "body: $body")
                 if (body?.isSuccess == true && body.result != null) {
                     Result.success(body.result)
                 } else {

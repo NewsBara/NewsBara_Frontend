@@ -13,7 +13,7 @@ interface ShadowingService {
     @Multipart
     @POST("/api/shadowing/evaluate")
     suspend fun evaluateShadowing(
-        @Query("script") script: String,
+        @Query("script", encoded = true) script: String,
         @Part audio: MultipartBody.Part
     ): Response<BaseResponse<PronunciationDto>>
 

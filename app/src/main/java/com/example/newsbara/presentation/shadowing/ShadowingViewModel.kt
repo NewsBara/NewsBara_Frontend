@@ -1,5 +1,6 @@
 package com.example.newsbara.presentation.shadowing
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.newsbara.data.model.shadowing.PronunciationDto
@@ -39,6 +40,7 @@ class ShadowingViewModel @Inject constructor(
                 val result = shadowingRepository.evaluatePronunciation(script, audioFile)
                 _pronunciationResult.value = ResultState.Success(result.getOrThrow())
             } catch (e: Exception) {
+                Log.e("ShadowingViewModel", "발음 평가 실패 detail: ${e.message}", e)
                 _pronunciationResult.value = ResultState.Failure("발음 평가 실패: ${e.message}")
             }
         }
