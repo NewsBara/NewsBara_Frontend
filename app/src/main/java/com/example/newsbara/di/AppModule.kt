@@ -6,17 +6,20 @@ import com.example.newsbara.data.repository.AuthRepositoryImpl
 import com.example.newsbara.data.repository.FriendRepositoryImpl
 import com.example.newsbara.data.repository.MyPageRepositoryImpl
 import com.example.newsbara.data.repository.RecommendRepositoryImpl
+import com.example.newsbara.data.repository.ShadowingRepositoryImpl
 import com.example.newsbara.data.repository.VideoRepositoryImpl
 import com.example.newsbara.data.service.AuthService
 import com.example.newsbara.data.service.FriendService
 import com.example.newsbara.data.service.MyPageService
 import com.example.newsbara.data.service.RecommendService
+import com.example.newsbara.data.service.ShadowingService
 import com.example.newsbara.data.service.VideoService
 import com.example.newsbara.data.service.YouTubeApiService
 import com.example.newsbara.domain.repository.AuthRepository
 import com.example.newsbara.domain.repository.FriendRepository
 import com.example.newsbara.domain.repository.MyPageRepository
 import com.example.newsbara.domain.repository.RecommendRepository
+import com.example.newsbara.domain.repository.ShadowingRepository
 import com.example.newsbara.domain.repository.VideoRepository
 import com.example.newsbara.network.RetrofitClient
 import com.example.newsbara.network.TokenInterceptor
@@ -70,6 +73,10 @@ object AppModule {
     fun provideFriendService(retrofit: Retrofit): FriendService =
         retrofit.create(FriendService::class.java)
 
+    @Provides
+    @Singleton
+    fun provideShadowingService(retrofit: Retrofit): ShadowingService =
+        retrofit.create(ShadowingService::class.java)
 
     @Provides
     @Singleton
@@ -109,5 +116,9 @@ object AppModule {
     @Provides
     fun provideRecommendRepository(recommendService: RecommendService): RecommendRepository =
         RecommendRepositoryImpl(recommendService)
+
+    @Provides
+    fun provideShadowingRepository(shadowingService: ShadowingService): ShadowingRepository =
+        ShadowingRepositoryImpl(shadowingService)
 
 }

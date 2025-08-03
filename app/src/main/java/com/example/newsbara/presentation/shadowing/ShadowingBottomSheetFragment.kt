@@ -9,12 +9,23 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.example.newsbara.R
-import com.example.newsbara.data.model.shadowing.ShadowingSentence
+import com.example.newsbara.data.model.shadowing.DifferenceDto
+import com.example.newsbara.domain.model.ScriptLine
+import com.example.newsbara.presentation.common.ResultState
 import com.example.newsbara.presentation.test.TestActivity
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import dagger.hilt.android.AndroidEntryPoint
+import java.io.File
 
+@AndroidEntryPoint
 class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
+
+    private val viewModel: ShadowingViewModel by activityViewModels()
+    private val differenceResults = mutableListOf<DifferenceDto>()
 
     private lateinit var tvOriginSentence: TextView
     private lateinit var tvUserSentence: TextView
@@ -25,11 +36,11 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var tvState: TextView
     private lateinit var ivStateIcon: ImageView
 
-    private var sentenceList: List<ShadowingSentence> = emptyList()
+    private var sentenceList: List<ScriptLine> = emptyList()
     private var currentIndex = 0
 
     companion object {
-        fun newInstance(sentences: List<ShadowingSentence>): ShadowingBottomSheetFragment {
+        fun newInstance(sentences: List<ScriptLine>): ShadowingBottomSheetFragment {
             val fragment = ShadowingBottomSheetFragment()
             fragment.sentenceList = sentences
             return fragment
@@ -52,13 +63,11 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         tvState = view.findViewById(R.id.tvState)
         ivStateIcon = view.findViewById(R.id.ivStateIcon)
 
-
         showSentence(currentIndex)
 
         btnMic.setOnClickListener {
             tvState.text = "녹음 중..."
-            // TODO: 음성 인식 시작 및 사용자 문장 비교 로직
-            simulateRecognition()
+            simulateRecordingAndEvaluate()
         }
 
         btnContinue.setOnClickListener {
@@ -70,25 +79,14 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
                 startTestActivity()
             }
         }
+
+        observePronunciationResult()
+
         return view
     }
 
     private fun showSentence(index: Int) {
         tvOriginSentence.text = sentenceList[index].sentence
-    }
-
-    private fun simulateRecognition() {
-        // 실제 음성인식 결과를 넣는 부분은 추후에 ML 모델 연결해서 교체
-        val recognized = sentenceList[currentIndex].sentence
-        tvUserSentence.text = recognized
-        tvScore.visibility = View.VISIBLE
-        tvScore.text = "SCORE: 4.5/5"
-        tvState.text = "발음 평가 완료"
-
-        ivStateIcon.setImageResource(R.drawable.complete)
-
-        btnMic.visibility = View.GONE
-        btnContinue.visibility = View.VISIBLE
     }
 
     private fun resetUI() {
@@ -100,6 +98,50 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         btnContinue.visibility = View.GONE
     }
 
+    private fun simulateRecordingAndEvaluate() {
+        val script = sentenceList[currentIndex].sentence
+
+        val dummyAudio = File(requireContext().cacheDir, "dummy_audio.wav")
+
+        viewModel.evaluatePronunciation(script, dummyAudio)
+    }
+
+    private fun observePronunciationResult() {
+        lifecycleScope.launchWhenStarted {
+            viewModel.pronunciationResult.collect { result ->
+                when (result) {
+                    is ResultState.Success -> {
+                        val data = result.data
+                        val difference = data.differences.firstOrNull()
+
+                        difference?.let {
+                            tvUserSentence.text = it.pronounced
+                            tvOriginSentence.text = it.expected
+                            differenceResults.add(it)
+                        }
+
+                        tvScore.text = "SCORE: ${data.score}/5"
+                        tvScore.visibility = View.VISIBLE
+                        tvState.text = "발음 평가 완료"
+                        ivStateIcon.setImageResource(R.drawable.complete)
+
+                        btnMic.visibility = View.GONE
+                        btnContinue.visibility = View.VISIBLE
+                    }
+
+                    is ResultState.Failure -> {
+                        Toast.makeText(requireContext(), result.message, Toast.LENGTH_SHORT).show()
+                    }
+
+                    is ResultState.Loading -> {
+                        tvState.text = "평가 중..."
+                    }
+
+                    ResultState.Idle -> TODO()
+                }
+            }
+        }
+    }
     private fun startTestActivity() {
         val intent = Intent(requireContext(), TestActivity::class.java)
         startActivity(intent)

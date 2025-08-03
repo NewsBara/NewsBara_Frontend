@@ -10,7 +10,6 @@ import android.util.TypedValue
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.newsbara.data.model.shadowing.ShadowingSentence
 import com.example.newsbara.domain.model.ScriptLine
 
 class ShadowingAdapter(
