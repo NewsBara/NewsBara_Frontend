@@ -11,25 +11,22 @@ import android.widget.TextView
 import com.example.newsbara.DictionaryActivity
 import com.example.newsbara.R
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-
 class TestResultBottomSheetFragment : BottomSheetDialogFragment() {
 
     companion object {
-        fun newInstance(userAnswer: String, correctAnswer: String): TestResultBottomSheetFragment {
+        fun newInstance(userAnswer: String, correctAnswer: String, explanation: String): TestResultBottomSheetFragment {
             val fragment = TestResultBottomSheetFragment()
-            val args = Bundle().apply {
-                putString("userAnswer", userAnswer)
-                putString("correctAnswer", correctAnswer)
-            }
+            val args = Bundle()
+            args.putString("userAnswer", userAnswer)
+            args.putString("correctAnswer", correctAnswer)
+            args.putString("explanation", explanation)
             fragment.arguments = args
             return fragment
         }
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_test_result, container, false)
 
@@ -40,24 +37,16 @@ class TestResultBottomSheetFragment : BottomSheetDialogFragment() {
 
         val userAnswer = arguments?.getString("userAnswer") ?: ""
         val correctAnswer = arguments?.getString("correctAnswer") ?: ""
+        val explanation = arguments?.getString("explanation") ?: ""
 
         val isCorrect = userAnswer.equals(correctAnswer, ignoreCase = true)
+
         tvResult.text = if (isCorrect) "Right" else "Wrong"
-//        ivIcon.setImageResource(
-//            if (isCorrect) R.drawable.ic_check_circle else R.drawable.ic_error
-//        )
-
-        val explanation = "\"Global\" refers to something that involves the entire world. " +
-                "In the context of climate change, \"global temperatures\" rising means it's a widespread problem affecting every region, " +
-                "not just one country or continent."
-
         tvExplanation.text = explanation
+        ivIcon.setImageResource(if (isCorrect) R.drawable.right___wrong_icon else R.drawable.right___wrong_icon)
 
         btnContinue.setOnClickListener {
-            val intent = Intent(requireContext(), DictionaryActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            startActivity(intent)
+            dismiss()
         }
 
         return view

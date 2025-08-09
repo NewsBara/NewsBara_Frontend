@@ -13,6 +13,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,29 +25,21 @@ class HomeViewModel @Inject constructor(
     private val _videoSections = MutableStateFlow<List<VideoSection>>(emptyList())
     val videoSections: StateFlow<List<VideoSection>> = _videoSections
 
-    fun fetchAllSections() {
+    fun fetchAllSections(channelName: String) {
         viewModelScope.launch {
             val allSections = mutableListOf<VideoSection>()
-            val recommendResult = recommendRepository.fetchRecommendedVideos()
-            Log.d("HomeViewModel", "🔵 추천 API 응답: $recommendResult")
 
-            if (recommendResult is ResultState.Success) {
-                Log.d("HomeViewModel", "🎯 추천 영상 수: ${recommendResult.data.size}")
+            val channelNames = listOf("BBC News", "CNN")
+            for (channel in channelNames) {
+                val result = recommendRepository.fetchRecommendedVideos(channel)
+                Log.d("HomeViewModel", "🔵 $channel 추천 API 응답: $result")
 
-                val grouped = recommendResult.data
-                    .filter { it.channel.contains("BBC") || it.channel.contains("CNN") }
-                    .groupBy {
-                        when {
-                            it.channel.contains("BBC") -> "BBC"
-                            it.channel.contains("CNN") -> "CNN"
-                            else -> "기타"
-                        }
-                    }
+                if (result is ResultState.Success) {
+                    Log.d("HomeViewModel", "🎯 $channel 추천 영상 수: ${result.data.size}")
 
-                grouped.forEach { (channelName, items) ->
                     val section = VideoSection(
-                        channelName = channelName,
-                        videos = items.map {
+                        channelName = channel,
+                        videos = result.data.map {
                             HistoryItem(
                                 id = 0,
                                 videoId = it.videoId,
@@ -60,6 +54,8 @@ class HomeViewModel @Inject constructor(
                         }
                     )
                     allSections.add(section)
+                } else if (result is ResultState.Failure) {
+                    Log.e("HomeViewModel", "❌ $channel 실패: ${result}")
                 }
             }
 

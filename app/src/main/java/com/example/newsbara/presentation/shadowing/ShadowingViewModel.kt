@@ -21,17 +21,47 @@ class ShadowingViewModel @Inject constructor(
     private val shadowingRepository: ShadowingRepository
 ) : ViewModel() {
 
+    // 전체 스크립트 상태
     private val _scriptLines = MutableStateFlow<ResultState<List<ScriptLine>>>(ResultState.Loading)
     val scriptLines: StateFlow<ResultState<List<ScriptLine>>> = _scriptLines
 
-    private val _pronunciationResult = MutableStateFlow<ResultState<PronunciationDto>>(ResultState.Loading)
+    // 현재 문장 인덱스
+    private val _currentIndex = MutableStateFlow(0)
+    val currentIndex: StateFlow<Int> = _currentIndex
+
+    // 발음 평가 결과
+    private val _pronunciationResult = MutableStateFlow<ResultState<PronunciationDto>>(ResultState.Idle)
     val pronunciationResult: StateFlow<ResultState<PronunciationDto>> = _pronunciationResult
 
     fun fetchScriptLines(videoId: String) {
         viewModelScope.launch {
             _scriptLines.value = videoRepository.fetchScript(videoId)
+            _currentIndex.value = 0 // 항상 처음부터 시작
         }
     }
+
+    fun getCurrentLine(): ScriptLine? {
+        val scripts = (_scriptLines.value as? ResultState.Success)?.data ?: return null
+        return scripts.getOrNull(_currentIndex.value)
+    }
+
+    fun hasNextLine(): Boolean {
+        val scripts = (_scriptLines.value as? ResultState.Success)?.data ?: return false
+        return _currentIndex.value + 1 < scripts.size
+    }
+
+    fun setScriptLines(lines: List<ScriptLine>) {
+        _scriptLines.value = ResultState.Success(lines)
+        _currentIndex.value = 0
+    }
+
+    fun nextLine() {
+        _currentIndex.value += 1
+    }
+
+//    fun resetIndex() {
+//        _currentIndex.value = 0
+//    }
 
     fun evaluatePronunciation(script: String, audioFile: File) {
         viewModelScope.launch {
@@ -44,5 +74,9 @@ class ShadowingViewModel @Inject constructor(
                 _pronunciationResult.value = ResultState.Failure("발음 평가 실패: ${e.message}")
             }
         }
+    }
+
+    fun resetPronunciationResult() {
+        _pronunciationResult.value = ResultState.Idle
     }
 }

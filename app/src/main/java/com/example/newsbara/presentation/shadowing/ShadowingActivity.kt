@@ -12,7 +12,6 @@ import com.example.newsbara.R
 import com.example.newsbara.presentation.common.ResultState
 import dagger.hilt.android.AndroidEntryPoint
 
-
 @AndroidEntryPoint
 class ShadowingActivity : AppCompatActivity() {
 
@@ -44,7 +43,8 @@ class ShadowingActivity : AppCompatActivity() {
                     recyclerView.adapter = adapter
 
                     findViewById<Button>(R.id.startShadowingButton).setOnClickListener {
-                        val bottomSheet = ShadowingBottomSheetFragment.newInstance(scriptList)
+                        viewModel.setScriptLines(scriptList) // ✅ ViewModel에 문장 목록 전달
+                        val bottomSheet = ShadowingBottomSheetFragment() // ✅ 기존 방식으로 생성
                         bottomSheet.show(supportFragmentManager, bottomSheet.tag)
                     }
                 }

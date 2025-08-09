@@ -7,12 +7,14 @@ import com.example.newsbara.data.repository.FriendRepositoryImpl
 import com.example.newsbara.data.repository.MyPageRepositoryImpl
 import com.example.newsbara.data.repository.RecommendRepositoryImpl
 import com.example.newsbara.data.repository.ShadowingRepositoryImpl
+import com.example.newsbara.data.repository.TestRepositoryImpl
 import com.example.newsbara.data.repository.VideoRepositoryImpl
 import com.example.newsbara.data.service.AuthService
 import com.example.newsbara.data.service.FriendService
 import com.example.newsbara.data.service.MyPageService
 import com.example.newsbara.data.service.RecommendService
 import com.example.newsbara.data.service.ShadowingService
+import com.example.newsbara.data.service.TestService
 import com.example.newsbara.data.service.VideoService
 import com.example.newsbara.data.service.YouTubeApiService
 import com.example.newsbara.domain.repository.AuthRepository
@@ -20,6 +22,7 @@ import com.example.newsbara.domain.repository.FriendRepository
 import com.example.newsbara.domain.repository.MyPageRepository
 import com.example.newsbara.domain.repository.RecommendRepository
 import com.example.newsbara.domain.repository.ShadowingRepository
+import com.example.newsbara.domain.repository.TestRepository
 import com.example.newsbara.domain.repository.VideoRepository
 import com.example.newsbara.network.RetrofitClient
 import com.example.newsbara.network.TokenInterceptor
@@ -31,6 +34,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
@@ -47,6 +51,9 @@ object AppModule {
     fun provideOkHttpClient(tokenInterceptor: TokenInterceptor): OkHttpClient =
         OkHttpClient.Builder()
             .addInterceptor(tokenInterceptor)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(300, TimeUnit.SECONDS)
+            .writeTimeout(300, TimeUnit.SECONDS)
             .build()
 
     @Provides
@@ -95,6 +102,12 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideTestService(retrofit: Retrofit): TestService {
+        return retrofit.create(TestService::class.java)
+    }
+
+    @Provides
+    @Singleton
     fun provideAuthRepository(service: AuthService): AuthRepository =
         AuthRepositoryImpl(service)
 
@@ -120,5 +133,9 @@ object AppModule {
     @Provides
     fun provideShadowingRepository(shadowingService: ShadowingService): ShadowingRepository =
         ShadowingRepositoryImpl(shadowingService)
+
+    @Provides
+    fun provideTestRepository(testService: TestService): TestRepository =
+        TestRepositoryImpl(testService)
 
 }

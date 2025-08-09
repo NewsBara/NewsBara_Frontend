@@ -2,7 +2,6 @@ package com.example.newsbara.presentation.shadowing
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,13 +21,13 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.io.FileOutputStream
-
 @AndroidEntryPoint
 class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
 
     private val viewModel: ShadowingViewModel by activityViewModels()
     private val differenceResults = mutableListOf<DifferenceDto>()
 
+    // UI Components
     private lateinit var tvOriginSentence: TextView
     private lateinit var tvUserSentence: TextView
     private lateinit var tvScore: TextView
@@ -37,17 +36,6 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var btnContinue: Button
     private lateinit var tvState: TextView
     private lateinit var ivStateIcon: ImageView
-
-    private var sentenceList: List<ScriptLine> = emptyList()
-    private var currentIndex = 0
-
-    companion object {
-        fun newInstance(sentences: List<ScriptLine>): ShadowingBottomSheetFragment {
-            val fragment = ShadowingBottomSheetFragment()
-            fragment.sentenceList = sentences
-            return fragment
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -65,7 +53,9 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         tvState = view.findViewById(R.id.tvState)
         ivStateIcon = view.findViewById(R.id.ivStateIcon)
 
-        showSentence(currentIndex)
+        observePronunciationResult()
+
+        showCurrentSentence()
 
         btnMic.setOnClickListener {
             tvState.text = "듣는 중..."
@@ -73,22 +63,26 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         }
 
         btnContinue.setOnClickListener {
-            currentIndex++
-            if (currentIndex < sentenceList.size) {
+            if (viewModel.hasNextLine()) {
+                viewModel.nextLine()
                 resetUI()
-                showSentence(currentIndex)
+                showCurrentSentence()
             } else {
                 startTestActivity()
             }
         }
 
-        observePronunciationResult()
-
         return view
     }
 
-    private fun showSentence(index: Int) {
-        tvOriginSentence.text = sentenceList[index].sentence
+    private fun showCurrentSentence() {
+        val currentLine = viewModel.getCurrentLine()
+        if (currentLine != null) {
+            tvOriginSentence.text = currentLine.sentence
+        } else {
+            Toast.makeText(requireContext(), "문장을 불러올 수 없습니다.", Toast.LENGTH_SHORT).show()
+            dismiss()
+        }
     }
 
     private fun resetUI() {
@@ -98,15 +92,13 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         tvState.text = "버튼을 누른 후 아래 내용을 말하세요."
         btnMic.visibility = View.VISIBLE
         btnContinue.visibility = View.GONE
+        viewModel.resetPronunciationResult()
     }
 
     private fun simulateRecordingAndEvaluate() {
-
         try {
-            val script = sentenceList[currentIndex].sentence
+            val script = viewModel.getCurrentLine()?.sentence ?: return
             val dummyAudio = getWavFileFromAssets()
-            Log.d("ShadowingFragment", "audio path: ${dummyAudio.absolutePath}, exists: ${dummyAudio.exists()}")
-
             viewModel.evaluatePronunciation(script, dummyAudio)
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "오디오 파일 없음.", Toast.LENGTH_SHORT).show()
@@ -144,7 +136,8 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
                         tvState.text = "버튼을 누른 후 아래 내용을 말하세요."
                     }
 
-                    ResultState.Idle -> TODO()
+                    ResultState.Idle -> {
+                    }
                 }
             }
         }
@@ -162,6 +155,7 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
 
         return tempFile
     }
+
     private fun startTestActivity() {
         val intent = Intent(requireContext(), TestActivity::class.java)
         startActivity(intent)

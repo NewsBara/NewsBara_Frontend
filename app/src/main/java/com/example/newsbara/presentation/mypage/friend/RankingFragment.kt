@@ -33,7 +33,6 @@ class RankingFragment : Fragment() {
         binding.recyclerFriends.layoutManager = LinearLayoutManager(context)
         binding.recyclerFriends.adapter = adapter
 
-        // ✅ 친구 목록 가져오기
         sharedViewModel.fetchFriends()
 
         sharedViewModel.friends.observe(viewLifecycleOwner) { friends ->

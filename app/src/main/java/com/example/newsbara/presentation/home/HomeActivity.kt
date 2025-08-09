@@ -30,11 +30,6 @@ class HomeActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
 
-    private val channels = mapOf(
-        "BBC" to "UC16niRr50-MSBwiO3YDb3RA",
-        "CNN" to "UCupvZG-5ko_eiXAupbDfxWw"
-    )
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
@@ -62,7 +57,10 @@ class HomeActivity : AppCompatActivity() {
         }
 
         setupRecyclerView()
-        viewModel.fetchAllSections()
+        val channelNames = listOf("BBC News", "CNN")
+        channelNames.forEach { channel ->
+            viewModel.fetchAllSections(channel)
+        }
 
         lifecycleScope.launchWhenStarted {
             viewModel.videoSections.collect { sections ->
