@@ -26,6 +26,10 @@ fun KeywordDto.toKeywordInfo(): KeywordInfo {
     )
 }
 
+fun ScriptResponseDto.toDictionaryEntries(): List<DictionaryEntry> {
+    return keywords.map { it.toDictionaryEntry() }
+}
+
 fun KeywordDto.toDictionaryEntry(): DictionaryEntry {
     return DictionaryEntry(
         word = word,

@@ -5,31 +5,49 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.newsbara.data.DictionaryItem
 import com.example.newsbara.R
+import com.example.newsbara.domain.model.DictionaryEntry
 
-class DictionaryAdapter(private val items: List<DictionaryItem>) : RecyclerView.Adapter<DictionaryAdapter.ViewHolder>() {
+class DictionaryAdapter(
+    private var items: List<DictionaryEntry>
+) : RecyclerView.Adapter<DictionaryAdapter.ViewHolder>() {
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvWord: TextView = itemView.findViewById(R.id.tvWord)
-     //   val tvPronunciation: TextView = itemView.findViewById(R.id.tvPronunciation)
-        val tvMeanings: TextView = itemView.findViewById(R.id.tvMeanings)
+    fun submit(newItems: List<DictionaryEntry>) {
+        items = newItems
+        notifyDataSetChanged()
+    }
+
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val tvWord: TextView = view.findViewById(R.id.tvWord)
+        val tvMeanings: TextView = view.findViewById(R.id.tvMeanings)
+        init {
+            tvMeanings.setLineSpacing(0f, 1f)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_dictionary, parent, false)
-        return ViewHolder(view)
+        val v = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_dictionary, parent, false)
+        return ViewHolder(v)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
         holder.tvWord.text = item.word
-      //  holder.tvPronunciation.text = item.pronunciation
 
-        val meaningText = item.meanings.withIndex().joinToString("\n") { (i, meaning) ->
-            "${i + 1}.  ${meaning.partOfSpeech}  ${meaning.definition}"
-        }
-        holder.tvMeanings.text = meaningText
+        val en = item.wordnetSenses
+        val ko = item.wordnetSensesKo
+        val n = minOf(en.size, ko.size)
+
+        holder.tvMeanings.text =
+            if (n == 0) "No definition available"
+            else buildString {
+                for (i in 0 until n) {
+                    append("${i + 1}.  ${en[i]}\n")
+                    append("    ${ko[i]}")
+                    if (i != n - 1) append("\n\n")
+                }
+            }
     }
 
     override fun getItemCount(): Int = items.size

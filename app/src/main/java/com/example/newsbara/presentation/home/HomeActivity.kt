@@ -3,6 +3,7 @@ package com.example.newsbara.presentation.home
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -17,8 +18,10 @@ import com.example.newsbara.SharedViewModel
 import com.example.newsbara.presentation.video.VideoActivity
 import com.example.newsbara.adapter.VideoSectionAdapter
 import com.example.newsbara.data.model.history.HistoryItem
+import com.example.newsbara.presentation.dictionary.DictionaryActivity
 import com.example.newsbara.presentation.mypage.MyPageViewModel
 import com.example.newsbara.presentation.mypage.stats.StatsViewModel
+import com.example.newsbara.presentation.test.TestActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -36,6 +39,7 @@ class HomeActivity : AppCompatActivity() {
 
         myPageViewModel.fetchMyPageInfo()
         val profileButton: ImageView = findViewById(R.id.profileButton)
+
 
         lifecycleScope.launchWhenStarted {
             myPageViewModel.myPageInfo.collect { info ->

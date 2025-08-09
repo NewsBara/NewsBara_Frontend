@@ -142,6 +142,32 @@
             android:linksClickable="true" />
     </ScrollView>
 
+    <LinearLayout
+        android:id="@+id/debugBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="visible">
+
+        <Button
+            android:id="@+id/btnSkipToTest"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Skip to Test" />
+
+        <Button
+            android:id="@+id/btnSkipToDict"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Skip to Dictionary"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
     <Button
         android:id="@+id/startShadowingButton"
         android:layout_width="match_parent"

@@ -23,7 +23,9 @@ import com.example.newsbara.data.model.youtube.getHighlightedText
 import com.example.newsbara.data.model.youtube.getStartMillis
 import com.example.newsbara.domain.model.ScriptLine
 import com.example.newsbara.presentation.common.ResultState
+import com.example.newsbara.presentation.dictionary.DictionaryActivity
 import com.example.newsbara.presentation.shadowing.ShadowingActivity
+import com.example.newsbara.presentation.test.TestActivity
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
@@ -66,6 +68,22 @@ class VideoActivity : AppCompatActivity() {
         if (videoId.isEmpty()) {
             finish()
             return
+        }
+
+        findViewById<Button>(R.id.btnSkipToTest).setOnClickListener {
+            // TestActivity는 내부에서 videoId로 서버 호출
+            startActivity(
+                Intent(this, TestActivity::class.java)
+                    .putExtra("videoId", videoId)
+            )
+        }
+
+        findViewById<Button>(R.id.btnSkipToDict).setOnClickListener {
+            // DictionaryActivity도 videoId만 받으면 ViewModel에서 불러오도록 구현
+            startActivity(
+                Intent(this, DictionaryActivity::class.java)
+                    .putExtra("videoId", videoId)
+            )
         }
 
         titleTextView.text = videoTitle

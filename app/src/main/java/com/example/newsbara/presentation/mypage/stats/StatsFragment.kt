@@ -14,7 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.newsbara.DictionaryActivity
+import com.example.newsbara.presentation.dictionary.DictionaryActivity
 import com.example.newsbara.R
 import com.example.newsbara.SharedViewModel
 import com.example.newsbara.adapter.StatsAdapter

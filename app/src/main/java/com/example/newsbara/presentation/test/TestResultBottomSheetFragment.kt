@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import com.example.newsbara.DictionaryActivity
+import com.example.newsbara.presentation.dictionary.DictionaryActivity
 import com.example.newsbara.R
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 class TestResultBottomSheetFragment : BottomSheetDialogFragment() {
