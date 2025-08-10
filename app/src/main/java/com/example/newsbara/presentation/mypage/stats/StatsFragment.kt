@@ -32,7 +32,6 @@ class StatsFragment : Fragment() {
     private lateinit var adapter: StatsAdapter
 
     private val statsViewModel: StatsViewModel by viewModels()
-    private val sharedViewModel: SharedViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,25 +60,21 @@ class StatsFragment : Fragment() {
     }
 
     private fun handleContinueClick(item: HistoryItem) {
-        statsViewModel.updateHistoryStatus(item) { updatedItem ->
-            if (updatedItem == null) {
+        statsViewModel.updateHistoryStatus(item) { updated ->
+            if (updated == null) {
                 Toast.makeText(requireContext(), "모든 단계를 완료했어요!", Toast.LENGTH_SHORT).show()
                 return@updateHistoryStatus
             }
 
-            sharedViewModel.setVideoData(
-                id = updatedItem.videoId,
-                title = updatedItem.title,
-                subs = listOf() // 자막 연결 예정
-            )
-            sharedViewModel.setVideoProgress(updatedItem)
-
-            val intent = when (updatedItem.status.uppercase()) {
-                "WATCHED" -> Intent(requireContext(), VideoActivity::class.java)
+            val intent = when (updated.status.uppercase()) {
+                "WATCHED"   -> Intent(requireContext(), VideoActivity::class.java)
                 "SHADOWING" -> Intent(requireContext(), ShadowingActivity::class.java)
-                "TEST" -> Intent(requireContext(), TestActivity::class.java)
-                "DICTIONARY" -> Intent(requireContext(), DictionaryActivity::class.java)
+                "TEST"      -> Intent(requireContext(), TestActivity::class.java)
+                "DICTIONARY"-> Intent(requireContext(), DictionaryActivity::class.java)
                 else -> null
+            }?.apply {
+                putExtra("videoId", "1iiCkCokunI")  // updated.videoId
+                putExtra("videoTitle", updated.title)
             }
 
             intent?.let { startActivity(it) }

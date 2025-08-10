@@ -43,39 +43,44 @@ class StatsViewModel @Inject constructor(
 
 
     fun updateHistoryStatus(item: HistoryItem, onComplete: (HistoryItem?) -> Unit) {
-        val nextStatus = when (item.status.uppercase()) {
+        val next = when (item.status.uppercase()) {
             "WATCHED" -> "SHADOWING"
             "SHADOWING" -> "TEST"
             "TEST" -> "DICTIONARY"
             "DICTIONARY" -> null
             else -> null
-        }
+        } ?: run { onComplete(null); return }
 
-        if (nextStatus == null) {
-            onComplete(null)
-            return
-        }
-
-        val updatedItem = item.copy(status = nextStatus)
-
-        val request = SaveHistoryRequest(
-            videoId = updatedItem.videoId,
-            title = updatedItem.title,
-            thumbnail = updatedItem.thumbnail,
-            channel = updatedItem.channel,
-            length = updatedItem.length,
-            category = updatedItem.category,
-            status = updatedItem.status
+        val req = SaveHistoryRequest(
+            videoId = item.videoId,
+            title = item.title,
+            thumbnail = item.thumbnail,
+            channel = item.channel,
+            length = item.length,
+            category = item.category,
+            status = next
         )
 
-        saveHistory(request) {
-            if (it) onComplete(updatedItem) else onComplete(null)
+        viewModelScope.launch {
+            when (val r = myPageRepository.saveHistory(req)) {
+                is ResultState.Success -> {
+                    val updated = r.data
+                    _historyList.value = _historyList.value.map {
+                        if (it.videoId == updated.videoId) updated else it
+                    }
+                    onComplete(updated)
+                }
+                is ResultState.Failure -> { Log.e("StatsVM","저장 실패: ${r.message}"); onComplete(null) }
+                is ResultState.Error   -> { Log.e("StatsVM","저장 에러: ${r.exception}"); onComplete(null) }
+                else -> onComplete(null)
+            }
         }
     }
 
+
     fun saveWatchedHistory(video: HistoryItem, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
-            val request = SaveHistoryRequest(
+            val req = SaveHistoryRequest(
                 videoId = video.videoId,
                 title = video.title,
                 thumbnail = video.thumbnail,
@@ -84,21 +89,12 @@ class StatsViewModel @Inject constructor(
                 category = video.category,
                 status = "WATCHED"
             )
-            saveHistory(request, onResult)
-        }
-    }
-
-
-    fun saveHistory(request: SaveHistoryRequest, onResult: (Boolean) -> Unit) {
-        viewModelScope.launch {
-            try {
-                myPageRepository.saveHistory(request)
-                onResult(true)
-            } catch (e: Exception) {
-                Log.e("StatsViewModel", "히스토리 저장 실패: ${e.message}")
-                onResult(false)
+            when (myPageRepository.saveHistory(req)) {
+                is ResultState.Success -> onResult(true)
+                else -> onResult(false)
             }
         }
     }
+
 }
 
