@@ -1,6 +1,8 @@
 package com.example.newsbara.presentation.test
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,12 +16,13 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 class TestResultBottomSheetFragment : BottomSheetDialogFragment() {
 
     companion object {
-        fun newInstance(userAnswer: String, correctAnswer: String, explanation: String): TestResultBottomSheetFragment {
+        fun newInstance(userAnswer: String, correctAnswer: String, explanation: String, videoId: String): TestResultBottomSheetFragment {
             val fragment = TestResultBottomSheetFragment()
             val args = Bundle()
             args.putString("userAnswer", userAnswer)
             args.putString("correctAnswer", correctAnswer)
             args.putString("explanation", explanation)
+            args.putString("videoId", videoId)
             fragment.arguments = args
             return fragment
         }
@@ -38,14 +41,27 @@ class TestResultBottomSheetFragment : BottomSheetDialogFragment() {
         val userAnswer = arguments?.getString("userAnswer") ?: ""
         val correctAnswer = arguments?.getString("correctAnswer") ?: ""
         val explanation = arguments?.getString("explanation") ?: ""
+        val videoId = arguments?.getString("videoId") ?: ""
 
         val isCorrect = userAnswer.equals(correctAnswer, ignoreCase = true)
 
         tvResult.text = if (isCorrect) "Right" else "Wrong"
         tvExplanation.text = explanation
-        ivIcon.setImageResource(if (isCorrect) R.drawable.right___wrong_icon else R.drawable.right___wrong_icon)
-
+        if (isCorrect) {
+            ivIcon.setImageResource(R.drawable.right___wrong_icon)
+            tvResult.setTextColor(Color.parseColor("#5EDEC3"))
+            tvResult.text = "Right"
+        } else {
+            ivIcon.setImageResource(R.drawable.icon_wrong)
+            tvResult.setTextColor(Color.parseColor("#FF6B84"))
+            tvResult.text = "Wrong"
+            btnContinue.backgroundTintList =
+                ColorStateList.valueOf(Color.parseColor("#FF6B84"))
+        }
         btnContinue.setOnClickListener {
+            val intent = Intent(requireContext(), DictionaryActivity::class.java)
+                .putExtra("videoId", videoId)
+            startActivity(intent)
             dismiss()
         }
 

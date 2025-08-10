@@ -71,7 +71,6 @@ class VideoActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btnSkipToTest).setOnClickListener {
-            // TestActivity는 내부에서 videoId로 서버 호출
             startActivity(
                 Intent(this, TestActivity::class.java)
                     .putExtra("videoId", videoId)
@@ -79,7 +78,6 @@ class VideoActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btnSkipToDict).setOnClickListener {
-            // DictionaryActivity도 videoId만 받으면 ViewModel에서 불러오도록 구현
             startActivity(
                 Intent(this, DictionaryActivity::class.java)
                     .putExtra("videoId", videoId)

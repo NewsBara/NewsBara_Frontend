@@ -80,7 +80,7 @@ class TestActivity : AppCompatActivity() {
 
         btnCheck.setOnClickListener {
             val userAnswer = tvAnswer.text.toString().trim()
-            val fragment = TestResultBottomSheetFragment.newInstance(userAnswer, correctAnswer, explanation)
+            val fragment = TestResultBottomSheetFragment.newInstance(userAnswer, correctAnswer, explanation, videoId)
             fragment.show(supportFragmentManager, "resultSheet")
         }
     }
