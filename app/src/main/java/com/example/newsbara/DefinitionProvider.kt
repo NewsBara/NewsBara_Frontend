@@ -11,7 +11,6 @@ object DefinitionProvider {
         "climate" to "기후",
         "carbon" to "탄소",
         "temperature" to "온도",
-        // ... 이후 30~40개 추가
     )
 
     fun getDefinition(word: String): String {
