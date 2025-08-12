@@ -10,17 +10,23 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.newsbara.R
+import com.example.newsbara.data.model.login.LoginRequest
 import com.example.newsbara.data.model.signup.SignUpRequest
+import com.example.newsbara.presentation.OnboardingActivity
 import com.example.newsbara.presentation.login.LoginActivity
+import com.example.newsbara.presentation.login.LoginViewModel
 import com.example.newsbara.presentation.util.ResultState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.jvm.java
 
-
 @AndroidEntryPoint
 class SignUpActivity : AppCompatActivity() {
 
-    private val viewModel: SignUpViewModel by viewModels()
+    private val signUpViewModel: SignUpViewModel by viewModels()
+    private val loginViewModel: LoginViewModel by viewModels()
+
+    private var pendingEmail = ""
+    private var pendingPassword = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,33 +45,52 @@ class SignUpActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            val request = SignUpRequest(
-                email = etEmail.text.toString(),
-                password = etPassword.text.toString(),
+            // 가입 시도 전에 입력값을 보관
+            pendingEmail = etEmail.text.toString()
+            pendingPassword = etPassword.text.toString()
+
+            val req = SignUpRequest(
+                email = pendingEmail,
+                password = pendingPassword,
                 phone = etPhone.text.toString(),
                 name = etName.text.toString()
             )
-
-            viewModel.signUp(request)
+            signUpViewModel.signUp(req)
         }
 
         lifecycleScope.launchWhenStarted {
-            viewModel.signUpResult.collect { state ->
+            signUpViewModel.signUpResult.collect { state ->
                 when (state) {
                     is ResultState.Success -> {
-                        Toast.makeText(this@SignUpActivity, "회원가입 성공", Toast.LENGTH_SHORT).show()
-                        startActivity(Intent(this@SignUpActivity, LoginActivity::class.java))
-                        finish()
+                        // 가입 성공 → 보관해둔 값으로 바로 로그인
+                        loginViewModel.login(LoginRequest(pendingEmail, pendingPassword))
                     }
-
                     is ResultState.Failure -> {
                         Toast.makeText(this@SignUpActivity, state.message, Toast.LENGTH_SHORT).show()
                     }
+                    else -> Unit
+                }
+            }
+        }
 
-                    else -> {}
+        lifecycleScope.launchWhenStarted {
+            loginViewModel.loginResult.collect { state ->
+                when (state) {
+                    is ResultState.Success -> {
+                        val token = state.data.accessToken
+                        getSharedPreferences("auth", MODE_PRIVATE)
+                            .edit()
+                            .putString("accessToken", token)
+                            .apply()
+                        startActivity(Intent(this@SignUpActivity, OnboardingActivity::class.java))
+                        finish()
+                    }
+                    is ResultState.Failure -> {
+                        Toast.makeText(this@SignUpActivity, state.message, Toast.LENGTH_SHORT).show()
+                    }
+                    else -> Unit
                 }
             }
         }
     }
 }
-

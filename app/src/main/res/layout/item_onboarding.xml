@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:paddingHorizontal="20dp"
+    android:paddingTop="12dp">
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp">
+
+        <AutoCompleteTextView
+            android:id="@+id/dropdownType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Test Type"
+            android:inputType="none" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etScore"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter your score"
+            android:inputType="number" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageButton
+        android:id="@+id/btnAddField"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
+        android:background="@null"
+        android:src="@drawable/ic_add"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter" />
+
+</LinearLayout>
