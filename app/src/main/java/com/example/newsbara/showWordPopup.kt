@@ -15,30 +15,47 @@ fun showWordPopup(
     context: Context,
     anchor: View,
     word: String,
-    definition: String,
+    koDef1: String,
+    koDef2: String?,
     rawX: Int,
     rawY: Int
 ) {
     val inflater = LayoutInflater.from(context)
     val popupView = inflater.inflate(R.layout.popup_word, null)
-    val wordText = popupView.findViewById<TextView>(R.id.wordText)
-    val defText = popupView.findViewById<TextView>(R.id.definitionText)
+    val tvWord = popupView.findViewById<TextView>(R.id.wordText)
+    val tvDef = popupView.findViewById<TextView>(R.id.definitionText)
 
-    wordText.text = word
-    defText.text = definition
+    tvWord.text = word
+    tvDef.text = koDef1
 
     val popupWindow = PopupWindow(
         popupView,
         ViewGroup.LayoutParams.WRAP_CONTENT,
         ViewGroup.LayoutParams.WRAP_CONTENT,
         true
-    )
+    ).apply {
+        setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        isOutsideTouchable = true
+        elevation = 12f
+    }
+
     popupWindow.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     popupWindow.isOutsideTouchable = true
 
-    val popupHeight = (48 * context.resources.displayMetrics.density).toInt()  // 약간 위로
+    var showingSecond = false
+    popupView.setOnClickListener {
+        if (koDef2 != null) {
+            if (!showingSecond) {
+                tvDef.text = koDef2
+            } else {
+                tvDef.text = koDef1
+            }
+            showingSecond = !showingSecond
+        }
+    }
+
+    val popupHeight = (48 * context.resources.displayMetrics.density).toInt()
 
     popupWindow.showAtLocation(anchor, Gravity.NO_GRAVITY, rawX, rawY - popupHeight)
 
-    Log.d("PopupDebug", "Popup for word=$word @ rawX=$rawX, rawY=$rawY, adjustedY=${rawY - popupHeight}")
 }

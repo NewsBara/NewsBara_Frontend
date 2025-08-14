@@ -3,6 +3,7 @@ package com.example.newsbara.data.repository
 import com.example.newsbara.data.model.script.ScriptResponseDto
 import com.example.newsbara.data.service.VideoService
 import com.example.newsbara.domain.model.DictionaryEntry
+import com.example.newsbara.domain.model.KeywordInfo
 import com.example.newsbara.domain.model.ScriptLine
 import com.example.newsbara.domain.model.toDictionaryEntries
 import com.example.newsbara.domain.model.toScriptLine
@@ -68,6 +69,20 @@ class VideoRepositoryImpl @Inject constructor(
             }
         } catch (e: Exception) {
             ResultState.Failure("예외 발생: ${e.localizedMessage ?: "알 수 없음"}")
+        }
+    }
+    override suspend fun fetchKeywordInfos(videoId: String)
+            : ResultState<Map<String, KeywordInfo>> {
+        return when (val res = fetchScript(videoId)) {
+            is ResultState.Success -> {
+                // 모든 문장의 keywords를 단어 기준으로 취합 (중복 단어는 처음/마지막 아무거나)
+                val map = res.data
+                    .flatMap { it.keywords }
+                    .associateBy { it.word.lowercase() }
+                ResultState.Success(map)
+            }
+            is ResultState.Failure -> ResultState.Failure(res.message)
+            else -> ResultState.Failure("스크립트 로딩 실패")
         }
     }
 }

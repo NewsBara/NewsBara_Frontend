@@ -20,9 +20,7 @@ fun KeywordDto.toKeywordInfo(): KeywordInfo {
         gptDefinition = gptDefinition,
         gptDefinitionKo = gptDefinitionKo,
         bertDefinition = bertDefinition ?: "",
-        bertDefinitionKo = bertDefinitionKo ?: "",
-        bertSource = bertSource ?: "unknown",
-        bertConfidence = bertConfidence
+        bertDefinitionKo = bertDefinitionKo ?: ""
     )
 }
 

@@ -2,6 +2,7 @@ package com.example.newsbara.presentation.video
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.newsbara.domain.model.KeywordInfo
 import com.example.newsbara.domain.model.ScriptLine
 import com.example.newsbara.domain.model.toScriptLine
 import com.example.newsbara.domain.repository.VideoRepository
@@ -20,6 +21,9 @@ class VideoViewModel @Inject constructor(
     private val _scriptLines = MutableStateFlow<ResultState<List<ScriptLine>>>(ResultState.Loading)
     val scriptLines: StateFlow<ResultState<List<ScriptLine>>> = _scriptLines
 
+    private val _keywordMap = MutableStateFlow<Map<String, KeywordInfo>>(emptyMap())
+    val keywordMap: StateFlow<Map<String, KeywordInfo>> = _keywordMap
+
     fun fetchScript(videoId: String) {
         viewModelScope.launch {
             _scriptLines.value = try {
@@ -33,5 +37,12 @@ class VideoViewModel @Inject constructor(
                 ResultState.Failure("자막 불러오기 실패: ${e.message}")
             }
         }
+    }
+
+    fun getKoDefinitions(word: String): Pair<String,String>? {
+        val k = _keywordMap.value[word.lowercase()] ?: return null
+        val first = k.gptDefinitionKo.ifBlank { k.bertDefinitionKo.orEmpty() }
+        val second = k.bertDefinitionKo?.ifBlank { k.gptDefinitionKo } ?: k.gptDefinitionKo
+        return first to second
     }
 }

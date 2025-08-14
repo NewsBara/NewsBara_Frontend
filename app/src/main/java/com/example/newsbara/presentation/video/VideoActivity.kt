@@ -135,7 +135,6 @@ class VideoActivity : AppCompatActivity() {
 
     private fun updateFullSubtitle() {
         Log.d("ScriptFetch", "🎬 [updateFullSubtitle] Called. isTranslatedMode = $isTranslatedMode")
-        Log.d("ScriptFetch", "📝 subtitleList size = ${subtitleList.size}")
         val builder = SpannableStringBuilder()
         for ((index, line) in subtitleList.withIndex()) {
             val highlightWords = line.keywords.map { it.word }
@@ -145,7 +144,12 @@ class VideoActivity : AppCompatActivity() {
                     highlightWords = highlightWords,
                     context = this,
                     anchorTextView = fullSubtitleTextView,
-                    onDefinitionFetch = { word -> DefinitionProvider.getDefinition(word) }
+                    onDefinitionFetch = { clicked ->
+                        val k = line.keywords.firstOrNull { it.word.equals(clicked, true) }
+                        val gptKo  = k?.gptDefinitionKo?.ifBlank { "정의가 없습니다." } ?: "정의가 없습니다."
+                        val bertKo = k?.bertDefinitionKo?.takeIf { it.isNotBlank() }
+                        gptKo to bertKo
+                    }
                 )
             } else {
                 SpannableStringBuilder(line.sentence.lineSequence().firstOrNull()?.trim().orEmpty())

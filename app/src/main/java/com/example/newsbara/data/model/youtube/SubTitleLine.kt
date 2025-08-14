@@ -47,7 +47,7 @@ fun ScriptLine.getClickableSpannable(
     highlightWords: List<String>,
     context: Context,
     anchorTextView: TextView,
-    onDefinitionFetch: (String) -> String
+    onDefinitionFetch: (String) -> Pair<String, String?>
 ): SpannableString {
     val combinedText = "$sentence\n$sentenceKo"
     val spannable = SpannableString(combinedText)
@@ -57,14 +57,15 @@ fun ScriptLine.getClickableSpannable(
         if (startIndex != -1) {
             val clickableSpan = object : ClickableSpan() {
                 override fun onClick(widget: View) {
-                    val definition = onDefinitionFetch(word)
+                    val (gptKo, bertKo) = onDefinitionFetch(word)
 
                     // 터치 좌표 기반 팝업 표시
                     showWordPopup(
                         context = context,
                         anchor = anchorTextView,
                         word = word,
-                        definition = definition,
+                        koDef1 = gptKo,      // 첫 화면
+                        koDef2 = bertKo,
                         rawX = TouchableMovementMethod.lastTouchX,
                         rawY = TouchableMovementMethod.lastTouchY
                     )
