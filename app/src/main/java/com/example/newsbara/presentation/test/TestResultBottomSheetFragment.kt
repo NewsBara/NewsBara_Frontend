@@ -10,10 +10,16 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.example.newsbara.presentation.dictionary.DictionaryActivity
 import com.example.newsbara.R
+import com.example.newsbara.presentation.mypage.stats.StatsViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 class TestResultBottomSheetFragment : BottomSheetDialogFragment() {
+
+    private val statsViewModel: StatsViewModel by activityViewModels()
 
     companion object {
         fun newInstance(userAnswer: String, correctAnswer: String, explanation: String, videoId: String): TestResultBottomSheetFragment {
@@ -59,10 +65,26 @@ class TestResultBottomSheetFragment : BottomSheetDialogFragment() {
                 ColorStateList.valueOf(Color.parseColor("#FF6B84"))
         }
         btnContinue.setOnClickListener {
-            val intent = Intent(requireContext(), DictionaryActivity::class.java)
-                .putExtra("videoId", videoId)
-            startActivity(intent)
-            dismiss()
+            statsViewModel.fetchHistory()
+
+            lifecycleScope.launchWhenStarted {
+                statsViewModel.historyList.collect { list ->
+                    val item = list.firstOrNull { it.videoId == videoId }
+                    if (item != null) {
+                        statsViewModel.updateHistoryStatus(item) {
+                            // 성공 시 Dictionary 화면으로 이동
+                            val intent = Intent(requireContext(), DictionaryActivity::class.java).apply {
+                                putExtra("videoId", videoId)
+                                putExtra("videoTitle", item.title)
+                            }
+                            startActivity(intent)
+                            dismiss()
+                        }
+                    } else {
+                        Toast.makeText(requireContext(), "히스토리를 찾을 수 없습니다", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
 
         return view

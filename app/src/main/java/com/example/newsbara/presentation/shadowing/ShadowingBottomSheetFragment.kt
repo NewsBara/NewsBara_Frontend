@@ -16,6 +16,7 @@ import com.example.newsbara.R
 import com.example.newsbara.data.model.shadowing.DifferenceDto
 import com.example.newsbara.domain.model.ScriptLine
 import com.example.newsbara.presentation.common.ResultState
+import com.example.newsbara.presentation.mypage.stats.StatsViewModel
 import com.example.newsbara.presentation.test.TestActivity
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,6 +26,7 @@ import java.io.FileOutputStream
 class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
 
     private val viewModel: ShadowingViewModel by activityViewModels()
+    private val statsViewModel: StatsViewModel by activityViewModels()
     private val differenceResults = mutableListOf<DifferenceDto>()
 
     // UI Components
@@ -157,8 +159,27 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     private fun startTestActivity() {
-        val intent = Intent(requireContext(), TestActivity::class.java)
-        startActivity(intent)
-        dismiss()
+        val videoId = requireActivity().intent.getStringExtra("videoId") ?: return
+
+        statsViewModel.fetchHistory()
+
+        lifecycleScope.launchWhenStarted {
+            statsViewModel.historyList.collect { list ->
+                val item = list.firstOrNull { it.videoId == videoId }
+                if (item != null) {
+                    statsViewModel.updateHistoryStatus(item) {
+                        // 상태 업뎃 성공 시 다음 화면 이동
+                        val intent = Intent(requireContext(), TestActivity::class.java).apply {
+                            putExtra("videoId", videoId)
+                            putExtra("videoTitle", item.title)
+                        }
+                        startActivity(intent)
+                        dismiss()
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "히스토리 정보를 찾을 수 없습니다", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 }

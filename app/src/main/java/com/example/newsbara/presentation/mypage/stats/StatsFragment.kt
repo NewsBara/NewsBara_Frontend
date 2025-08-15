@@ -70,7 +70,8 @@ class StatsFragment : Fragment() {
                 "WATCHED"   -> Intent(requireContext(), VideoActivity::class.java)
                 "SHADOWING" -> Intent(requireContext(), ShadowingActivity::class.java)
                 "TEST"      -> Intent(requireContext(), TestActivity::class.java)
-                "DICTIONARY"-> Intent(requireContext(), DictionaryActivity::class.java)
+                "WORD"      -> Intent(requireContext(), DictionaryActivity::class.java)
+                "COMPLETED" -> Intent(requireContext(), VideoActivity::class.java)
                 else -> null
             }?.apply {
                 putExtra("videoId", "1iiCkCokunI")  // updated.videoId

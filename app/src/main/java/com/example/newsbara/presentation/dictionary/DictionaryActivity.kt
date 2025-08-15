@@ -14,15 +14,18 @@ import com.example.newsbara.R
 import com.example.newsbara.adapter.DictionaryAdapter
 import com.example.newsbara.presentation.common.ResultState
 import com.example.newsbara.presentation.home.HomeActivity
+import com.example.newsbara.presentation.mypage.stats.StatsViewModel
 import com.example.newsbara.presentation.test.TestActivity
 import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class DictionaryActivity : AppCompatActivity() {
 
     private val viewModel: DictionaryViewModel by viewModels()
+    private val statsViewModel: StatsViewModel by viewModels()
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: DictionaryAdapter
+    private lateinit var videoId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,10 +38,24 @@ class DictionaryActivity : AppCompatActivity() {
             finish()
         }
         findViewById<Button>(R.id.BtnHome).setOnClickListener {
-            startActivity(Intent(this, HomeActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            })
-            finish()
+            statsViewModel.fetchHistory()
+
+            lifecycleScope.launchWhenStarted {
+                statsViewModel.historyList.collect { list ->
+                    val item = list.firstOrNull { it.videoId == videoId }
+                    if (item != null) {
+                        statsViewModel.updateHistoryStatus(item) {
+                            // 상태 업데이트 후 홈 화면으로 이동
+                            startActivity(Intent(this@DictionaryActivity, HomeActivity::class.java).apply {
+                                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                            })
+                            finish()
+                        }
+                    } else {
+                        Toast.makeText(this@DictionaryActivity, "히스토리를 찾을 수 없습니다", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
 
         recyclerView = findViewById(R.id.rvDictionary)

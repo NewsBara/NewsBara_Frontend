@@ -10,6 +10,7 @@ import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -24,6 +25,7 @@ import com.example.newsbara.data.model.youtube.getStartMillis
 import com.example.newsbara.domain.model.ScriptLine
 import com.example.newsbara.presentation.common.ResultState
 import com.example.newsbara.presentation.dictionary.DictionaryActivity
+import com.example.newsbara.presentation.mypage.stats.StatsViewModel
 import com.example.newsbara.presentation.shadowing.ShadowingActivity
 import com.example.newsbara.presentation.test.TestActivity
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
@@ -39,6 +41,7 @@ import kotlin.collections.indexOfLast
 class VideoActivity : AppCompatActivity() {
 
     private val viewModel: VideoViewModel by viewModels()
+    private val statsViewModel: StatsViewModel by viewModels()
 
     private lateinit var youtubePlayerView: YouTubePlayerView
     private lateinit var fullSubtitleTextView: TextView
@@ -113,10 +116,26 @@ class VideoActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.startShadowingButton).setOnClickListener {
-            val intent = Intent(this, ShadowingActivity::class.java).apply {
-                putExtra("videoId", videoId)
+
+            statsViewModel.fetchHistory()
+
+            lifecycleScope.launchWhenStarted {
+                statsViewModel.historyList.collect { list ->
+                    val item = list.firstOrNull { it.videoId == videoId }
+                    if (item != null) {
+                        statsViewModel.updateHistoryStatus(item) {
+                            // 성공 시 다음 화면으로 이동
+                            startActivity(Intent(this@VideoActivity, TestActivity::class.java).apply {
+                                putExtra("videoId", videoId) // 다음 화면에 videoId 전달
+                                putExtra("videoTitle", item.title)
+                            })
+                            finish()
+                        }
+                    } else {
+                        Toast.makeText(this@VideoActivity, "히스토리를 찾을 수 없습니다", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
-            startActivity(intent)
         }
 
         findViewById<ImageButton>(R.id.backButton).setOnClickListener { finish() }

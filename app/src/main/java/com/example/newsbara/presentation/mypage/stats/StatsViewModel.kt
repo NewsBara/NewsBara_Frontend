@@ -42,12 +42,12 @@ class StatsViewModel @Inject constructor(
     }
 
 
-    fun updateHistoryStatus(item: HistoryItem, onComplete: (HistoryItem?) -> Unit) {
+    fun updateHistoryStatus(item: HistoryItem, onComplete: (HistoryItem?) -> Unit = {}) {
         val next = when (item.status.uppercase()) {
             "WATCHED" -> "SHADOWING"
             "SHADOWING" -> "TEST"
-            "TEST" -> "DICTIONARY"
-            "DICTIONARY" -> null
+            "TEST" -> "WORD"
+            "WORD"      -> "COMPLETED"
             else -> null
         } ?: run { onComplete(null); return }
 
@@ -60,6 +60,7 @@ class StatsViewModel @Inject constructor(
             category = item.category,
             status = next
         )
+        Log.d("StatsViewModel", "saveHistory 호출: videoId=${req.videoId}, status=${req.status}")
 
         viewModelScope.launch {
             when (val r = myPageRepository.saveHistory(req)) {

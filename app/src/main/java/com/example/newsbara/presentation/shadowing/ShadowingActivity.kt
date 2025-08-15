@@ -6,16 +6,19 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.newsbara.adapter.ShadowingAdapter
 import android.widget.Button
+import android.widget.ImageButton
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.newsbara.R
 import com.example.newsbara.presentation.common.ResultState
+import com.example.newsbara.presentation.mypage.stats.StatsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ShadowingActivity : AppCompatActivity() {
 
     private val viewModel: ShadowingViewModel by viewModels()
+    private val statsViewModel: StatsViewModel by viewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ShadowingAdapter
 
@@ -29,6 +32,10 @@ class ShadowingActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         viewModel.fetchScriptLines(videoId)
+
+        findViewById<ImageButton>(R.id.btnBack).setOnClickListener {
+            finish()
+        }
 
         lifecycleScope.launchWhenStarted {
             viewModel.scriptLines.collect { result ->
