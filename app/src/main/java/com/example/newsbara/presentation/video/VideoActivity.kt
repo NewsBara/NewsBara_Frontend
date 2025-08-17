@@ -32,6 +32,7 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.util.Timer
 import java.util.TimerTask
@@ -116,25 +117,23 @@ class VideoActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.startShadowingButton).setOnClickListener {
-
-            statsViewModel.fetchHistory()
-
-            lifecycleScope.launchWhenStarted {
-                statsViewModel.historyList.collect { list ->
-                    val item = list.firstOrNull { it.videoId == videoId }
-                    if (item != null) {
-                        statsViewModel.updateHistoryStatus(item) {
-                            // 성공 시 다음 화면으로 이동
-                            startActivity(Intent(this@VideoActivity, TestActivity::class.java).apply {
-                                putExtra("videoId", videoId) // 다음 화면에 videoId 전달
-                                putExtra("videoTitle", item.title)
-                            })
-                            finish()
-                        }
-                    } else {
-                        Toast.makeText(this@VideoActivity, "히스토리를 찾을 수 없습니다", Toast.LENGTH_SHORT).show()
-                    }
+            val item = statsViewModel.historyList.value.firstOrNull()
+            if (item != null) {
+                statsViewModel.updateHistoryStatus(item) {
+                    // regardless of save result, always go to next screen
+                    startActivity(Intent(this@VideoActivity, ShadowingActivity::class.java).apply {
+                        putExtra("videoId", "1iiCkCokunI")
+                        putExtra("videoTitle", item.title)
+                    })
+                    finish()
                 }
+            } else {
+                // history 없더라도 그냥 진행 (원한다면 아래도 넘길 수 있음)
+                startActivity(Intent(this@VideoActivity, ShadowingActivity::class.java).apply {
+                    putExtra("videoId", "1iiCkCokunI")
+                    putExtra("videoTitle", "No Title")
+                })
+                finish()
             }
         }
 

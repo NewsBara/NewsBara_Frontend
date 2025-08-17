@@ -1,7 +1,11 @@
 package com.example.newsbara.presentation.shadowing
 
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.media.MediaRecorder
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,18 +14,25 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.newsbara.R
 import com.example.newsbara.data.model.shadowing.DifferenceDto
-import com.example.newsbara.domain.model.ScriptLine
 import com.example.newsbara.presentation.common.ResultState
 import com.example.newsbara.presentation.mypage.stats.StatsViewModel
 import com.example.newsbara.presentation.test.TestActivity
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
+import android.Manifest
+import android.media.AudioFormat
+import android.media.AudioRecord
+import androidx.annotation.RequiresPermission
+import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
+
 @AndroidEntryPoint
 class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
 
@@ -29,7 +40,6 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
     private val statsViewModel: StatsViewModel by activityViewModels()
     private val differenceResults = mutableListOf<DifferenceDto>()
 
-    // UI Components
     private lateinit var tvOriginSentence: TextView
     private lateinit var tvUserSentence: TextView
     private lateinit var tvScore: TextView
@@ -38,6 +48,13 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var btnContinue: Button
     private lateinit var tvState: TextView
     private lateinit var ivStateIcon: ImageView
+    private lateinit var audioRecord: AudioRecord
+    private lateinit var recordedFile: File
+    private var isRecording = false
+
+    private val sampleRate = 16000
+    private val channelConfig = AudioFormat.CHANNEL_IN_MONO
+    private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,13 +72,15 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         tvState = view.findViewById(R.id.tvState)
         ivStateIcon = view.findViewById(R.id.ivStateIcon)
 
+        checkAndRequestPermission()
         observePronunciationResult()
-
         showCurrentSentence()
 
         btnMic.setOnClickListener {
-            tvState.text = "듣는 중..."
-            simulateRecordingAndEvaluate()
+            startRecording()
+            Handler(Looper.getMainLooper()).postDelayed({
+                stopRecordingAndEvaluate()
+            }, 5500)
         }
 
         btnContinue.setOnClickListener {
@@ -75,6 +94,17 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         }
 
         return view
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        isRecording = false
+        if (::audioRecord.isInitialized) {
+            try {
+                audioRecord.stop()
+                audioRecord.release()
+            } catch (_: Exception) { }
+        }
     }
 
     private fun showCurrentSentence() {
@@ -97,14 +127,63 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         viewModel.resetPronunciationResult()
     }
 
-    private fun simulateRecordingAndEvaluate() {
-        try {
-            val script = viewModel.getCurrentLine()?.sentence ?: return
-            val dummyAudio = getWavFileFromAssets()
-            viewModel.evaluatePronunciation(script, dummyAudio)
-        } catch (e: Exception) {
-            Toast.makeText(requireContext(), "오디오 파일 없음.", Toast.LENGTH_SHORT).show()
+
+    private fun stopRecordingAndEvaluate() {
+        isRecording = false
+        tvState.post {
+            tvState.text = "평가 중..."
         }
+    }
+
+    private fun writeWavFile(pcmData: ByteArray, outputFile: File) {
+        val wavFile = FileOutputStream(outputFile)
+        val totalAudioLen = pcmData.size.toLong()
+        val totalDataLen = totalAudioLen + 36
+        val byteRate = 16 * sampleRate * 1 / 8
+
+        val header = ByteArray(44)
+
+        header[0] = 'R'.code.toByte()
+        header[1] = 'I'.code.toByte()
+        header[2] = 'F'.code.toByte()
+        header[3] = 'F'.code.toByte()
+        writeInt(header, 4, totalDataLen.toInt())
+        header[8] = 'W'.code.toByte()
+        header[9] = 'A'.code.toByte()
+        header[10] = 'V'.code.toByte()
+        header[11] = 'E'.code.toByte()
+        header[12] = 'f'.code.toByte()
+        header[13] = 'm'.code.toByte()
+        header[14] = 't'.code.toByte()
+        header[15] = ' '.code.toByte()
+        writeInt(header, 16, 16)
+        writeShort(header, 20, 1.toShort())
+        writeShort(header, 22, 1.toShort())
+        writeInt(header, 24, sampleRate)
+        writeInt(header, 28, byteRate)
+        writeShort(header, 32, 2.toShort())
+        writeShort(header, 34, 16.toShort())
+        header[36] = 'd'.code.toByte()
+        header[37] = 'a'.code.toByte()
+        header[38] = 't'.code.toByte()
+        header[39] = 'a'.code.toByte()
+        writeInt(header, 40, totalAudioLen.toInt())
+
+        wavFile.write(header, 0, 44)
+        wavFile.write(pcmData)
+        wavFile.close()
+    }
+
+    private fun writeInt(header: ByteArray, offset: Int, value: Int) {
+        header[offset] = (value and 0xff).toByte()
+        header[offset + 1] = (value shr 8 and 0xff).toByte()
+        header[offset + 2] = (value shr 16 and 0xff).toByte()
+        header[offset + 3] = (value shr 24 and 0xff).toByte()
+    }
+
+    private fun writeShort(header: ByteArray, offset: Int, value: Short) {
+        header[offset] = (value.toInt() and 0xff).toByte()
+        header[offset + 1] = (value.toInt() shr 8 and 0xff).toByte()
     }
 
     private fun observePronunciationResult() {
@@ -145,18 +224,54 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         }
     }
 
-    private fun getWavFileFromAssets(): File {
-        val assetManager = requireContext().assets
-        val inputStream = assetManager.open("dummy_converted.wav")
-        val tempFile = File(requireContext().cacheDir, "dummy_audio.wav")
-        val outputStream = FileOutputStream(tempFile)
 
-        inputStream.copyTo(outputStream)
-        inputStream.close()
-        outputStream.close()
 
-        return tempFile
+    private fun checkAndRequestPermission() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.RECORD_AUDIO),
+                1001
+            )
+        }
     }
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    private fun startRecording() {
+        val bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)
+        audioRecord = AudioRecord(
+            MediaRecorder.AudioSource.MIC,
+            sampleRate,
+            channelConfig,
+            audioFormat,
+            bufferSize
+        )
+        val buffer = ByteArray(bufferSize)
+        val pcmOutputStream = ByteArrayOutputStream()
+        isRecording = true
+        tvState.text = "녹음 중..."
+
+        audioRecord.startRecording()
+
+        Thread {
+            while (isRecording) {
+                val read = audioRecord.read(buffer, 0, buffer.size)
+                if (read > 0) {
+                    pcmOutputStream.write(buffer, 0, read)
+                }
+            }
+            audioRecord.stop()
+            audioRecord.release()
+
+            recordedFile = File(requireContext().cacheDir, "recorded_audio.wav")
+            writeWavFile(pcmOutputStream.toByteArray(), recordedFile)
+
+            val script = viewModel.getCurrentLine()?.sentence ?: return@Thread
+            viewModel.evaluatePronunciation(script, recordedFile)
+        }.start()
+    }
+
 
     private fun startTestActivity() {
         val videoId = requireActivity().intent.getStringExtra("videoId") ?: return
@@ -168,7 +283,7 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
                 val item = list.firstOrNull { it.videoId == videoId }
                 if (item != null) {
                     statsViewModel.updateHistoryStatus(item) {
-                        // 상태 업뎃 성공 시 다음 화면 이동
+
                         val intent = Intent(requireContext(), TestActivity::class.java).apply {
                             putExtra("videoId", videoId)
                             putExtra("videoTitle", item.title)

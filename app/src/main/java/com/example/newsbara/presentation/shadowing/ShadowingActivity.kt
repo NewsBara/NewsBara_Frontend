@@ -1,6 +1,7 @@
 package com.example.newsbara.presentation.shadowing
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,7 +19,6 @@ import dagger.hilt.android.AndroidEntryPoint
 class ShadowingActivity : AppCompatActivity() {
 
     private val viewModel: ShadowingViewModel by viewModels()
-    private val statsViewModel: StatsViewModel by viewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ShadowingAdapter
 
@@ -41,17 +41,20 @@ class ShadowingActivity : AppCompatActivity() {
             viewModel.scriptLines.collect { result ->
                 if (result is ResultState.Success) {
                     val scriptList = result.data
-                    val highlightWords = scriptList.flatMap { it.keywords.map { k -> k.word } }.distinct()
+                    val filteredScriptList = scriptList.filter { it.keywords.isNotEmpty() }
+                    val highlightWords = filteredScriptList.flatMap { it.keywords.map { k -> k.word } }.distinct()
+                    Log.d("ShadowingActivity", "원본 스크립트 수 = ${scriptList.size}")
+                    Log.d("ShadowingActivity", "키워드 있는 문장 수 = ${filteredScriptList.size}")
 
                     adapter = ShadowingAdapter(
-                        items = scriptList,
+                        items = filteredScriptList,
                         highlightWords = highlightWords
                     )
                     recyclerView.adapter = adapter
 
                     findViewById<Button>(R.id.startShadowingButton).setOnClickListener {
-                        viewModel.setScriptLines(scriptList) // ✅ ViewModel에 문장 목록 전달
-                        val bottomSheet = ShadowingBottomSheetFragment() // ✅ 기존 방식으로 생성
+                        viewModel.setScriptLines(filteredScriptList)
+                        val bottomSheet = ShadowingBottomSheetFragment()
                         bottomSheet.show(supportFragmentManager, bottomSheet.tag)
                     }
                 }

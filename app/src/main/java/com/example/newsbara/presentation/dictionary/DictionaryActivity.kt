@@ -45,7 +45,7 @@ class DictionaryActivity : AppCompatActivity() {
                     val item = list.firstOrNull { it.videoId == videoId }
                     if (item != null) {
                         statsViewModel.updateHistoryStatus(item) {
-                            // 상태 업데이트 후 홈 화면으로 이동
+
                             startActivity(Intent(this@DictionaryActivity, HomeActivity::class.java).apply {
                                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                             })

@@ -28,6 +28,7 @@ class StatsViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = myPageRepository.getHistory()) {
                 is ResultState.Success -> {
+                    Log.d("StatsViewModel", "📥 히스토리 받아옴 = ${result.data.size}")
                     _historyList.value = result.data
                 }
                 is ResultState.Failure -> {
