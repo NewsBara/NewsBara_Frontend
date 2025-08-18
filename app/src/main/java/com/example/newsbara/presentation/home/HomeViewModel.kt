@@ -25,13 +25,14 @@ class HomeViewModel @Inject constructor(
     private val _videoSections = MutableStateFlow<List<VideoSection>>(emptyList())
     val videoSections: StateFlow<List<VideoSection>> = _videoSections
 
-    fun fetchAllSections(channelName: String) {
+    fun fetchAllSections() {
         viewModelScope.launch {
             val allSections = mutableListOf<VideoSection>()
 
             val channelNames = listOf("BBC News", "CNN")
             for (channel in channelNames) {
-                val result = recommendRepository.fetchRecommendedVideos(channel)
+                val currentChannel = channel
+                val result = recommendRepository.fetchRecommendedVideos(currentChannel)
                 Log.d("HomeViewModel", "🔵 $channel 추천 API 응답: $result")
 
                 if (result is ResultState.Success) {
@@ -45,7 +46,7 @@ class HomeViewModel @Inject constructor(
                                 videoId = it.videoId,
                                 title = it.title,
                                 thumbnail = it.thumbnail,
-                                channel = it.channel,
+                                channel = channel,
                                 length = it.length,
                                 category = it.category,
                                 status = "UNWATCHED",

@@ -29,7 +29,11 @@ import java.io.File
 import android.Manifest
 import android.media.AudioFormat
 import android.media.AudioRecord
+import android.util.Log
 import androidx.annotation.RequiresPermission
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
 
@@ -77,6 +81,8 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         showCurrentSentence()
 
         btnMic.setOnClickListener {
+            resetUI()
+            tvState.text = "녹음 중..."
             startRecording()
             Handler(Looper.getMainLooper()).postDelayed({
                 stopRecordingAndEvaluate()
@@ -187,37 +193,41 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     private fun observePronunciationResult() {
-        lifecycleScope.launchWhenStarted {
-            viewModel.pronunciationResult.collect { result ->
-                when (result) {
-                    is ResultState.Success -> {
-                        val data = result.data
-                        val difference = data.differences.firstOrNull()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.pronunciationResult.collect { result ->
+                    Log.d("ShadowingFragment", "결과 상태 변경됨: $result")
+                    when (result) {
+                        is ResultState.Success -> {
+                            val data = result.data
+                            val difference = data.differences.firstOrNull()
 
-                        difference?.let {
-                            tvUserSentence.text = it.pronounced
-                            tvOriginSentence.text = it.expected
-                            differenceResults.add(it)
+                            difference?.let {
+                                tvUserSentence.text = it.pronounced
+                                tvOriginSentence.text = it.expected
+                                differenceResults.add(it)
+                            }
+
+                            tvScore.text = "SCORE: ${data.score}/5"
+                            tvScore.visibility = View.VISIBLE
+                            tvState.text = "발음 평가 완료"
+                            ivStateIcon.setImageResource(R.drawable.complete)
+
+                            btnMic.visibility = View.GONE
+                            btnContinue.visibility = View.VISIBLE
                         }
 
-                        tvScore.text = "SCORE: ${data.score}/5"
-                        tvScore.visibility = View.VISIBLE
-                        tvState.text = "발음 평가 완료"
-                        ivStateIcon.setImageResource(R.drawable.complete)
+                        is ResultState.Failure -> {
+                            Toast.makeText(requireContext(), result.message, Toast.LENGTH_SHORT)
+                                .show()
+                        }
 
-                        btnMic.visibility = View.GONE
-                        btnContinue.visibility = View.VISIBLE
-                    }
+                        is ResultState.Loading -> {
 
-                    is ResultState.Failure -> {
-                        Toast.makeText(requireContext(), result.message, Toast.LENGTH_SHORT).show()
-                    }
+                        }
 
-                    is ResultState.Loading -> {
-                        tvState.text = "버튼을 누른 후 아래 내용을 말하세요."
-                    }
-
-                    ResultState.Idle -> {
+                        ResultState.Idle -> {
+                        }
                     }
                 }
             }
@@ -250,7 +260,6 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         val buffer = ByteArray(bufferSize)
         val pcmOutputStream = ByteArrayOutputStream()
         isRecording = true
-        tvState.text = "녹음 중..."
 
         audioRecord.startRecording()
 
@@ -268,7 +277,11 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
             writeWavFile(pcmOutputStream.toByteArray(), recordedFile)
 
             val script = viewModel.getCurrentLine()?.sentence ?: return@Thread
-            viewModel.evaluatePronunciation(script, recordedFile)
+
+            Handler(Looper.getMainLooper()).post {
+                viewModel.evaluatePronunciation(script, recordedFile)
+            }
+
         }.start()
     }
 
@@ -292,7 +305,11 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
                         dismiss()
                     }
                 } else {
-                    Toast.makeText(requireContext(), "히스토리 정보를 찾을 수 없습니다", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(requireContext(), TestActivity::class.java).apply {
+                        putExtra("videoId", videoId)
+                    }
+                    startActivity(intent)
+                    dismiss()
                 }
             }
         }

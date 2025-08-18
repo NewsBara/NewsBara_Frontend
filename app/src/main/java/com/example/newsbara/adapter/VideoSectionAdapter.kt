@@ -1,5 +1,6 @@
 package com.example.newsbara.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.newsbara.R
 import com.example.newsbara.data.model.history.HistoryItem
 import com.example.newsbara.data.model.youtube.VideoSection
-
 class VideoSectionAdapter(
     private val sections: List<VideoSection>,
     private val onVideoClick: (HistoryItem) -> Unit

@@ -120,17 +120,15 @@ class VideoActivity : AppCompatActivity() {
             val item = statsViewModel.historyList.value.firstOrNull()
             if (item != null) {
                 statsViewModel.updateHistoryStatus(item) {
-                    // regardless of save result, always go to next screen
                     startActivity(Intent(this@VideoActivity, ShadowingActivity::class.java).apply {
-                        putExtra("videoId", "1iiCkCokunI")
+                        putExtra("videoId", videoId)
                         putExtra("videoTitle", item.title)
                     })
                     finish()
                 }
             } else {
-                // history 없더라도 그냥 진행 (원한다면 아래도 넘길 수 있음)
                 startActivity(Intent(this@VideoActivity, ShadowingActivity::class.java).apply {
-                    putExtra("videoId", "1iiCkCokunI")
+                    putExtra("videoId", videoId)
                     putExtra("videoTitle", "No Title")
                 })
                 finish()

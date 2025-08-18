@@ -3,9 +3,7 @@ package com.example.newsbara.presentation.home
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -14,14 +12,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.newsbara.presentation.mypage.MyPageFragment
 import com.example.newsbara.R
-import com.example.newsbara.SharedViewModel
 import com.example.newsbara.presentation.video.VideoActivity
 import com.example.newsbara.adapter.VideoSectionAdapter
 import com.example.newsbara.data.model.history.HistoryItem
-import com.example.newsbara.presentation.dictionary.DictionaryActivity
 import com.example.newsbara.presentation.mypage.MyPageViewModel
 import com.example.newsbara.presentation.mypage.stats.StatsViewModel
-import com.example.newsbara.presentation.test.TestActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -61,10 +56,7 @@ class HomeActivity : AppCompatActivity() {
         }
 
         setupRecyclerView()
-        val channelNames = listOf("BBC News", "CNN")
-        channelNames.forEach { channel ->
-            viewModel.fetchAllSections(channel)
-        }
+        viewModel.fetchAllSections()
 
         lifecycleScope.launchWhenStarted {
             viewModel.videoSections.collect { sections ->
@@ -91,7 +83,7 @@ class HomeActivity : AppCompatActivity() {
         }
 
         val intent = Intent(this, VideoActivity::class.java).apply {
-            putExtra("videoId", "1iiCkCokunI")
+            putExtra("videoId", video.videoId)
             putExtra("videoTitle", video.title)
         }
         startActivity(intent)
