@@ -110,7 +110,6 @@ class VideoActivity : AppCompatActivity() {
             }
         }
 
-        // 자막 토글 버튼
         findViewById<Button>(R.id.toggleSubtitleModeButton).setOnClickListener {
             isTranslatedMode = !isTranslatedMode
             (it as Button).text = if (isTranslatedMode) "eng script" else "eng/kor script"

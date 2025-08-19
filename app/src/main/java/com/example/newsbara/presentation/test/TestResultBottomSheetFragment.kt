@@ -94,11 +94,11 @@ class TestResultBottomSheetFragment : BottomSheetDialogFragment() {
                                 }
 
                                 is ResultState.Failure -> {
-                                    Log.e("Point", "❌ 포인트 반영 실패: ${result.message}")
+
                                 }
 
                                 is ResultState.Error -> {
-                                    Log.e("Point", "🚨 예외 발생: ${result.exception}")
+
                                 }
                                 is ResultState.Loading -> {
 

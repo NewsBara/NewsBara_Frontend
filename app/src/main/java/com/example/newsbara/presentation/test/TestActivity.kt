@@ -29,6 +29,7 @@ class TestActivity : AppCompatActivity() {
     private lateinit var tvAnswer: TextView
     private lateinit var btnInput: ImageButton
     private lateinit var btnCheck: Button
+    private lateinit var backButton: ImageButton
 
     private var correctAnswer: String = ""
     private var explanation: String = ""
@@ -88,6 +89,8 @@ class TestActivity : AppCompatActivity() {
             val fragment = TestResultBottomSheetFragment.newInstance(userAnswer, correctAnswer, explanation, realVideoId, videoTitle)
             fragment.show(supportFragmentManager, "resultSheet")
         }
+
+        backButton.setOnClickListener { finish() }
     }
 
     private fun showInputDialog() {
