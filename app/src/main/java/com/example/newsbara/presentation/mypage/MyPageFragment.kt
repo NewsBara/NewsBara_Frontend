@@ -133,7 +133,6 @@ class MyPageFragment : Fragment() {
                 .show()
         }
 
-        // 닉네임 수정
         val editButton = view.findViewById<ImageView>(R.id.profileImg)
         editButton.setOnClickListener {
             showEditNameDialog()
@@ -149,7 +148,6 @@ class MyPageFragment : Fragment() {
             myPageViewModel.logout()
         }
 
-        // 로그아웃 상태 observe
         lifecycleScope.launchWhenStarted {
             myPageViewModel.logoutResult.collect { result ->
                 when (result) {

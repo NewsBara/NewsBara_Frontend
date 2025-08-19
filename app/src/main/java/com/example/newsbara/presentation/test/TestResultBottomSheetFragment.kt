@@ -92,18 +92,12 @@ class TestResultBottomSheetFragment : BottomSheetDialogFragment() {
                                         Snackbar.make(rootView, "${gained}포인트를 획득했어요!", Snackbar.LENGTH_SHORT).show()
                                     }
                                 }
-
                                 is ResultState.Failure -> {
-
                                 }
-
                                 is ResultState.Error -> {
-
                                 }
                                 is ResultState.Loading -> {
-
                                 }
-
                                 else -> Unit
                             }
                         }

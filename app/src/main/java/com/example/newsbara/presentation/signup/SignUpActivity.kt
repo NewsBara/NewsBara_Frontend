@@ -45,7 +45,6 @@ class SignUpActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // 가입 시도 전에 입력값을 보관
             pendingEmail = etEmail.text.toString()
             pendingPassword = etPassword.text.toString()
 
@@ -62,7 +61,6 @@ class SignUpActivity : AppCompatActivity() {
             signUpViewModel.signUpResult.collect { state ->
                 when (state) {
                     is ResultState.Success -> {
-                        // 가입 성공 → 보관해둔 값으로 바로 로그인
                         loginViewModel.login(LoginRequest(pendingEmail, pendingPassword))
                     }
                     is ResultState.Failure -> {

@@ -33,10 +33,10 @@ class HomeViewModel @Inject constructor(
             for (channel in channelNames) {
                 val currentChannel = channel
                 val result = recommendRepository.fetchRecommendedVideos(currentChannel)
-                Log.d("HomeViewModel", "🔵 $channel 추천 API 응답: $result")
+                Log.d("HomeViewModel", "$channel 추천 API 응답: $result")
 
                 if (result is ResultState.Success) {
-                    Log.d("HomeViewModel", "🎯 $channel 추천 영상 수: ${result.data.size}")
+                    Log.d("HomeViewModel", "$channel 추천 영상 수: ${result.data.size}")
 
                     val section = VideoSection(
                         channelName = channel,

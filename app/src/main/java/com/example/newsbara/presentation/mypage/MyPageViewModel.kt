@@ -39,13 +39,6 @@ class MyPageViewModel @Inject constructor(
     val myPageInfo: StateFlow<MyPageInfo?> = _myPageInfo
 
     private val _myPageInfoResult = MutableStateFlow<ResultState<MyPageInfo>>(ResultState.Idle)
-    val myPageInfoResult: StateFlow<ResultState<MyPageInfo>> = _myPageInfoResult
-
-    private val _badgeInfo = MutableStateFlow<BadgeInfo?>(null)
-    val badgeInfo: StateFlow<BadgeInfo?> = _badgeInfo
-
-    private val _pointResult = MutableLiveData<ResultState<PointResult>>()
-    val pointResult: LiveData<ResultState<PointResult>> get() = _pointResult
 
     private val _badgeInfoResult = MutableStateFlow<ResultState<BadgeInfo>>(ResultState.Idle)
     val badgeInfoResult: StateFlow<ResultState<BadgeInfo>> = _badgeInfoResult
@@ -184,7 +177,6 @@ class MyPageViewModel @Inject constructor(
             try {
                 authRepository.deleteUser()
 
-                // 토큰 삭제
                 app.getSharedPreferences("auth", Context.MODE_PRIVATE)
                     .edit()
                     .remove("accessToken")

@@ -61,7 +61,6 @@ class StatsViewModel @Inject constructor(
             category = item.category,
             status = next
         )
-        Log.d("StatsViewModel", "saveHistory 호출: videoId=${req.videoId}, status=${req.status}")
 
         viewModelScope.launch {
             when (val r = myPageRepository.saveHistory(req)) {

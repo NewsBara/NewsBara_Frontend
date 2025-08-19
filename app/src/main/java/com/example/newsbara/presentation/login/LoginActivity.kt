@@ -47,7 +47,6 @@ class LoginActivity : AppCompatActivity() {
             viewModel.loginResult.collect { result ->
                 when (result) {
                     is ResultState.Success -> {
-                        // 🔥 여기서 accessToken을 SharedPreferences에 저장!
                         val accessToken = result.data.accessToken
 
                         getSharedPreferences("auth", MODE_PRIVATE)

@@ -27,7 +27,7 @@ class DictionaryActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: DictionaryAdapter
 
-    private lateinit var realVideoId: String // 실제 영상 ID
+    private lateinit var realVideoId: String
     private lateinit var videoTitle: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
