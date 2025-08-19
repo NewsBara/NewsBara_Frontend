@@ -15,6 +15,7 @@ import com.example.newsbara.R
 import com.example.newsbara.presentation.video.VideoActivity
 import com.example.newsbara.adapter.VideoSectionAdapter
 import com.example.newsbara.data.model.history.HistoryItem
+import com.example.newsbara.presentation.common.RealId
 import com.example.newsbara.presentation.mypage.MyPageViewModel
 import com.example.newsbara.presentation.mypage.stats.StatsViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -73,17 +74,19 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun handleVideoClick(video: HistoryItem) {
+        val videoId = RealId.realVideoId
+        val realVideoId = video.videoId
 
         statsViewModel.saveWatchedHistory(video) { success ->
             if (success) {
-                Log.d("HomeActivity", "✅ saveHistory 완료: ${video.videoId}")
+                Log.d("HomeActivity", "✅ saveHistory 완료: ${realVideoId}")
             } else {
                 Log.e("HomeActivity", "❌ saveHistory 실패")
             }
         }
 
         val intent = Intent(this, VideoActivity::class.java).apply {
-            putExtra("videoId", video.videoId)
+            putExtra("videoId", realVideoId)
             putExtra("videoTitle", video.title)
         }
         startActivity(intent)

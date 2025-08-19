@@ -19,6 +19,7 @@ import com.example.newsbara.R
 import com.example.newsbara.SharedViewModel
 import com.example.newsbara.adapter.StatsAdapter
 import com.example.newsbara.data.model.history.HistoryItem
+import com.example.newsbara.presentation.common.RealId
 import com.example.newsbara.presentation.shadowing.ShadowingActivity
 import com.example.newsbara.presentation.test.TestActivity
 import com.example.newsbara.presentation.video.VideoActivity
@@ -60,6 +61,7 @@ class StatsFragment : Fragment() {
     }
 
     private fun handleContinueClick(item: HistoryItem) {
+        val videoId = RealId.realVideoId
         statsViewModel.updateHistoryStatus(item) { updated ->
             if (updated == null) {
                 Toast.makeText(requireContext(), "모든 단계를 완료했어요!", Toast.LENGTH_SHORT).show()
@@ -74,7 +76,8 @@ class StatsFragment : Fragment() {
                 "COMPLETED" -> Intent(requireContext(), VideoActivity::class.java)
                 else -> null
             }?.apply {
-                putExtra("videoId", "1iiCkCokunI")  // updated.videoId
+                putExtra("videoId", videoId)
+                putExtra("realVideoId", updated.videoId)
                 putExtra("videoTitle", updated.title)
             }
 

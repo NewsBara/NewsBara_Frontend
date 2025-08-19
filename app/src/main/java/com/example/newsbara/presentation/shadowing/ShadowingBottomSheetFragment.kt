@@ -33,6 +33,8 @@ import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.newsbara.data.model.history.HistoryItem
+import com.example.newsbara.presentation.common.RealId
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
@@ -54,6 +56,7 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var ivStateIcon: ImageView
     private lateinit var audioRecord: AudioRecord
     private lateinit var recordedFile: File
+    private lateinit var realVideoId: String
     private var isRecording = false
 
     private val sampleRate = 16000
@@ -66,6 +69,8 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_shadowing, container, false)
+        realVideoId = requireActivity().intent.getStringExtra("videoId") ?: ""
+        val videoId = RealId.realVideoId
 
         tvOriginSentence = view.findViewById(R.id.tvOriginSentence)
         tvUserSentence = view.findViewById(R.id.tvUserSentence)
@@ -90,12 +95,13 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         }
 
         btnContinue.setOnClickListener {
+
             if (viewModel.hasNextLine()) {
                 viewModel.nextLine()
                 resetUI()
                 showCurrentSentence()
             } else {
-                startTestActivity()
+                startTestActivity(realVideoId)
             }
         }
 
@@ -109,7 +115,8 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
             try {
                 audioRecord.stop()
                 audioRecord.release()
-            } catch (_: Exception) { }
+            } catch (_: Exception) {
+            }
         }
     }
 
@@ -235,7 +242,6 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
 
-
     private fun checkAndRequestPermission() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO)
             != PackageManager.PERMISSION_GRANTED
@@ -247,6 +253,7 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
             )
         }
     }
+
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     private fun startRecording() {
         val bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)
@@ -286,32 +293,23 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
 
-    private fun startTestActivity() {
-        val videoId = requireActivity().intent.getStringExtra("videoId") ?: return
+    private fun startTestActivity(realVideoId: String) {
+        val item = statsViewModel.historyList.value.firstOrNull {
+            it.videoId == realVideoId
+        }
 
-        statsViewModel.fetchHistory()
+        if (item == null) {
+            Toast.makeText(requireContext(), "히스토리 항목을 찾을 수 없습니다", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        lifecycleScope.launchWhenStarted {
-            statsViewModel.historyList.collect { list ->
-                val item = list.firstOrNull { it.videoId == videoId }
-                if (item != null) {
-                    statsViewModel.updateHistoryStatus(item) {
-
-                        val intent = Intent(requireContext(), TestActivity::class.java).apply {
-                            putExtra("videoId", videoId)
-                            putExtra("videoTitle", item.title)
-                        }
-                        startActivity(intent)
-                        dismiss()
-                    }
-                } else {
-                    val intent = Intent(requireContext(), TestActivity::class.java).apply {
-                        putExtra("videoId", videoId)
-                    }
-                    startActivity(intent)
-                    dismiss()
-                }
+        statsViewModel.updateHistoryStatus(item) {
+            val intent = Intent(requireContext(), TestActivity::class.java).apply {
+                putExtra("videoId", realVideoId)
+                putExtra("videoTitle", item.title)
             }
+            startActivity(intent)
+            dismiss()
         }
     }
 }

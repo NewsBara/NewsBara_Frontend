@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.newsbara.R
 import com.example.newsbara.adapter.DictionaryAdapter
+import com.example.newsbara.presentation.common.RealId
 import com.example.newsbara.presentation.common.ResultState
 import com.example.newsbara.presentation.home.HomeActivity
 import com.example.newsbara.presentation.mypage.stats.StatsViewModel
@@ -25,11 +26,21 @@ class DictionaryActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: DictionaryAdapter
-    private lateinit var videoId: String
+
+    private lateinit var realVideoId: String // 실제 영상 ID
+    private lateinit var videoTitle: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dictionary)
+
+        realVideoId = intent.getStringExtra("videoId") ?: run {
+            Toast.makeText(this, "videoId 없음", Toast.LENGTH_SHORT).show()
+            finish(); return
+        }
+        videoTitle = intent.getStringExtra("videoTitle") ?: ""
+
+        val videoId = RealId.realVideoId
 
         findViewById<ImageButton>(R.id.backButton).setOnClickListener {
             startActivity(Intent(this, TestActivity::class.java).apply {
@@ -42,7 +53,7 @@ class DictionaryActivity : AppCompatActivity() {
 
             lifecycleScope.launchWhenStarted {
                 statsViewModel.historyList.collect { list ->
-                    val item = list.firstOrNull { it.videoId == videoId }
+                    val item = list.firstOrNull { it.videoId == realVideoId }
                     if (item != null) {
                         statsViewModel.updateHistoryStatus(item) {
 
@@ -63,7 +74,6 @@ class DictionaryActivity : AppCompatActivity() {
         adapter = DictionaryAdapter(emptyList())
         recyclerView.adapter = adapter
 
-        val videoId = intent.getStringExtra("videoId")
         if (videoId.isNullOrBlank()) {
             Toast.makeText(this, "videoId 없음", Toast.LENGTH_SHORT).show()
             finish(); return

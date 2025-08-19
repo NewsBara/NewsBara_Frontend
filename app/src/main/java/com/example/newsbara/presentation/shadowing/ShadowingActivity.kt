@@ -11,6 +11,7 @@ import android.widget.ImageButton
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.newsbara.R
+import com.example.newsbara.presentation.common.RealId
 import com.example.newsbara.presentation.common.ResultState
 import com.example.newsbara.presentation.mypage.stats.StatsViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,7 +27,8 @@ class ShadowingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_shadowing)
 
-        val videoId = intent.getStringExtra("videoId") ?: return
+        val realVideoId = intent.getStringExtra("videoId") ?: return
+        val videoId = RealId.realVideoId
 
         recyclerView = findViewById(R.id.rvSentence)
         recyclerView.layoutManager = LinearLayoutManager(this)

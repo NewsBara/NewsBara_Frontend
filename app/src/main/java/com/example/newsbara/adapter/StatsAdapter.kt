@@ -47,10 +47,11 @@ class StatsAdapter(
         // 진행 상태
         holder.progress.text = when (historyItem.status) {
             "WATCHED" -> "1/4"
-            "SHADOWING" -> "2/4"  // 예시
-            "SUMMARY" -> "3/4"
+            "SHADOWING" -> "2/4"
+            "TEST" -> "3/4"
+            "WORD" -> "4/4"
             "COMPLETE" -> "4/4"
-            else -> "0/4"
+            else -> "4/4"
         }
 
         // 버튼 클릭 시 처리

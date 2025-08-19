@@ -19,6 +19,8 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.MultipartBody
 import androidx.lifecycle.viewModelScope
+import com.example.newsbara.data.model.mypage.PointRequest
+import com.example.newsbara.data.model.mypage.PointResult
 import com.example.newsbara.data.model.mypage.UpdateNameRequest
 import com.example.newsbara.data.model.mypage.UpdateNameResponse
 import com.example.newsbara.domain.repository.AuthRepository
@@ -29,6 +31,7 @@ import java.io.File
 class MyPageViewModel @Inject constructor(
     private val repository: MyPageRepository,
     private val authRepository: AuthRepository,
+    private val myPageRepository: MyPageRepository,
     private val app: Application
 ) : ViewModel()  {
 
@@ -40,6 +43,9 @@ class MyPageViewModel @Inject constructor(
 
     private val _badgeInfo = MutableStateFlow<BadgeInfo?>(null)
     val badgeInfo: StateFlow<BadgeInfo?> = _badgeInfo
+
+    private val _pointResult = MutableLiveData<ResultState<PointResult>>()
+    val pointResult: LiveData<ResultState<PointResult>> get() = _pointResult
 
     private val _badgeInfoResult = MutableStateFlow<ResultState<BadgeInfo>>(ResultState.Idle)
     val badgeInfoResult: StateFlow<ResultState<BadgeInfo>> = _badgeInfoResult
@@ -75,6 +81,28 @@ class MyPageViewModel @Inject constructor(
                     _nameUpdateResult.value = result
                 }
 
+                else -> Unit
+            }
+        }
+    }
+
+    fun updatePoint(isCorrect: Boolean) {
+        viewModelScope.launch {
+            when (val result = myPageRepository.updatePoint(PointRequest(isCorrect))) {
+                is ResultState.Success -> {
+                    val updated = result.data
+                    _myPageInfo.value = _myPageInfo.value?.copy(
+                        point = updated.point,
+                        badgeName = updated.badgeName
+                    )
+                    Log.d("Point", "✅ 포인트: ${updated.point}, 뱃지: ${updated.badgeName}")
+                }
+                is ResultState.Failure -> {
+                    Log.e("Point", "❌ 실패: ${result.message}")
+                }
+                is ResultState.Error -> {
+                    Log.e("Point", "❌ 예외 발생: ${result.exception}")
+                }
                 else -> Unit
             }
         }

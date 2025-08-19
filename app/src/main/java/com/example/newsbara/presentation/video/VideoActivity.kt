@@ -23,11 +23,13 @@ import com.example.newsbara.data.model.youtube.getClickableSpannable
 import com.example.newsbara.data.model.youtube.getHighlightedText
 import com.example.newsbara.data.model.youtube.getStartMillis
 import com.example.newsbara.domain.model.ScriptLine
+import com.example.newsbara.presentation.common.RealId
 import com.example.newsbara.presentation.common.ResultState
 import com.example.newsbara.presentation.dictionary.DictionaryActivity
 import com.example.newsbara.presentation.mypage.stats.StatsViewModel
 import com.example.newsbara.presentation.shadowing.ShadowingActivity
 import com.example.newsbara.presentation.test.TestActivity
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
@@ -51,13 +53,13 @@ class VideoActivity : AppCompatActivity() {
     private var currentTimeSec: Float = 0f
     private var isTranslatedMode = false
 
-    private lateinit var videoId: String
     private lateinit var videoTitle: String
     private var subtitleList: List<ScriptLine> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video)
+        val videoId = RealId.realVideoId
 
         youtubePlayerView = findViewById(R.id.youtubePlayerView)
         fullSubtitleTextView = findViewById(R.id.subtitleText)
@@ -65,7 +67,6 @@ class VideoActivity : AppCompatActivity() {
         val titleTextView = findViewById<TextView>(R.id.videoTitle)
         lifecycle.addObserver(youtubePlayerView)
 
-        videoId = intent.getStringExtra("videoId")?.trim().orEmpty()
         Log.d("ScriptFetch", "📡 요청할 videoId: [$videoId]")
         videoTitle = intent.getStringExtra("videoTitle").orEmpty()
 
@@ -117,18 +118,21 @@ class VideoActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.startShadowingButton).setOnClickListener {
-            val item = statsViewModel.historyList.value.firstOrNull()
+            val realVideoId = intent.getStringExtra("videoId") ?: return@setOnClickListener
+            val item = statsViewModel.historyList.value.firstOrNull {
+                it.videoId == realVideoId
+            }
             if (item != null) {
                 statsViewModel.updateHistoryStatus(item) {
                     startActivity(Intent(this@VideoActivity, ShadowingActivity::class.java).apply {
-                        putExtra("videoId", videoId)
+                        putExtra("videoId", realVideoId)
                         putExtra("videoTitle", item.title)
                     })
                     finish()
                 }
             } else {
                 startActivity(Intent(this@VideoActivity, ShadowingActivity::class.java).apply {
-                    putExtra("videoId", videoId)
+                    putExtra("videoId", realVideoId)
                     putExtra("videoTitle", "No Title")
                 })
                 finish()
@@ -139,12 +143,23 @@ class VideoActivity : AppCompatActivity() {
 
         youtubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
             override fun onReady(player: YouTubePlayer) {
-                player.cueVideo(videoId, 0f)
+                player.loadVideo(videoId, 0f)
                 player.addListener(object : AbstractYouTubePlayerListener() {
                     override fun onCurrentSecond(p: YouTubePlayer, second: Float) {
                         currentTimeSec = second
                     }
+
+                    override fun onError(youTubePlayer: YouTubePlayer, error: PlayerConstants.PlayerError) {
+                        if (error == PlayerConstants.PlayerError.VIDEO_NOT_PLAYABLE_IN_EMBEDDED_PLAYER) {
+                            Toast.makeText(this@VideoActivity, "이 영상은 앱에서 재생할 수 없습니다.", Toast.LENGTH_LONG).show()
+                        } else {
+                            Log.e("YouTubePlayerError", "기타 재생 오류: $error")
+                        }
+                    }
                 })
+            }
+            override fun onError(youTubePlayer: YouTubePlayer, error: PlayerConstants.PlayerError) {
+                Log.e("YouTubePlayerError", "초기화 실패 또는 로딩 오류: $error")
             }
         })
     }

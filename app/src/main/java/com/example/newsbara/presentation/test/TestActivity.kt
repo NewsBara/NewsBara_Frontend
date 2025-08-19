@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.newsbara.MyApp
 import com.example.newsbara.R
 import com.example.newsbara.SharedViewModel
+import com.example.newsbara.presentation.common.RealId
 import com.example.newsbara.presentation.util.ResultState
 
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,6 +33,9 @@ class TestActivity : AppCompatActivity() {
     private var correctAnswer: String = ""
     private var explanation: String = ""
 
+    private lateinit var realVideoId: String
+    private lateinit var videoTitle: String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test)
@@ -41,8 +45,9 @@ class TestActivity : AppCompatActivity() {
         btnInput = findViewById(R.id.btnInput)
         btnCheck = findViewById(R.id.checkAnswersButton)
 
-        val videoId = intent.getStringExtra("videoId") ?: ""
-
+        realVideoId = intent.getStringExtra("videoId") ?: ""
+        videoTitle = intent.getStringExtra("videoTitle") ?: "Untitled"
+        val videoId = RealId.realVideoId
         viewModel.loadTest(videoId)
 
         lifecycleScope.launchWhenStarted {
@@ -80,7 +85,7 @@ class TestActivity : AppCompatActivity() {
 
         btnCheck.setOnClickListener {
             val userAnswer = tvAnswer.text.toString().trim()
-            val fragment = TestResultBottomSheetFragment.newInstance(userAnswer, correctAnswer, explanation, videoId)
+            val fragment = TestResultBottomSheetFragment.newInstance(userAnswer, correctAnswer, explanation, realVideoId, videoTitle)
             fragment.show(supportFragmentManager, "resultSheet")
         }
     }

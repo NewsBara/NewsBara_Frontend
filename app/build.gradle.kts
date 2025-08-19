@@ -77,14 +77,13 @@ fun getLocalProperty(key: String): String {
         implementation("com.google.dagger:hilt-android:2.48")
         kapt("com.google.dagger:hilt-compiler:2.48")
 
-// Hilt ViewModel
-        // 삭제 후 유지해야 할 것
+
         implementation("com.google.dagger:hilt-android:2.48")
         kapt("com.google.dagger:hilt-compiler:2.48")
         implementation("androidx.hilt:hilt-navigation-fragment:1.0.0") // 이건 OK
 
 
-// Hilt Navigation (선택, Navigation 사용 시)
+// Hilt Navigation
         implementation("androidx.hilt:hilt-navigation-fragment:1.0.0")
 
         // OkHttp + Logging
