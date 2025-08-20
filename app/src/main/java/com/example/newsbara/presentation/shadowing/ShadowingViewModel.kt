@@ -21,15 +21,12 @@ class ShadowingViewModel @Inject constructor(
     private val shadowingRepository: ShadowingRepository
 ) : ViewModel() {
 
-    // 전체 스크립트 상태
     private val _scriptLines = MutableStateFlow<ResultState<List<ScriptLine>>>(ResultState.Loading)
     val scriptLines: StateFlow<ResultState<List<ScriptLine>>> = _scriptLines
 
-    // 현재 문장 인덱스
     private val _currentIndex = MutableStateFlow(0)
     val currentIndex: StateFlow<Int> = _currentIndex
 
-    // 발음 평가 결과
     private val _pronunciationResult = MutableStateFlow<ResultState<PronunciationDto>>(ResultState.Idle)
     val pronunciationResult: StateFlow<ResultState<PronunciationDto>> = _pronunciationResult
 

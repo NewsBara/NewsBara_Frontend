@@ -14,6 +14,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import kotlinx.coroutines.flow.collectLatest
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
@@ -35,6 +36,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.newsbara.data.model.history.HistoryItem
 import com.example.newsbara.presentation.common.RealId
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
@@ -86,16 +89,25 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         showCurrentSentence()
 
         btnMic.setOnClickListener {
-            resetUI()
-            tvState.text = "녹음 중..."
-            startRecording()
-            Handler(Looper.getMainLooper()).postDelayed({
+            if (!isRecording) {
+                // 녹음 시작
+                resetUI()
+                tvState.text = "녹음 중..."
+                startRecording()
+
+                isRecording = true
+                btnMic.setImageResource(R.drawable.ic_pause)
+            } else {
+                // 녹음 중지 및 평가 시작
                 stopRecordingAndEvaluate()
-            }, 5500)
+
+                isRecording = false
+                btnMic.setImageResource(R.drawable.mike)
+            }
         }
 
         btnContinue.setOnClickListener {
-
+            viewModel.resetPronunciationResult()
             if (viewModel.hasNextLine()) {
                 viewModel.nextLine()
                 resetUI()
@@ -111,11 +123,15 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         isRecording = false
+
         if (::audioRecord.isInitialized) {
             try {
-                audioRecord.stop()
+                if (audioRecord.recordingState == AudioRecord.RECORDSTATE_RECORDING) {
+                    audioRecord.stop()
+                }
                 audioRecord.release()
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.e("AudioRecord", "release 중 오류: ${e.message}", e)
             }
         }
     }
@@ -202,7 +218,7 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
     private fun observePronunciationResult() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.pronunciationResult.collect { result ->
+                viewModel.pronunciationResult.collectLatest { result ->
                     Log.d("ShadowingFragment", "결과 상태 변경됨: $result")
                     when (result) {
                         is ResultState.Success -> {
@@ -233,7 +249,7 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
 
                         }
 
-                        ResultState.Idle -> {
+                        is ResultState.Idle -> {
                         }
                     }
                 }
@@ -285,7 +301,7 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
 
             val script = viewModel.getCurrentLine()?.sentence ?: return@Thread
 
-            Handler(Looper.getMainLooper()).post {
+            requireActivity().runOnUiThread {
                 viewModel.evaluatePronunciation(script, recordedFile)
             }
 
