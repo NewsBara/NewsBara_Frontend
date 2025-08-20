@@ -9,9 +9,9 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:background="#6B5CD9"
-        android:padding="12dp">
+        android:padding="22dp">
 
         <ImageButton
             android:id="@+id/backButton"
@@ -77,7 +77,7 @@
                     android:text="3-문장 요약"
                     android:textSize="19sp"
                     android:textStyle="bold"
-                    android:paddingBottom="8dp"/>
+                    android:paddingBottom="9dp"/>
 
                 <TextView
                     android:id="@+id/tvSummary"
@@ -121,10 +121,11 @@
             <Button
                 android:id="@+id/checkAnswersButton"
                 android:layout_width="match_parent"
-                android:layout_height="45dp"
+                android:layout_height="52dp"
                 android:text="Check Answers"
                 android:textColor="#FFFFFF"
-                android:textSize="18sp"
+                android:textSize="19sp"
+                android:layout_marginTop="18dp"
                 android:background="@drawable/btn_next_background"/>
         </LinearLayout>
     </ScrollView>

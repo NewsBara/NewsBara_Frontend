@@ -9,9 +9,9 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:background="#6B5CD9"
-        android:padding="12dp">
+        android:padding="22dp">
 
         <ImageButton
             android:id="@+id/btnBack"
@@ -71,7 +71,7 @@
     <Button
         android:id="@+id/startShadowingButton"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="54dp"
         android:text="Start "
         android:textColor="#FFFFFF"
         android:textSize="19sp"

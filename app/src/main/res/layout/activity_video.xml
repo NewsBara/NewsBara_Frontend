@@ -9,9 +9,9 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:background="#6B5CD9"
-        android:padding="12dp">
+        android:padding="22dp">
 
         <ImageButton
             android:id="@+id/backButton"
@@ -49,7 +49,7 @@
         android:layout_marginStart="14dp"
         android:layout_marginEnd="290dp"
         android:progressTint="#8E82F1"
-        android:layout_marginBottom="12dp" />
+        android:layout_marginBottom="10dp" />
 
     <TextView
         android:id="@+id/videoTitle"
@@ -151,27 +151,12 @@
         android:layout_marginHorizontal="10dp"
         android:layout_marginBottom="8dp"
         android:visibility="visible">
-
-        <Button
-            android:id="@+id/btnSkipToTest"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Skip to Test" />
-
-        <Button
-            android:id="@+id/btnSkipToDict"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Skip to Dictionary"
-            android:layout_marginStart="8dp" />
     </LinearLayout>
 
     <Button
         android:id="@+id/startShadowingButton"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="54dp"
         android:text="Start Shadowing"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
