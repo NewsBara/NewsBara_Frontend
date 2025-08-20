@@ -54,11 +54,11 @@
     <Button
         android:id="@+id/btnAdd"
         android:layout_width="72dp"
-        android:layout_height="36dp"
+        android:layout_height="35dp"
         android:text="Add"
         android:textSize="13sp"
         android:textColor="#FFFFFF"
         android:backgroundTint="#6B5CD9"
-        android:background="@drawable/bg_add_button"
+        android:background="@drawable/btn_next_background"
         android:layout_marginStart="8dp"/>
 </LinearLayout>

@@ -58,19 +58,21 @@
         <Button
             android:id="@+id/btnAccept"
             android:layout_width="wrap_content"
-            android:layout_height="36dp"
+            android:layout_height="35dp"
             android:text="Accept"
             android:textColor="#FFFFFF"
-            android:background="@drawable/bg_accept_button"
-            android:layout_marginEnd="6dp" />
+            android:textSize="13dp"
+            android:background="@drawable/btn_next_background"
+            android:layout_marginEnd="4dp" />
 
         <Button
             android:id="@+id/btnReject"
             android:layout_width="wrap_content"
-            android:layout_height="36dp"
+            android:layout_height="35dp"
+            android:textSize="13dp"
             android:text="Reject"
             android:textColor="#FFFFFF"
-            android:background="@drawable/bg_reject_button"
+            android:background="@drawable/btn_next_background"
             android:backgroundTint="@null"/>
     </LinearLayout>
 </LinearLayout>
