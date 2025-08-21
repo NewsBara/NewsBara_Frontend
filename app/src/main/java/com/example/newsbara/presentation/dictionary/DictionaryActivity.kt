@@ -2,11 +2,13 @@ package com.example.newsbara.presentation.dictionary
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,6 +20,8 @@ import com.example.newsbara.presentation.home.HomeActivity
 import com.example.newsbara.presentation.mypage.stats.StatsViewModel
 import com.example.newsbara.presentation.test.TestActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+
 @AndroidEntryPoint
 class DictionaryActivity : AppCompatActivity() {
 
@@ -52,7 +56,7 @@ class DictionaryActivity : AppCompatActivity() {
             statsViewModel.fetchHistory()
 
             lifecycleScope.launchWhenStarted {
-                statsViewModel.historyList.collect { list ->
+                statsViewModel.historyList.collectLatest { list ->
                     val item = list.firstOrNull { it.videoId == realVideoId }
                     if (item != null) {
                         statsViewModel.updateHistoryStatus(item) {
@@ -63,7 +67,8 @@ class DictionaryActivity : AppCompatActivity() {
                             finish()
                         }
                     } else {
-                        Toast.makeText(this@DictionaryActivity, "히스토리를 찾을 수 없습니다", Toast.LENGTH_SHORT).show()
+                        Log.e("DictionaryActivity", "히스토리 데이터를 찾을 수 없습니다.")
+
                     }
                 }
             }

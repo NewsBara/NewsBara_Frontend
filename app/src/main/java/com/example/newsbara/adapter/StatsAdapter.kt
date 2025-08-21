@@ -41,20 +41,17 @@ class StatsAdapter(
             .error(R.drawable.ic_error)
             .into(holder.thumbnail)
 
-        // 제목 표시
         holder.title.text = historyItem.title
 
-        // 진행 상태
         holder.progress.text = when (historyItem.status) {
             "WATCHED" -> "1/4"
-            "SHADOWING" -> "2/4"
-            "TEST" -> "3/4"
-            "WORD" -> "4/4"
+            "SHADOWING" -> "1/4"
+            "TEST" -> "2/4"
+            "WORD" -> "3/4"
             "COMPLETE" -> "4/4"
             else -> "4/4"
         }
 
-        // 버튼 클릭 시 처리
         holder.btnContinue.setOnClickListener {
             onContinueClicked(historyItem)
         }

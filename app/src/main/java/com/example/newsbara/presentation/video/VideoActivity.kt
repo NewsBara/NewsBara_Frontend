@@ -75,20 +75,6 @@ class VideoActivity : AppCompatActivity() {
             return
         }
 
-        findViewById<Button>(R.id.btnSkipToTest).setOnClickListener {
-            startActivity(
-                Intent(this, TestActivity::class.java)
-                    .putExtra("videoId", videoId)
-            )
-        }
-
-        findViewById<Button>(R.id.btnSkipToDict).setOnClickListener {
-            startActivity(
-                Intent(this, DictionaryActivity::class.java)
-                    .putExtra("videoId", videoId)
-            )
-        }
-
         titleTextView.text = videoTitle
         fullSubtitleTextView.movementMethod = LinkMovementMethod.getInstance()
 

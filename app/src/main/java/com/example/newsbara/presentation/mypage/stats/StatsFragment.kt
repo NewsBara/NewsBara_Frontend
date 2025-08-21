@@ -62,26 +62,21 @@ class StatsFragment : Fragment() {
 
     private fun handleContinueClick(item: HistoryItem) {
         val videoId = RealId.realVideoId
-        statsViewModel.updateHistoryStatus(item) { updated ->
-            if (updated == null) {
-                Toast.makeText(requireContext(), "모든 단계를 완료했어요!", Toast.LENGTH_SHORT).show()
-                return@updateHistoryStatus
-            }
 
-            val intent = when (updated.status.uppercase()) {
-                "WATCHED"   -> Intent(requireContext(), VideoActivity::class.java)
-                "SHADOWING" -> Intent(requireContext(), ShadowingActivity::class.java)
-                "TEST"      -> Intent(requireContext(), TestActivity::class.java)
-                "WORD"      -> Intent(requireContext(), DictionaryActivity::class.java)
-                "COMPLETED" -> Intent(requireContext(), VideoActivity::class.java)
-                else -> null
-            }?.apply {
-                putExtra("videoId", videoId)
-                putExtra("realVideoId", updated.videoId)
-                putExtra("videoTitle", updated.title)
-            }
+        val intent = when (item.status.uppercase()) {
+            "WATCHED"   -> Intent(requireContext(), VideoActivity::class.java)
+            "SHADOWING" -> Intent(requireContext(), ShadowingActivity::class.java)
+            "TEST"      -> Intent(requireContext(), TestActivity::class.java)
+            "WORD"      -> Intent(requireContext(), DictionaryActivity::class.java)
+            "COMPLETED" -> Intent(requireContext(), VideoActivity::class.java)
+            else -> null
+        }?.apply {
+            putExtra("videoId", RealId.realVideoId)
+            putExtra("realVideoId", item.videoId)
+            putExtra("videoTitle", item.title)
+        }
 
-            intent?.let { startActivity(it) }
+        intent?.let { startActivity(it) }
         }
     }
-}
+

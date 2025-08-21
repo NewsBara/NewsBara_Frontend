@@ -110,6 +110,7 @@ class TestResultBottomSheetFragment : BottomSheetDialogFragment() {
                             dismiss()
                         }
                     } else {
+                        Log.e("TestResult", "히스토리 업데이트 실패")
                     }
                 }
             }

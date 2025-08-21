@@ -45,6 +45,7 @@ class TestActivity : AppCompatActivity() {
         tvAnswer = findViewById(R.id.tvAnswer)
         btnInput = findViewById(R.id.btnInput)
         btnCheck = findViewById(R.id.checkAnswersButton)
+        backButton = findViewById(R.id.backButton)
 
         realVideoId = intent.getStringExtra("videoId") ?: ""
         videoTitle = intent.getStringExtra("videoTitle") ?: "Untitled"

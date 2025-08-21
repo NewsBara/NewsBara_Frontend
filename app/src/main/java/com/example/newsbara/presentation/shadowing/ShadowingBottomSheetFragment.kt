@@ -90,7 +90,6 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
 
         btnMic.setOnClickListener {
             if (!isRecording) {
-                // 녹음 시작
                 resetUI()
                 tvState.text = "녹음 중..."
                 startRecording()
@@ -98,7 +97,6 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
                 isRecording = true
                 btnMic.setImageResource(R.drawable.ic_pause)
             } else {
-                // 녹음 중지 및 평가 시작
                 stopRecordingAndEvaluate()
 
                 isRecording = false
@@ -107,7 +105,6 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         }
 
         btnContinue.setOnClickListener {
-            viewModel.resetPronunciationResult()
             if (viewModel.hasNextLine()) {
                 viewModel.nextLine()
                 resetUI()
@@ -238,6 +235,11 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
 
                             btnMic.visibility = View.GONE
                             btnContinue.visibility = View.VISIBLE
+
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                viewModel.resetPronunciationResult()
+                                Log.d("Pronunciation", "✅ UI 반영 후 Idle 상태로 초기화됨")
+                            }, 1500)
                         }
 
                         is ResultState.Failure -> {
@@ -246,10 +248,10 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
                         }
 
                         is ResultState.Loading -> {
-
                         }
 
                         is ResultState.Idle -> {
+                            Log.d("Pronunciation", "Idle 상태 - 평가가 요청되지 않았거나 중간에 초기화됨")
                         }
                     }
                 }
