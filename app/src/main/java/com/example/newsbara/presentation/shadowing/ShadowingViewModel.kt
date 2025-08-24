@@ -65,6 +65,7 @@ class ShadowingViewModel @Inject constructor(
             _pronunciationResult.value = ResultState.Loading
             try {
                 val result = shadowingRepository.evaluatePronunciation(script, audioFile)
+                Log.d("evaluate", "✅ evaluatePronunciation 완료됨: $result")
                 _pronunciationResult.value = ResultState.Success(result.getOrThrow())
             } catch (e: Exception) {
                 Log.e("ShadowingViewModel", "발음 평가 실패 detail: ${e.message}", e)

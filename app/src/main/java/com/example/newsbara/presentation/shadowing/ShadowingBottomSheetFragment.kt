@@ -109,6 +109,7 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
                 viewModel.nextLine()
                 resetUI()
                 showCurrentSentence()
+                viewModel.resetPronunciationResult()
             } else {
                 startTestActivity(realVideoId)
             }
@@ -150,7 +151,6 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
         tvState.text = "버튼을 누른 후 아래 내용을 말하세요."
         btnMic.visibility = View.VISIBLE
         btnContinue.visibility = View.GONE
-        viewModel.resetPronunciationResult()
     }
 
 
@@ -215,7 +215,7 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
     private fun observePronunciationResult() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.pronunciationResult.collectLatest { result ->
+                viewModel.pronunciationResult.collect { result ->
                     Log.d("ShadowingFragment", "결과 상태 변경됨: $result")
                     when (result) {
                         is ResultState.Success -> {
@@ -239,7 +239,7 @@ class ShadowingBottomSheetFragment : BottomSheetDialogFragment() {
                             Handler(Looper.getMainLooper()).postDelayed({
                                 viewModel.resetPronunciationResult()
                                 Log.d("Pronunciation", "✅ UI 반영 후 Idle 상태로 초기화됨")
-                            }, 1500)
+                            }, 3000)
                         }
 
                         is ResultState.Failure -> {
