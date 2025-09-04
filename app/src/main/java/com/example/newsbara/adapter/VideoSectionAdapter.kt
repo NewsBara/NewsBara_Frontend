@@ -36,7 +36,22 @@ class VideoSectionAdapter(
     }
 
     override fun onBindViewHolder(holder: SectionViewHolder, position: Int) {
-        holder.bind(sections[position])
+        val section = sections[position]
+
+        if (position == 0 && section.videos.isNotEmpty()) {
+            val firstVideo = section.videos[0]
+
+            val customizedVideo = firstVideo.copy(
+                title = "The surprising benefits of walking backwards | BBC Global",
+                thumbnail = "https://img.youtube.com/vi/1iiCkCokunI/mqdefault.jpg"
+            )
+
+            val customizedSection = section.copy(videos = listOf(customizedVideo) + section.videos.drop(1))
+
+            holder.bind(customizedSection)
+        } else {
+            holder.bind(section)
+        }
     }
 
     override fun getItemCount(): Int = sections.size

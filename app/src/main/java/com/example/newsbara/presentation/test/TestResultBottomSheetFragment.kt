@@ -88,9 +88,7 @@ class TestResultBottomSheetFragment : BottomSheetDialogFragment() {
                             when (val result = myPageViewModel.updatePoint(isCorrect)) {
                                 is ResultState.Success<PointResult> -> {
                                     val gained = if (isCorrect) 20 else 10
-                                    view?.let { rootView ->
-                                        Snackbar.make(rootView, "${gained}포인트를 획득했어요!", Snackbar.LENGTH_SHORT).show()
-                                    }
+                                    Toast.makeText(requireContext(), "${gained}포인트를 획득했어요!", Toast.LENGTH_SHORT).show()
                                 }
                                 is ResultState.Failure -> {
                                 }
