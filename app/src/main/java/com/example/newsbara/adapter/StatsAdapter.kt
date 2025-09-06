@@ -34,7 +34,7 @@ class StatsAdapter(
     override fun onBindViewHolder(holder: StatsViewHolder, position: Int) {
         val historyItem = items[position]
 
-        val thumbnailUrl = "https://img.youtube.com/vi/${historyItem.videoId}/mqdefault.jpg"
+        val thumbnailUrl = "https://img.youtube.com/vi/1iiCkCokunI/mqdefault.jpg"
         Glide.with(holder.itemView)
             .load(thumbnailUrl)
             .placeholder(R.drawable.placeholder)

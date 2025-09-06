@@ -33,18 +33,15 @@ class OnboardingAdapter(
     override fun onBindViewHolder(h: VH, pos: Int) {
         val ctx = h.itemView.context
 
-        // 드롭다운
         h.dd.setAdapter(ArrayAdapter(ctx, android.R.layout.simple_list_item_1, testTypes))
         h.dd.setText(items[pos].type, false)
         h.dd.setOnItemClickListener { _, _, i, _ ->
             items[pos].type = testTypes[i]
         }
 
-        // 점수
         h.et.setText(items[pos].score)
         h.et.doAfterTextChanged { items[pos].score = it?.toString().orEmpty() }
 
-        // + 버튼: 마지막 행에서만 보이게
         h.btnAdd.visibility = if (pos == items.lastIndex) View.VISIBLE else View.GONE
         h.btnAdd.setOnClickListener { onAddRow() }
     }

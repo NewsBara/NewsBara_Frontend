@@ -36,7 +36,6 @@ class HomeActivity : AppCompatActivity() {
         myPageViewModel.fetchMyPageInfo()
         val profileButton: ImageView = findViewById(R.id.profileButton)
 
-
         lifecycleScope.launchWhenStarted {
             myPageViewModel.myPageInfo.collect { info ->
                 info?.let {
